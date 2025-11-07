@@ -1,0 +1,138 @@
+/* src/MyPage.module.css */
+
+/* 13일차: '마이페이지' 전용 CSS */
+
+/* 1. 기본 레이아웃 (MainLayout의 pageContainer가 부모) */
+.pageContainer {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    background: #ffffff;
+    padding: 1.5rem; /* p-6 */
+    border-radius: 0.5rem;
+    box-sizing: border-box;
+}
+
+/* 2. 탭 네비게이션 */
+.tabNav {
+    display: flex;
+    border-bottom: 2px solid #e5e7eb; /* border-gray-200 */
+    margin-bottom: 1.5rem;
+}
+.tabButton {
+    padding: 0.75rem 1.25rem; /* py-3 px-5 */
+    font-size: 1rem;
+    font-weight: 500;
+    color: #4b5563; /* text-gray-600 */
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease-in-out;
+}
+.tabButton:hover {
+    color: #2563eb;
+}
+.tabButton.active {
+    color: #2563eb; /* text-blue-600 */
+    border-bottom: 2px solid #2563eb;
+}
+
+/* 3. 콘텐츠 영역 */
+.contentArea {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+/* 4. 내 정보 수정 폼 스타일 */
+.form {
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.formTitle {
+    font-size: 1.25rem; /* text-xl */
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #1f2937;
+}
+.formGroup {
+    margin-bottom: 0.5rem;
+}
+.label {
+    display: block;
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+.input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+.input:disabled {
+    background-color: #f3f4f6; /* bg-gray-100 */
+    color: #6b7280;
+}
+.button {
+    margin-top: 1rem;
+    padding: 0.6rem 1rem;
+    background-color: #059669; /* bg-emerald-600 */
+    color: white;
+    font-weight: 700;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.button:hover {
+    background-color: #047857; /* hover:bg-emerald-700 */
+}
+.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 5. 직원 관리 리스트 스타일 */
+.staffContainer {
+    display: flex;
+    flex-direction: column;
+}
+.staffTitle {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #1f2937;
+}
+.table {
+    width: 100%;
+}
+.tableHeader {
+    display: flex;
+    background-color: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0.75rem 0;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+.tableRow {
+    display: flex;
+    padding: 0.75rem 0;
+    font-size: 0.875rem;
+    align-items: center;
+    border-bottom: 1px solid #f3f4f6;
+}
+.col1 { width: 25%; font-weight: 500; color: #1f2937; } /* 이름 */
+.col2 { width: 45%; color: #374151; } /* 이메일 */
+.col3 { width: 30%; color: #6b7280; } /* 가입일 */
+
+.infoText {
+    margin-top: 1.5rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+}

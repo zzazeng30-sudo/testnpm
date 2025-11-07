@@ -1,0 +1,273 @@
+/* src/MapPage.module.css */
+
+/* 9일차: '지도 페이지' 전용 CSS */
+
+/* 1. 뼈대 */
+.pageContainerMap {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  background: #fff;
+  overflow: hidden;
+}
+
+/* 2. 사이드바 (왼쪽) */
+.sidebar {
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border-right: 1px solid #e5e7eb; /* border-gray-200 */
+  transition: all 0.3s ease-in-out;
+  overflow-y: auto;
+  box-sizing: border-box; /* 패딩 포함 */
+}
+.sidebarOpen {
+  width: 24rem; /* w-96 (384px) */
+  padding: 1.5rem; /* p-6 */
+}
+.sidebarClosed {
+  width: 0;
+  padding: 0;
+}
+.sidebarContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* space-y-6 */
+}
+.sidebarTitle {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 700;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+  color: #1f2937; /* text-gray-800 */
+}
+.sidebarEmpty {
+  text-align: center;
+  padding: 3rem 0; /* p-12 */
+  color: #6b7280; /* text-gray-500 */
+}
+
+/* 3. 지도 (오른쪽) */
+.mapSection {
+  flex-grow: 1;
+  position: relative;
+  height: 100%;
+}
+.loadingOverlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(255, 255, 255, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+.loadingOverlay h3 {
+  font-size: 1.25rem;
+  color: #2563eb; /* text-blue-600 */
+  font-weight: 700;
+}
+.map {
+  width: 100%;
+  height: 100%;
+}
+.mapError {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  color: #dc2626; /* text-red-600 */
+  font-weight: 700;
+}
+
+/* 4. 폼 스타일 */
+.formGroup {
+  margin-bottom: 1rem; /* mb-4 */
+}
+.label {
+  display: block;
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  color: #374151; /* text-gray-700 */
+  margin-bottom: 0.25rem; /* mb-1 */
+}
+.input, .textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem; /* p-2 */
+  border: 1px solid #d1d5db; /* border-gray-300 */
+  border-radius: 0.375rem; /* rounded-md */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+  box-sizing: border-box; /* (추가) */
+}
+.input:focus, .textarea:focus {
+  outline: none;
+  border-color: #2563eb; /* focus:border-blue-500 */
+  box-shadow: 0 0 0 2px #dbeafe; /* focus:ring-blue-500 */
+}
+.textarea {
+  height: 7rem; /* h-28 */
+}
+.metaText {
+  font-size: 0.75rem; /* text-xs */
+  color: #6b7280; /* text-gray-500 */
+  margin-bottom: 1rem;
+}
+.buttonGroup {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem; /* gap-2 */
+  margin-bottom: 0.5rem; /* mb-2 */
+}
+.button {
+  flex-grow: 1;
+  padding: 0.5rem 1rem; /* py-2 px-4 */
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500;
+  border-radius: 0.375rem; /* rounded-md */
+  border: none;
+  cursor: pointer;
+}
+.buttonGray {
+  background-color: #6b7280; /* bg-gray-500 */
+  color: white;
+}
+.buttonGray:hover { background-color: #4b5563; }
+.buttonRed {
+  background-color: #dc2626; /* bg-red-600 */
+  color: white;
+}
+.buttonRed:hover { background-color: #b91c1c; }
+.buttonBlue {
+  background-color: #2563eb; /* bg-blue-600 */
+  color: white;
+}
+.buttonBlue:hover { background-color: #1d4ed8; }
+.buttonCyan {
+  width: 100%;
+  margin-top: 0.75rem; /* mt-3 */
+  padding: 0.5rem 1rem;
+  background-color: #0891b2; /* bg-cyan-600 */
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+}
+.buttonCyan:hover { background-color: #0e7490; }
+
+/* ★ 입지 분석 버튼 (buttonPurple) 스타일 추가 */
+.buttonPurple {
+  background-color: #7c3aed; /* bg-violet-600 */
+  color: white;
+}
+.buttonPurple:hover { background-color: #6d28d9; }
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 5. 고객 매칭 폼 */
+.customerMatcher {
+  margin-top: 1.5rem; /* mt-6 */
+  padding-top: 1.5rem; /* pt-6 */
+  border-top: 1px solid #e5e7eb; /* border-gray-200 */
+}
+.sidebarSubtitle {
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 700;
+  color: #1f2937; /* text-gray-800 */
+  margin-bottom: 1rem;
+}
+.linkedListContainer {
+  margin-top: 1.5rem; /* mt-6 */
+}
+.linkedListTitle {
+  font-size: 1rem; /* text-md */
+  font-weight: 700;
+  color: #374151; /* text-gray-700 */
+  margin-bottom: 0.5rem;
+}
+.emptyText {
+  font-size: 0.875rem; /* text-sm */
+  color: #6b7280; /* text-gray-500 */
+}
+.linkedList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* space-y-2 */
+}
+.linkedListItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem; /* p-2 */
+  background-color: #f3f4f6; /* bg-gray-100 */
+  border-radius: 0.375rem; /* rounded-md */
+}
+.linkedListItem span {
+  font-size: 0.875rem;
+  color: #1f2937; /* text-gray-800 */
+}
+.unlinkButton {
+  padding: 0.25rem 0.5rem; /* py-1 px-2 */
+  background-color: #f59e0b; /* bg-yellow-400 */
+  color: black;
+  font-size: 0.75rem; /* text-xs */
+  font-weight: 500;
+  border: none;
+  border-radius: 0.25rem; /* rounded-sm */
+  cursor: pointer;
+}
+.unlinkButton:hover {
+  background-color: #d97706; /* hover:bg-yellow-500 */
+}
+
+/* 6. ★ 모달 스타일 (AI 분석 결과창) 추가 */
+.imModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+}
+.imModal {
+    background: white;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    width: 90%;
+    max-width: 48rem;
+    max-height: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.imModalTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.75rem;
+}
+.imContentScroll {
+    flex-grow: 1;
+    overflow-y: auto;
+    white-space: pre-wrap; /* 마크다운 줄바꿈을 유지합니다 */
+    line-height: 1.6;
+    font-size: 0.95rem;
+    color: #374151;
+}
+.pdfButtonContainer {
+  margin-top: 1rem;
+}

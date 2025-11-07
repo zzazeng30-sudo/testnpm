@@ -1,0 +1,153 @@
+/* 9일차: '메인 레이아웃' 전용 CSS */
+/* (8일차의 index.css 코드를 이 파일로 '이사'시켰습니다) */
+
+/* 1. 레이아웃 뼈대 */
+.layoutContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f3f4f6; /* bg-gray-100 */
+  overflow: hidden;
+}
+
+/* 2. '대메뉴' (Main Menu) 탭 바 스타일 */
+.mainMenuBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem; /* px-6 */
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+  flex-shrink: 0;
+}
+.mainMenuTabs {
+  display: flex;
+}
+.mainMenuTab {
+  padding: 1.25rem 1.25rem; /* py-5 px-5 (8일차 18px -> 1.25rem) */
+  font-size: 1rem; /* text-base (8일차 16px -> 1rem) */
+  font-weight: 700;
+  color: #374151; /* text-gray-700 */
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent; /* (8일차 3px -> 2px) */
+  transition: all 0.2s ease-in-out;
+}
+.mainMenuTab:hover {
+  background-color: #f9fafb; /* bg-gray-50 */
+  color: #2563eb; /* text-blue-600 */
+}
+.mainMenuTab.active {
+  color: #2563eb;
+  border-bottom: 2px solid #2563eb;
+}
+.mainMenuUserInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* gap-4 */
+}
+.mainMenuUserEmail {
+  font-size: 0.875rem; /* text-sm */
+  color: #4b5563; /* text-gray-600 */
+}
+.logoutButton {
+  padding: 0.5rem 1rem; /* py-2 px-4 */
+  background: #dc2626; /* bg-red-600 */
+  color: white;
+  border: none;
+  border-radius: 0.375rem; /* rounded-md */
+  cursor: pointer;
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500;
+}
+.logoutButton:hover {
+  background: #b91c1c; /* hover:bg-red-700 */
+}
+
+/* 3. '상세메뉴' (Sub Menu) 탭 바 스타일 */
+.subMenuBar {
+  display: flex;
+  padding: 0 1.5rem; /* px-6 */
+  background-color: #ffffff; /* (수정) 8일차 f8f9fa -> ffffff */
+  border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* (추가) shadow-sm */
+}
+.subMenuTab {
+  padding: 0.75rem 1rem; /* py-3 px-4 */
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500;
+  color: #4b5563; /* text-gray-600 */
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease-in-out;
+  margin-right: 0.5rem; /* mr-2 */
+}
+.subMenuTab:hover {
+  color: #374151; /* hover:text-gray-700 */
+}
+.subMenuTab.active {
+  color: #2563eb; /* text-blue-600 */
+  border-bottom: 2px solid #2563eb;
+}
+
+/* 4. '콘텐츠' 영역 스타일 (★ 8일차 높이 문제 해결 ★) */
+.contentArea {
+  flex-grow: 1; /* 남은 공간을 모두 차지 */
+  overflow: hidden; /* 스크롤바가 생기면 안 됨 */
+  padding: 1.5rem; /* (수정) 8일차 p-0 -> p-6 (24px) */
+  display: flex;
+  flex-direction: column;
+}
+
+/* 5. '일반 페이지' 컨테이너 스타일 */
+.pageContainer {
+  background: #ffffff;
+  padding: 1.5rem; /* p-6 (24px) */
+  box-sizing: border-box; 
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; 
+  overflow-y: auto; /* 내용이 길어지면 여기서 스크롤 */
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* shadow */
+}
+
+/* 6. ★ 8일차 높이 문제 해결 ★ '지도 전용' 페이지 컨테이너 */
+.pageContainerMap {
+  height: 100%; /* 부모(.content-area)의 100% 높이를 차지 */
+  padding: 0;
+  display: flex; 
+  flex-direction: row; /* 지도와 사이드바를 '가로' 정렬 */
+  flex-grow: 1;
+  border-radius: 0.5rem; /* (추가) rounded-lg */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* (추가) shadow */
+  overflow: hidden; /* (추가) */
+}
+
+/* 7. 페이지 제목 공통 스타일 */
+.pageTitle {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 700;
+  color: #1f2937; /* text-gray-800 */
+  margin: 0 0 1.25rem 0; /* mb-5 */
+  padding-bottom: 1.25rem; /* pb-5 */
+  border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+}
+
+/* 8. 푸터 */
+.footer {
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e7eb; /* border-gray-200 */
+  padding: 0.75rem 1.5rem; /* px-6 py-3 */
+}
+.footer p {
+  font-size: 0.875rem; /* text-sm */
+  color: #6b7280; /* text-gray-500 */
+  margin: 0;
+}

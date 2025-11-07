@@ -1,0 +1,5 @@
+/* 9일차 '리셋': 모든 디자인은 'CSS 모듈'로 이동합니다. */
+/* 이 파일은 'Tailwind 엔진' 시동용 3줄만 남깁니다. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

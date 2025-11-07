@@ -1,0 +1,94 @@
+/* src/DashboardPage.module.css */
+
+/* 12일차: '대시보드' 페이지 전용 CSS */
+
+/* (pageContainer와 pageTitle은 MainLayout.module.css에서 관리됩니다.) */
+
+/* 1. 요약 카드 그리드 */
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem; /* gap-6 */
+  margin-bottom: 2.5rem; /* mb-10 */
+}
+
+.card {
+  background-color: #ffffff;
+  padding: 1.5rem; /* p-6 */
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-lg */
+  border-left: 5px solid #2563eb; /* border-blue-600 */
+}
+
+.cardTitle {
+  font-size: 1rem; /* text-base */
+  font-weight: 500;
+  color: #6b7280; /* text-gray-500 */
+  margin-bottom: 0.5rem;
+}
+
+.cardValue {
+  font-size: 2.25rem; /* text-4xl */
+  font-weight: 700;
+  color: #1f2937; /* text-gray-800 */
+  margin-bottom: 0.25rem;
+}
+
+.cardMeta {
+  font-size: 0.875rem; /* text-sm */
+  color: #4b5563; /* text-gray-600 */
+}
+
+.highlight {
+  font-weight: 700;
+  color: #dc2626; /* text-red-600 */
+}
+
+/* 2. 스케줄 섹션 */
+.scheduleSection {
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.scheduleTitle {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1.5rem; /* mb-6 */
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.emptyText {
+  color: #6b7280;
+  padding: 1rem 0;
+}
+
+/* 3. 테이블 스타일 (계약 리스트와 유사) */
+.table {
+  width: 100%;
+}
+.tableHeader {
+  display: flex;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0.75rem 0.5rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+.tableRow {
+  display: flex;
+  padding: 0.75rem 0.5rem;
+  font-size: 0.875rem;
+  align-items: center;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* 테이블 칼럼 너비 정의 */
+.col1 { width: 15%; font-weight: 700; color: #16a34a; } /* 잔금일 (강조) */
+.col2 { width: 20%; color: #1f2937; } /* 고객명 */
+.col3 { width: 20%; color: #dc2626; font-weight: 700; } /* 가격 */
+.col4 { width: 45%; color: #374151; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } /* 매물 요약 */
