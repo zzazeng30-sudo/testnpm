@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient.js'
-import styles from './ContractPage.module.css'; // ★ 11일차: 전용 CSS 모듈을 불러옵니다.
+import styles from './ContractPage.module.css'; 
 
-/* 11일차: '계약 관리' 탭 페이지 */
-export default function ContractPage() {
+/* 18일차 (수정): '계약 관리' (session prop 및 user_id 저장 로직 추가) */
+export default function ContractPage({ session }) { // ★ session prop 받기
   const [contracts, setContracts] = useState([])
   const [loading, setLoading] = useState(true)
   
@@ -15,6 +15,7 @@ export default function ContractPage() {
   // 1. (Read) 계약 목록 읽어오기
   const fetchContracts = async () => {
     setLoading(true)
+    // (이제 user_id가 일치하는 본인 계약만 보입니다)
     const { data, error } = await supabase.from('contracts').select('*').order('created_at', { ascending: false }) 
     if (error) console.error('계약 목록 로드 오류:', error.message)
     else setContracts(data || [])
@@ -38,6 +39,7 @@ export default function ContractPage() {
         property_memo: newPropertyMemo, 
         contract_price: Number(newContractPrice),
         balance_date: newBalanceDate || null,
+        user_id: session.user.id // ★ 18일차: user_id 저장
     }
     const { data, error } = await supabase.from('contracts').insert(newContractData).select();
     if (error) console.error('계약 생성 오류:', error.message)
@@ -176,7 +178,6 @@ export default function ContractPage() {
           </div>
         </div>
       </section>
-
     </div>
   )
 }

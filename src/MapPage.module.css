@@ -271,3 +271,91 @@
 .pdfButtonContainer {
   margin-top: 1rem;
 }
+
+
+/* 7. ★ 14일차 추가: 임장 동선 최적화 패널 */
+.tourPanel {
+  width: 20rem; /* w-80 (320px) */
+  flex-shrink: 0;
+  background-color: #f9fafb; /* bg-gray-50 */
+  border-right: 1px solid #e5e7eb; /* border-gray-200 */
+  padding: 1.5rem; /* p-6 */
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+.tourTitle {
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 700;
+  color: #1f2937; /* text-gray-800 */
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+}
+.tourList {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  min-height: 200px;
+}
+.tourItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* gap-2 */
+  padding: 0.5rem 0.25rem;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.875rem; /* text-sm */
+}
+.tourItemIndex {
+  font-weight: 700;
+  color: #2563eb;
+  width: 1.5rem;
+  text-align: center;
+}
+.tourItemMemo {
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #374151;
+}
+.tourRemoveButton {
+  padding: 0.25rem 0.5rem;
+  background: #ef4444; /* bg-red-500 */
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 0.75rem; /* text-xs */
+  cursor: pointer;
+}
+.tourRemoveButton:hover {
+  background: #dc2626;
+}
+.tourButtonContainer {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+.buttonGreen {
+  background-color: #16a34a; /* bg-green-600 */
+  color: white;
+}
+.buttonGreen:hover { background-color: #15803d; }
+
+.buttonOrange {
+  background-color: #f97316; /* bg-orange-500 */
+  color: white;
+}
+.buttonOrange:hover { background-color: #ea580c; }
+/* src/MapPage.module.css (맨 하단에 이어서 붙여넣기) */
+
+/* ★ 18일차: AI 요약 리포트 (pre 태그) 스타일 */
+.imContentPre {
+  white-space: pre-wrap; /* 줄바꿈 및 공백 유지 */
+  word-wrap: break-word; /* 긴 단어 자동 줄바꿈 */
+  font-family: inherit; /* 부모 폰트 상속 (Noto Sans KR 등) */
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #374151;
+}

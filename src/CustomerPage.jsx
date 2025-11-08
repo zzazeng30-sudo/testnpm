@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient.js'
+import styles from './CustomerPage.module.css'; // ★ 9일차: CSS 모듈을 임포트합니다.
 
-/* 8일차: 'Tailwind CSS'로 디자인된 '고객 관리' 탭 페이지 (★'이중 포장' 제거★) */
+/* 18일차 (수정): '고객 관리' (user_id 저장 로직 추가) */
 export default function CustomerPage({ session }) {
   const [customers, setCustomers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -13,6 +14,7 @@ export default function CustomerPage({ session }) {
   // 1. (Read) 고객 읽어오기
   const fetchCustomers = async () => {
     setLoading(true)
+    // (이제 user_id가 일치하는 본인 고객만 보입니다)
     const { data, error } = await supabase.from('customers').select('*').order('created_at', { ascending: false }) 
     if (error) console.error('고객 로드 오류:', error.message)
     else setCustomers(data || [])
@@ -32,7 +34,12 @@ export default function CustomerPage({ session }) {
       return
     }
     setLoading(true)
-    const newCustomerData = { name: newName, phone: newPhone, notes: newNotes }
+    const newCustomerData = { 
+        name: newName, 
+        phone: newPhone, 
+        notes: newNotes,
+        user_id: session.user.id // ★ 18일차: user_id 저장
+    }
     const { data, error } = await supabase.from('customers').insert(newCustomerData).select() 
     if (error) console.error('고객 생성 오류:', error.message)
     else {
@@ -62,21 +69,20 @@ export default function CustomerPage({ session }) {
     setLoading(false)
   }
 
-  // 화면 렌더링
+  // 화면 렌더링 (이하 JSX는 15일차와 동일)
   return (
-    // ★ 8일차 높이 문제 해결 ★: 'page-container-map' 클래스를 사용
-    <main className="page-container-map">
+    <main className={styles.pageContainer}>
       
       {/* 1. '새 고객 등록' 폼 (왼쪽) */}
-      <aside className="w-96 bg-white p-6 border-r border-gray-200 overflow-y-auto flex-shrink-0">
-        <h2 className="text-xl font-bold mb-5 text-gray-800">
+      <aside className={styles.sidebar}>
+        <h2 className={styles.sidebarTitle}>
           새 고객 등록
         </h2>
-        <form className="space-y-4" onSubmit={handleCreateCustomer}>
+        <form className={styles.form} onSubmit={handleCreateCustomer}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">고객명 (필수)</label>
+            <label className={styles.label}>고객명 (필수)</label>
             <input
-              className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className={styles.input}
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
@@ -85,9 +91,9 @@ export default function CustomerPage({ session }) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">연락처</label>
+            <label className={styles.label}>연락처</label>
             <input
-              className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className={styles.input}
               type="text"
               value={newPhone}
               onChange={(e) => setNewPhone(e.target.value)}
@@ -95,9 +101,9 @@ export default function CustomerPage({ session }) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">희망 조건 (메모)</label>
+            <label className={styles.label}>희망 조건 (메모)</label>
             <textarea
-              className="w-full h-28 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className={styles.textarea}
               value={newNotes}
               onChange={(e) => setNewNotes(e.target.value)}
               placeholder="예: 강남 30억 이하 아파트, 30평대..."
@@ -105,7 +111,7 @@ export default function CustomerPage({ session }) {
           </div>
           <button 
             type="submit" 
-            className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-md shadow-sm disabled:opacity-50"
+            className={styles.button}
             disabled={loading}
           >
             {loading ? '등록 중...' : '고객 등록'}
@@ -114,40 +120,40 @@ export default function CustomerPage({ session }) {
       </aside>
 
       {/* 2. '고객 리스트' (오른쪽) */}
-      <section className="flex-1 p-6 overflow-y-auto bg-white">
-        <h2 className="text-xl font-bold mb-5 text-gray-800">
+      <section className={styles.listSection}>
+        <h2 className={styles.listTitle}>
           내 고객 리스트 (총 {customers.length}명)
         </h2>
         
         {loading && <p>고객 목록을 불러오는 중...</p>}
         {!loading && customers.length === 0 && (
-          <p className="text-gray-500">등록된 고객이 없습니다. 왼쪽 폼에서 새 고객을 등록하세요.</p>
+          <p className={styles.emptyText}>등록된 고객이 없습니다. 왼쪽 폼에서 새 고객을 등록하세요.</p>
         )}
         
         {/* 고객 리스트 (테이블) */}
-        <div className="w-full border-t border-gray-200">
+        <div className={styles.table}>
           {/* 테이블 헤더 */}
-          <div className="flex bg-gray-50 border-b border-gray-200 p-3 font-bold text-sm text-gray-600">
-            <div className="w-1/5">고객명</div>
-            <div className="w-1/5">연락처</div>
-            <div className="w-2/5">희망 조건 (메모)</div>
-            <div className="w-1/5 text-right">관리</div>
+          <div className={styles.tableHeader}>
+            <div className={styles.col1}>고객명</div>
+            <div className={styles.col2}>연락처</div>
+            <div className={styles.col3}>희망 조건 (메모)</div>
+            <div className={styles.col4}>관리</div>
           </div>
           
           {/* 테이블 바디 */}
-          <div className="divide-y divide-gray-100">
+          <div className={styles.tableBody}>
             {customers.map(customer => (
               <div 
                 key={customer.id} 
-                className="flex p-3 text-sm items-center"
+                className={styles.tableRow}
               >
-                <div className="w-1/5 font-medium text-gray-800">{customer.name}</div>
-                <div className="w-1/5 text-gray-600">{customer.phone}</div>
-                <div className="w-2/5 text-gray-700 whitespace-pre-wrap break-words">{customer.notes}</div>
-                <div className="w-1/5 text-right">
+                <div className={styles.col1}>{customer.name}</div>
+                <div className={styles.col2}>{customer.phone}</div>
+                <div className={styles.col3}>{customer.notes}</div>
+                <div className={styles.col4}>
                   <button 
                     onClick={() => handleDeleteCustomer(customer.id)}
-                    className="py-1 px-3 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-md shadow-sm disabled:opacity-50"
+                    className={styles.deleteButton}
                     disabled={loading}
                   >
                     삭제
