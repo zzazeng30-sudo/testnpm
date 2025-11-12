@@ -9,26 +9,24 @@ import ConsultationLogPage from './ConsultationLogPage.jsx';
 import PropertyPage from './PropertyPage.jsx';
 import styles from './MainLayout.module.css';
 
-// ★ 18일차: '대시보드' 탭 메뉴 구조를 완성합니다.
+// ★ 21일차 (리팩토링): '고객' 탭 메뉴 재구성
 const menuData = {
   '대시보드': [
     { id: 'dashboard-schedule', name: '스케줄표', component: <DashboardPage /> },
     { id: 'dashboard-new', name: '신규 현황', component: <DashboardPage /> }, 
     { id: 'dashboard-list', name: '매물 등록', component: <PropertyPage />, isMap: true }, 
-    // ★ 18일차: '경영통계'를 DashboardPage로 연결
     { id: 'dashboard-stats', name: '경영통계', component: <DashboardPage /> }, 
   ],
-  '부동산 원장': [
-    { id: 're-map', name: '지도 관리', component: <MapPage />, isMap: true },
-    { id: 're-list', name: '매물 리스트', component: <PropertyPage />, isMap: true },
-    { id: 're-upload', name: '매물 등록', component: <PropertyPage />, isMap: true },
-    { id: 're-im', name: 'im자료 생성', component: <MapPage />, isMap: true },
-    { id: 're-tour', name: '임장 동선 최적화', component: <MapPage />, isMap: true },
+  '매물': [
+    { id: 'prop-map', name: '매물 지도', component: <MapPage />, isMap: true, mode: 'manage' },
+    { id: 'prop-list', name: '매물 리스트', component: <PropertyPage />, isMap: true },
+    { id: 'prop-tour', name: '임장 동선 최적화', component: <MapPage />, isMap: true, mode: 'tour' },
   ],
   '고객': [
-    { id: 'cust-list', name: '고객 리스트', component: <CustomerPage />, isMap: true },
-    { id: 'cust-upload', name: '고객 등록', component: <CustomerPage />, isMap: true },
-    { id: 'cust-match', name: '매물 매칭', component: <MapPage />, isMap: true },
+    // ★ 21일차 (수정): '고객 등록'과 '고객 관리'에 mode prop 전달
+    { id: 'cust-upload', name: '고객 등록', component: <CustomerPage />, isMap: true, mode: 'upload' },
+    { id: 'cust-manage', name: '고객 관리', component: <CustomerPage />, isMap: true, mode: 'manage' },
+    { id: 'cust-match', name: '매물 매칭', component: <MapPage />, isMap: true, mode: 'tour' }, 
     { id: 'cust-log', name: '상담 이력 관리', component: <ConsultationLogPage />, isMap: true },
     { id: 'cust-briefing', name: '브리핑룸 관리' },
   ],
@@ -50,12 +48,19 @@ const menuData = {
   ]
 };
 
-const mainMenus = Object.keys(menuData);
+const mainMenus = [
+    '대시보드', 
+    '매물', 
+    '고객', 
+    '계약', 
+    '마이페이지', 
+    '고객센터', 
+    '사용방법'
+];
 
-/* 9일차: 'CSS 모듈'로 디자인을 분리한 '메인 레이아웃' */
 export default function MainLayout({ session }) {
-  const [activeMainMenu, setActiveMainMenu] = useState(mainMenus[0]); 
-  const [activeSubMenu, setActiveSubMenu] = useState(menuData[mainMenus[0]][0].id);
+  const [activeMainMenu, setActiveMainMenu] = useState(mainMenus[1]); 
+  const [activeSubMenu, setActiveSubMenu] = useState(menuData[mainMenus[1]][0].id);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -89,17 +94,22 @@ export default function MainLayout({ session }) {
             })
           };
       } else {
-           // 다른 모든 컴포넌트(DashboardPage 포함)에 session props를 전달
+           // ★ 21일차 (수정): CustomerPage에도 mode prop이 전달되도록 함
+           const propsToPass = { session };
+           
+           if (activePage.mode) {
+              propsToPass.mode = activePage.mode;
+           }
+
            activePage = {
             ...activePage,
-            component: React.cloneElement(activePage.component, { session })
+            component: React.cloneElement(activePage.component, propsToPass)
           };
       }
 
       if (activePage.isMap) {
         return <div className={styles.pageContainerMap}>{activePage.component}</div>;
       }
-      // '일반' 페이지 (DashboardPage 등)
       return <div className={styles.pageContainer}>{activePage.component}</div>;
     }
 
@@ -108,10 +118,6 @@ export default function MainLayout({ session }) {
       <div className={styles.pageContainer}>
         <h1 className={styles.pageTitle}>{activePage ? activePage.name : '준비중'}</h1>
         <p>준비 중인 페이지입니다.</p>
-        <p style={{marginTop: '1rem', fontSize: '0.875rem', color: '#6b7280'}}>
-          선택된 대메뉴: {activeMainMenu} <br />
-          선택된 상세메뉴 ID: {activeSubMenu}
-        </p>
       </div>
     );
   };
@@ -120,7 +126,6 @@ export default function MainLayout({ session }) {
     // '헤더/본문/푸터' 레이아웃
     <div className={styles.layoutContainer}>
       
-      {/* --- 1. 헤더 (대메뉴) --- */}
       <header className={styles.mainMenuBar}>
         <nav className={styles.mainMenuTabs}>
           {mainMenus.map(menuName => (
@@ -145,7 +150,6 @@ export default function MainLayout({ session }) {
         </div>
       </header>
 
-      {/* --- 2. 상세메뉴 (Sub Menu) --- */}
       <nav className={styles.subMenuBar}>
         {menuData[activeMainMenu].map(menuItem => (
           <button
@@ -158,15 +162,13 @@ export default function MainLayout({ session }) {
         ))}
       </nav>
 
-      {/* --- 3. 본문 (Content Area) --- */}
       <main className={styles.contentArea}>
         {renderPageContent()}
       </main>
 
-      {/* --- 4. 푸터 (Footer / 상태바) --- */}
       <footer className={styles.footer}>
         <p>
-          &copy; {new Date().getFullYear()} 사장님 CRM. All rights reserved. (18일차 '경영 통계' 업데이트)
+          &copy; {new Date().getFullYear()} 사장님 CRM. All rights reserved. (21일차 '고객 탭' 분리)
         </p>
       </footer>
 

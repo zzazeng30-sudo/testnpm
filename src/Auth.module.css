@@ -109,3 +109,19 @@
 .signupButton:hover {
   background-color: #15803d; /* hover:bg-green-700 */
 }
+
+/* src/Auth.module.css (맨 하단에 추가) */
+
+.toggleButton {
+  width: 100%;
+  margin-top: 1.5rem; /* mt-6 */
+  background: none;
+  border: none;
+  color: #4b5563; /* text-gray-600 */
+  font-size: 0.875rem; /* text-sm */
+  text-decoration: underline;
+  cursor: pointer;
+}
+.toggleButton:hover {
+  color: #1f2937; /* text-gray-800 */
+}

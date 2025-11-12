@@ -1,25 +1,51 @@
 /* 9일차: '고객 관리' 페이지만을 위한 '전용 CSS' */
 
-/* 1. 뼈대 */
-.pageContainer {
+/* 1. ★ 21일차 (수정): '리스트 전용' 뼈대 */
+.pageContainerList {
   height: 100%;
   display: flex;
-  flex-direction: row;
+  flex-direction: column; /* '리스트'는 수직으로 꽉 참 */
   flex-grow: 1;
   background: #fff;
   overflow: hidden;
 }
 
-/* 2. 폼 (왼쪽) */
-.sidebar {
-  width: 24rem; /* w-96 */
-  flex-shrink: 0;
-  background-color: #ffffff;
-  padding: 1.5rem; /* p-6 */
-  border-right: 1px solid #e5e7eb; /* border-gray-200 */
-  overflow-y: auto;
+/* 1-1. ★ 21일차 (추가): '폼 전용' 뼈대 */
+.pageContainerForm {
+  height: 100%;
+  display: flex;
+  flex-direction: column; /* '폼'도 수직으로 꽉 참 */
+  flex-grow: 1;
+  background: #fff;
+  overflow-y: auto; /* 폼이 길어지면 스크롤 */
+  padding: 1.5rem; /* 폼에는 패딩을 줌 */
   box-sizing: border-box;
 }
+
+
+/* 2. 폼 (왼쪽) */
+.sidebar {
+  /* (v21 수정) - 'pageContainer'가 flex-row일 때 사용하던 스타일 (삭제) */
+  /* width: 24rem; */
+  /* flex-shrink: 0; */
+  /* border-right: 1px solid #e5e7eb; */
+  
+  /* (v21 수정) - 'pageContainerForm' 안에서 사용할 스타일 */
+  max-width: 48rem; /* 폼 최대 너비 (768px) */
+  width: 100%;
+  margin: 0 auto; /* 중앙 정렬 */
+  padding: 1.5rem; /* p-6 */
+  box-sizing: border-box;
+}
+/* ★ 21일차 (추가): '폼 전용'일 때의 사이드바 스타일 */
+.sidebarFull {
+  max-width: 48rem; /* 폼 최대 너비 (768px) */
+  width: 100%;
+  margin: 0 auto; /* 중앙 정렬 */
+  padding: 1.5rem; /* p-6 */
+  box-sizing: border-box;
+}
+
 .sidebarTitle {
   font-size: 1.25rem; /* text-xl */
   font-weight: 700;
@@ -74,11 +100,20 @@
 
 /* 3. 고객 리스트 (오른쪽) */
 .listSection {
+  /* (v21 수정) - 'pageContainer'가 flex-row일 때 사용하던 스타일 (삭제) */
+  /* flex-grow: 1; */
+  padding: 1.5rem; /* p-6 */
+  overflow-y: auto;
+  background-color: #ffffff;
+}
+/* ★ 21일차 (추가): '리스트 전용'일 때의 섹션 스타일 */
+.listSectionFull {
   flex-grow: 1;
   padding: 1.5rem; /* p-6 */
   overflow-y: auto;
   background-color: #ffffff;
 }
+
 .listTitle {
   font-size: 1.25rem; /* text-xl */
   font-weight: 700;
@@ -119,7 +154,7 @@
   white-space: pre-wrap; /* \n (줄바꿈)을 인식 */
   word-break: break-word; /* 긴 글 자동 줄바꿈 */
 }
-.col4 { width: 100%; text-align: right; }
+.col4 { width: 20%; text-align: right; } /* (v21 수정: 너비 100% -> 20%) */
 
 .deleteButton {
   padding: 0.25rem 0.75rem; /* py-1 px-3 */
