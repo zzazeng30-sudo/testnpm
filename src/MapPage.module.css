@@ -100,6 +100,9 @@
   border-radius: 0.375rem; 
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); 
   box-sizing: border-box; 
+  /* ★ <select> 태그도 이 스타일을 상속받아 사용합니다 */
+  background-color: #ffffff; /* select 배경색 강제 */
+  appearance: none; /* OS 기본 화살표 제거 (선택적) */
 }
 .input:focus, .textarea:focus {
   outline: none;
@@ -245,6 +248,7 @@
     justify-content: center;
     align-items: center;
     z-index: 50;
+    cursor: pointer; /* ★ 닫기 기능 암시 */
 }
 .imModal {
     background: white;
@@ -256,6 +260,7 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    cursor: default; /* ★ 모달 내용은 기본 커서 */
 }
 .imModalTitle {
     font-size: 1.5rem;
@@ -424,37 +429,278 @@
   width: 100%;
 }
 
-/* 10. ★ 20일차 v3: 'div' 기반 컨텍스트 메뉴 스타일 */
+
+/* --- 10. (단순 세로 메뉴) --- */
 .contextMenu {
-  position: absolute; /* .pageContainerMap 기준 */
+  position: absolute; 
   background-color: white;
-  border-radius: 0.5rem; /* rounded-lg */
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
-  z-index: 1000; /* 지도 위에 표시 */
-  min-width: 180px; /* 최소 너비 */
+  border-radius: 0.5rem; 
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+  z-index: 1000; 
+  min-width: 180px; 
   display: flex;
-  flex-direction: column;
-  padding: 0.5rem; /* p-2 */
-  border: 1px solid #e5e7eb; /* border-gray-200 */
+  flex-direction: column; /* ★ 세로 정렬 */
+  padding: 0.5rem; 
+  border: 1px solid #e5e7eb; 
+
+  /* ★ (수정) 클릭 지점 오른쪽, 수직 중앙 */
+  transform: translate(20px, -50%);
 }
 .contextMenu button {
-  padding: 0.5rem 0.75rem; /* py-2 px-3 */
-  font-size: 0.875rem; /* text-sm */
-  color: #374151; /* text-gray-700 */
+  padding: 0.5rem 0.75rem; 
+  font-size: 0.875rem; 
+  color: #374151; 
   background: none;
   border: none;
-  text-align: left;
+  text-align: left; 
   cursor: pointer;
-  border-radius: 0.25rem; /* rounded-sm */
-  display: block;
+  border-radius: 0.25rem; 
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; 
   width: 100%;
+  transform: none !important; 
 }
 .contextMenu button:hover {
-  background-color: #f3f4f6; /* bg-gray-100 */
-  color: #1f2937; /* text-gray-800 */
+  background-color: #f3f4f6; 
+  color: #1f2937; 
 }
 .contextMenu button:disabled {
-  color: #9ca3af; /* text-gray-400 */
+  color: #9ca3af; 
   cursor: not-allowed;
   background: none;
+  transform: none !important; 
+}
+
+/* --- ★ (추가) 새 폼 스타일 --- */
+
+/* 11. 폼 섹션 제목 (소재 정보, 거래 정보...) */
+.formSectionTitle {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827; /* text-gray-900 */
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+/* 12. 체크박스 그룹 */
+.checkboxGroup {
+    display: flex;
+    gap: 1.5rem; /* 체크박스 사이 간격 */
+    margin-top: 0.5rem;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* 체크박스와 텍스트 사이 간격 */
+    font-size: 0.875rem;
+    color: #374151;
+    cursor: pointer;
+}
+
+.checkboxInput {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid #d1d5db;
+    cursor: pointer;
+}
+
+/* 13. 사진 업로드 */
+.imageUploadContainer {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.imageSlot {
+    width: 6rem;
+    height: 6rem;
+    border: 2px dashed #d1d5db;
+    border-radius: 0.375rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background-color: #f9fafb;
+    overflow: hidden; /* ★ 썸네일이 삐져나가지 않게 */
+}
+
+.fileInputLabel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    font-size: 2rem;
+    color: #9ca3af;
+    cursor: pointer;
+}
+
+.fileInput {
+    display: none;
+}
+
+.imagePreviewWrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.imagePreviewThumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* ★ 사진이 꽉 차도록 */
+}
+
+.imageRemoveButton {
+    position: absolute;
+    top: -0.5rem;
+    right: -0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+    padding: 0;
+}
+
+
+/* --- ★ (추가) 14. 사진 뷰어 모달 --- */
+
+/* 썸네일에 마우스 커서 변경 */
+.imagePreviewClickable {
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.imagePreviewClickable:hover {
+    opacity: 0.8;
+}
+
+/* 뷰어 모달 (imModal과 비슷하지만, 이미지에 맞게 조정) */
+.imageViewerModal {
+    background: #ffffff;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    max-width: 90vw;    /* 화면 너비의 90% */
+    max-height: 90vh;   /* 화면 높이의 90% */
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative; /* 닫기 버튼 기준점 */
+    cursor: default; /* ★ 내부 클릭 시 닫히지 않게 */
+}
+
+/* 뷰어 모달 내부의 이미지 */
+.imageViewerModal img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* 이미지가 찌그러지지 않게 비율 유지 */
+}
+
+/* 뷰어 모달 닫기 버튼 */
+.imageViewerCloseButton {
+    position: absolute;
+    top: -1rem;
+    right: -1rem;
+    
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: #dc2626; /* 빨간색 */
+    color: white;
+    border: 2px solid white;
+    font-weight: bold;
+    font-size: 1.25rem;
+    
+    cursor: pointer;
+    z-index: 100;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+    padding: 0;
+}
+.imageViewerCloseButton:hover {
+    background-color: #b91c1c;
+}
+
+/* src/MapPage.module.css */
+
+/* ... (파일 상단의 1~14번 스타일은 그대로) ... */
+
+/* ★ (추가) 15. 지적도 토글 버튼 컨테이너 */
+.layerToggleContainer {
+  flex-shrink: 0;
+  margin-bottom: 1rem;
+}
+
+/* 버튼 스타일 재사용 */
+.layerToggleContainer button {
+  width: 100%;
+}
+
+/* src/MapPage.module.css 파일 맨 아래에 이 코드를 추가하세요 */
+
+/* --- (추가) 15. 커스텀 지도 컨트롤 (지도/스카이뷰/지적도) --- */
+.mapControlContainer {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 30; /* 사이드바(20)보다 높게 */
+    display: flex;
+    background-color: #ffffff;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #d1d5db; /* border-gray-300 */
+}
+
+.mapControlButton {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151; /* text-gray-700 */
+    background-color: #ffffff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.mapControlButton:not(:last-child) {
+    border-right: 1px solid #d1d5db; /* 버튼 사이 구분선 */
+}
+
+.mapControlButton:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.mapControlButton:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+
+.mapControlButton:hover {
+    background-color: #f3f4f6; /* bg-gray-100 */
+}
+
+/* 활성화된 버튼 스타일 (파란색) */
+.mapControlButton.active {
+    background-color: #2563eb; /* bg-blue-600 */
+    color: #ffffff;
 }

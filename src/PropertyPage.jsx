@@ -1,51 +1,57 @@
+// src/PropertyPage.jsx (수정)
 import React, { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient.js'
 import styles from './PropertyPage.module.css'; 
 
-/* 17일차 (수정): '매물 리스트'와 '매물 등록' 페이지 (★역 지오코딩 적용★) */
 export default function PropertyPage({ session }) {
-  const [properties, setProperties] = useState([]) // 'pins' 테이블 (주소 포함)
+  const [properties, setProperties] = useState([]) 
   const [loading, setLoading] = useState(true)
   
-  // 새 매물 등록 폼 상태
+  // ★ (수정) 폼 상태: MapContext와 동일하게 변경
   const [newAddress, setNewAddress] = useState('') 
-  const [newMemo, setNewMemo] = useState('')     
-  const [newPrice, setNewPrice] = useState(0)      
+  const [newDetailedAddress, setNewDetailedAddress] = useState('');
+  const [newBuildingName, setNewBuildingName] = useState('');
+  const [newIsSale, setNewIsSale] = useState(false);
+  const [newSalePrice, setNewSalePrice] = useState('');
+  const [newIsJeonse, setNewIsJeonse] = useState(false);
+  const [newJeonseDeposit, setNewJeonseDeposit] = useState('');
+  const [newJeonsePremium, setNewJeonsePremium] = useState('');
+  const [newIsRent, setNewIsRent] = useState(false);
+  const [newRentDeposit, setNewRentDeposit] = useState('');
+  const [newRentAmount, setNewRentAmount] = useState('');
+  const [newKeywords, setNewKeywords] = useState('');
+  const [newNotes, setNewNotes] = useState('');
   const [newCoords, setNewCoords] = useState(null) 
 
-  // ★ 17-2차 수정: 좌표 -> 주소 변환 (역 지오코딩) 헬퍼 함수
+  // ★ (수정) 역 지오코딩 (좌표 -> 주소)
   const getAddressFromCoords = (lat, lng) => {
-    // 이 함수는 Promise를 반환합니다.
     return new Promise((resolve) => {
-      // Geocoder가 로드되었는지 확인 (14일차 기능)
       if (!window.kakao || !window.kakao.maps.services || !window.kakao.maps.services.Geocoder) {
-        resolve('Geocoder 없음'); // Geocoder API가 없으면 실패
+        resolve('Geocoder 없음'); 
         return;
       }
       const geocoder = new window.kakao.maps.services.Geocoder();
       
-      // coord2Address (좌표 -> 주소 변환)
       geocoder.coord2Address(lng, lat, (result, status) => {
         if (status === window.kakao.maps.services.Status.OK) {
-          // 도로명 주소가 있으면 도로명, 없으면 지번 주소 사용
           const road = result[0].road_address ? result[0].road_address.address_name : null;
           const jibun = result[0].address ? result[0].address.address_name : null;
           resolve(road || jibun || '주소 정보 없음');
         } else {
-          resolve('주소 변환 실패'); // API 호출 실패
+          resolve('주소 변환 실패'); 
         }
       });
     });
   };
 
-  // 1. (Read) 매물 목록 (pins) 읽어오기 (★ 17-2차 수정: 주소 변환 로직 추가)
+  // 1. (Read) 매물 목록 (pins) 읽어오기
   const fetchProperties = async () => {
     setLoading(true);
     
-    // 1-1. Supabase에서 핀 정보(좌표) 로드
+    // ★ (수정) 모든 새 컬럼을 가져오도록 '*' 사용
     const { data: pinsData, error: dbError } = await supabase
       .from('pins')
-      .select('*')
+      .select('*') 
       .order('created_at', { ascending: false });
       
     if (dbError) {
@@ -55,41 +61,12 @@ export default function PropertyPage({ session }) {
       return;
     }
     
-    if (!pinsData || pinsData.length === 0) {
-      setProperties([]); // 데이터가 없으면 빈 배열
-      setLoading(false);
-      return;
-    }
-
-    // 1-2. (★핵심★) 역 지오코딩 (좌표 -> 주소)
-    try {
-      // Promise.all을 사용하여 모든 핀의 주소를 '병렬'로 동시에 조회합니다.
-      const addressPromises = pinsData.map(pin => 
-        getAddressFromCoords(pin.lat, pin.lng)
-      );
-      // 모든 주소 조회가 완료될 때까지 기다립니다.
-      const addresses = await Promise.all(addressPromises);
-      
-      // 1-3. 핀 데이터에 주소 정보(address)를 합칩니다.
-      const propertiesWithAddress = pinsData.map((pin, index) => ({
-        ...pin,
-        address: addresses[index] // 'address'라는 새 필드 추가
-      }));
-
-      setProperties(propertiesWithAddress); // 주소가 포함된 목록을 state에 저장
-      
-    } catch (geocodeError) {
-      console.error('주소 변환 중 오류 발생:', geocodeError.message);
-      // 주소 변환에 실패하더라도, 핀 목록은 보여줍니다 (주소 필드만 비워진 채)
-      setProperties(pinsData.map(pin => ({ ...pin, address: '주소 조회 실패' })));
-    } finally {
-      setLoading(false);
-    }
+    setProperties(pinsData || []);
+    setLoading(false);
   }
 
   useEffect(() => {
     // Geocoder API가 로드될 시간을 주기 위해 (표준 방식)
-    // window.kakao.maps.load() 콜백 안에서 fetchProperties를 호출합니다.
     if (window.kakao && window.kakao.maps) {
         window.kakao.maps.load(() => {
             fetchProperties();
@@ -97,17 +74,33 @@ export default function PropertyPage({ session }) {
     }
   }, []) // 빈 배열로 마운트 시 1회만 실행
 
-  // 2. (Create) '새 매물 등록' 폼 제출 핸들러 (이전과 동일)
+  // 2. (Create) '새 매물 등록' 폼 제출 핸들러 (★ 대폭 수정)
   const handleCreateProperty = async (event) => {
     event.preventDefault() 
-    if (!newMemo || !newCoords) {
-      alert('매물 메모와 좌표는 필수입니다. (주소로 좌표 변환을 먼저 실행하세요)')
+    if (!newAddress || !newCoords) {
+      alert('주소와 좌표는 필수입니다. (주소로 좌표 변환을 먼저 실행하세요)')
       return
     }
     setLoading(true)
+    
+    // ★ (수정) 새 데이터 구조로 저장
     const newPropertyData = { 
-        memo: newMemo, 
-        price: Number(newPrice),
+        address: newAddress,
+        detailed_address: newDetailedAddress,
+        building_name: newBuildingName,
+        is_sale: newIsSale,
+        sale_price: Number(newSalePrice) || null,
+        is_jeonse: newIsJeonse,
+        jeonse_deposit: Number(newJeonseDeposit) || null,
+        jeonse_premium: Number(newJeonsePremium) || null,
+        is_rent: newIsRent,
+        rent_deposit: Number(newRentDeposit) || null,
+        rent_amount: Number(newRentAmount) || null,
+        keywords: newKeywords,
+        notes: newNotes,
+        status: '거래전', // 기본값
+        image_urls: ['', '', ''], // 기본값
+
         lat: newCoords.lat,
         lng: newCoords.lng,
         user_id: session.user.id,
@@ -116,16 +109,28 @@ export default function PropertyPage({ session }) {
     const { data, error } = await supabase.from('pins').insert(newPropertyData).select();
     if (error) {
       console.error('매물 생성 오류:', error.message)
+      alert('매물 생성 오류: ' + error.message);
     } else {
-      // 새 매물 등록 시, 리스트 전체를 새로고침하여 새 주소도 가져오도록 합니다.
+      // 새 매물 등록 시, 리스트 전체를 새로고침
       fetchProperties(); 
+      
       // 폼 초기화
       setNewAddress('')
-      setNewMemo('')
-      setNewPrice(0)
+      setNewDetailedAddress('')
+      setNewBuildingName('')
+      setNewIsSale(false);
+      setNewSalePrice('');
+      setNewIsJeonse(false);
+      setNewJeonseDeposit('');
+      setNewJeonsePremium('');
+      setNewIsRent(false);
+      setNewRentDeposit('');
+      setNewRentAmount('');
+      setNewKeywords('');
+      setNewNotes('');
       setNewCoords(null)
     }
-    // setLoading(false) // fetchProperties가 알아서 처리하므로 제거
+    // setLoading(false) // fetchProperties가 알아서 처리
   }
 
   // 3. (Delete) '매물 삭제' 버튼 클릭 핸들러 (이전과 동일)
@@ -177,12 +182,27 @@ export default function PropertyPage({ session }) {
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('ko-KR');
   }
+  
+  // ★ (추가) 가격 포맷팅 유틸리티 (LeftPanel.jsx에서 복사)
+  const formatPrice = (pin) => {
+    if (pin.is_sale && pin.sale_price) {
+        return `${pin.sale_price.toLocaleString()} 만원`;
+    }
+    if (pin.is_jeonse && pin.jeonse_deposit) {
+        return `${pin.jeonse_deposit.toLocaleString()} 만원`;
+    }
+    if (pin.is_rent && (pin.rent_deposit || pin.rent_amount)) {
+        return `${pin.rent_deposit || 0}/${pin.rent_amount || 0}`;
+    }
+    return '-';
+  }
+
 
   // 화면 렌더링
   return (
     <div className={styles.pageContainer}>
       
-      {/* 1. '새 매물 등록' 폼 (왼쪽) */}
+      {/* 1. '새 매물 등록' 폼 (왼쪽) ★ (수정) */}
       <aside className={styles.sidebar}>
         <h2 className={styles.sidebarTitle}>
           새 매물 등록
@@ -213,24 +233,95 @@ export default function PropertyPage({ session }) {
                 </p>
             )}
           </div>
+          
           <div>
-            <label className={styles.label}>메모 (지도 팝업 내용)</label>
-            <textarea
-              className={styles.textarea}
-              value={newMemo}
-              onChange={(e) => setNewMemo(e.target.value)}
-              placeholder="예: 강남 30억 이하 아파트, 30평대..."
-              required
-            />
-          </div>
-          <div>
-            <label className={styles.label}>가격 (만원)</label>
+            <label className={styles.label}>상세 주소</label>
             <input
               className={styles.input}
-              type="number"
-              value={newPrice}
-              onChange={(e) => setNewPrice(e.target.value)}
-              placeholder="10000"
+              type="text"
+              value={newDetailedAddress}
+              onChange={(e) => setNewDetailedAddress(e.target.value)}
+              placeholder="예: 101동 101호"
+            />
+          </div>
+          
+          <div>
+            <label className={styles.label}>건물명</label>
+            <input
+              className={styles.input}
+              type="text"
+              value={newBuildingName}
+              onChange={(e) => setNewBuildingName(e.target.value)}
+              placeholder="예: 현대아파트"
+            />
+          </div>
+
+          <div>
+            <label className={styles.label}>거래 유형</label>
+             <div className={styles.checkboxGroup}> {/* MapPage.module.css 스타일 재사용 */}
+                <label className={styles.checkboxLabel}>
+                    <input type="checkbox" checked={newIsSale} onChange={(e) => setNewIsSale(e.target.checked)} /> 매매
+                </label>
+                <label className={styles.checkboxLabel}>
+                    <input type="checkbox" checked={newIsJeonse} onChange={(e) => setNewIsJeonse(e.target.checked)} /> 전세
+                </label>
+                <label className={styles.checkboxLabel}>
+                    <input type="checkbox" checked={newIsRent} onChange={(e) => setNewIsRent(e.target.checked)} /> 월세
+                </label>
+            </div>
+          </div>
+          
+          {/* ★ (추가) 조건부 폼 */}
+          {newIsSale && (
+            <div>
+              <label className={styles.label}>매매 금액 (만원)</label>
+              <input className={styles.input} type="number" value={newSalePrice} onChange={(e) => setNewSalePrice(e.target.value)} />
+            </div>
+          )}
+          {newIsJeonse && (
+            <>
+              <div>
+                <label className={styles.label}>전세 보증금 (만원)</label>
+                <input className={styles.input} type="number" value={newJeonseDeposit} onChange={(e) => setNewJeonseDeposit(e.target.value)} />
+              </div>
+              <div>
+                <label className={styles.label}>권리금 (만원)</label>
+                <input className={styles.input} type="number" value={newJeonsePremium} onChange={(e) => setNewJeonsePremium(e.target.value)} />
+              </div>
+            </>
+          )}
+          {newIsRent && (
+             <>
+              <div>
+                <label className={styles.label}>월세 보증금 (만원)</label>
+                <input className={styles.input} type="number" value={newRentDeposit} onChange={(e) => setNewRentDeposit(e.target.value)} />
+              </div>
+              <div>
+                <label className={styles.label}>월세 (만원)</label>
+                <input className={styles.input} type="number" value={newRentAmount} onChange={(e) => setNewRentAmount(e.target.value)} />
+              </div>
+            </>
+          )}
+
+          <div>
+            <label className={styles.label}>키워드</label>
+            <input
+              className={styles.input}
+              type="text"
+              value={newKeywords}
+              onChange={(e) => setNewKeywords(e.target.value)}
+              placeholder="예: #역세권, #신축"
+            />
+          </div>
+          
+          <div>
+            <label className={styles.label}>상세 메모</label>
+            <textarea
+              className={styles.textarea}
+              value={newNotes}
+              onChange={(e) => setNewNotes(e.target.value)}
+              placeholder="매물 상세 정보..."
+              required
             />
           </div>
           
@@ -244,7 +335,7 @@ export default function PropertyPage({ session }) {
         </form>
       </aside>
 
-      {/* 2. '매물 리스트' (오른쪽) */}
+      {/* 2. '매물 리스트' (오른쪽) ★ (수정) */}
       <section className={styles.listSection}>
         <h2 className={styles.listTitle}>
           매물 리스트 (총 {properties.length}건)
@@ -256,16 +347,16 @@ export default function PropertyPage({ session }) {
         )}
         
         <div className={styles.table}>
-          {/* 테이블 헤더 (★ 17-2차: col1 이름 변경) */}
+          {/* ★ (수정) 테이블 헤더 */}
           <div className={styles.tableHeader}>
-            <div className={styles.col1}>주소 및 메모</div>
-            <div className={styles.col2}>가격(만원)</div>
-            <div className={styles.col3}>좌표 (Lat, Lng)</div>
+            <div className={styles.col1}>주소/건물명</div>
+            <div className={styles.col2}>거래정보</div>
+            <div className={styles.col3}>메모/키워드</div>
             <div className={styles.col4}>등록일</div>
             <div className={styles.col5}>관리</div>
           </div>
           
-          {/* 테이블 바디 (★ 17-2차: col1 렌더링 방식 변경) */}
+          {/* ★ (수정) 테이블 바디 */}
           <div>
             {properties.map(pin => (
               <div 
@@ -273,14 +364,20 @@ export default function PropertyPage({ session }) {
                 className={styles.tableRow}
               >
                 <div className={styles.col1}>
-                  {/* pin.address (새로 추가된 필드)를 굵게 표시 */}
                   <span className={styles.addressText}>{pin.address || '주소 로딩 중...'}</span>
-                  {/* pin.memo (기존 메모)를 작게 표시 */}
-                  <span className={styles.memoText}>{pin.memo || '-'}</span>
+                  <span className={styles.memoText}>{pin.detailed_address || ''}</span>
+                  <span className={styles.memoText}>{pin.building_name || '-'}</span>
                 </div>
-                <div className={styles.col2}>{pin.price.toLocaleString()}</div>
+                
+                {/* ★ (수정) 가격 표시 */}
+                <div className={styles.col2}>
+                  {formatPrice(pin)}
+                  <span className={styles.memoText}>({pin.status || '거래전'})</span>
+                </div>
+                
                 <div className={styles.col3}>
-                    {pin.lat.toFixed(4)}, {pin.lng.toFixed(4)}
+                    {pin.notes || '-'}
+                    <span className={styles.keywordsText}>{pin.keywords}</span>
                 </div>
                 <div className={styles.col4}>{formatDate(pin.created_at)}</div>
                 <div className={styles.col5}>

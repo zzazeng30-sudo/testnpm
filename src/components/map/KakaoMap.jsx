@@ -14,19 +14,25 @@ export default function KakaoMap() {
     clearTempMarkerAndMenu,
     setSelectedPin,
     setContextMenu,
+    contextMenu, 
     fetchPins,
     fetchCustomers,
-    mapRef // ★ 21일차 (수정): '뇌'로부터 mapRef를 받음
+    mapRef,
+    // ★ (추가) 지도 컨트롤 state
+    mapType,
+    showCadastral,
+    showRoadview
   } = useMap();
   
-  // const mapRef = useRef(null); // ★ 21일차 (수정): '뇌'의 것을 사용하므로 제거
+  // ★ (추가) 로드뷰 컨트롤러 인스턴스를 저장할 Ref
+  const roadviewControlRef = useRef(null);
 
   // 5. (Init) 지도 초기화
   useEffect(() => {
     if (!mapRef.current) return;
     
     const handleContextMenu = (e) => e.preventDefault();
-    const mapContainer = mapRef.current; // ★ '뇌'에서 받은 ref 사용
+    const mapContainer = mapRef.current; 
 
     // 'getInitialCenter' 헬퍼 함수
     const getInitialCenter = (geocoder, defaultCenter) => {
@@ -77,7 +83,17 @@ export default function KakaoMap() {
         
         const map = mapInstanceRef.current;
 
-        // 'rightclick' 이벤트
+        // ★ (수정) 기본 컨트롤들 모두 제거
+        // map.addControl(mapTypeControl, window.kakao.maps.ControlPosition.TOPRIGHT);
+        
+        // ★ (수정) 로드뷰 컨트롤러를 생성만 하고, Ref에 저장 (아직 지도에 추가 안 함)
+        if (window.kakao.maps.RoadviewControl) {
+            roadviewControlRef.current = new window.kakao.maps.RoadviewControl();
+        } else {
+            console.error("❌ [진단] RoadviewControl 라이브러리가 로드되지 않았습니다.");
+        }
+
+        // 'rightclick' 이벤트 
         window.kakao.maps.event.addListener(map, 'rightclick', (mouseEvent) => {
             clearTempMarkerAndMenu();
             setSelectedPin(null);
@@ -92,9 +108,11 @@ export default function KakaoMap() {
             });
         });
         
-        // 'click' 이벤트
+        // 'click' 이벤트 
         window.kakao.maps.event.addListener(map, 'click', () => {
-            clearTempMarkerAndMenu(); 
+            if (contextMenu.visible) {
+                clearTempMarkerAndMenu(); 
+            }
         });
 
         mapContainer.addEventListener('contextmenu', handleContextMenu);
@@ -108,11 +126,45 @@ export default function KakaoMap() {
           mapContainer.removeEventListener('contextmenu', handleContextMenu);
         }
     };
-  }, [session]); // session이 로드되면(또는 바뀌면) 지도를 리로드
+  }, [session]); 
+
+  // ★ (수정) 지도 타입(지도/스카이뷰) + 지적도 레이어 토글을 위한 useEffect
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !window.kakao.maps.MapTypeId) return;
+
+    // 1. 지도/스카이뷰 변경
+    if (mapType === 'SKYVIEW') {
+        map.setMapTypeId(window.kakao.maps.MapTypeId.HYBRID);
+    } else {
+        map.setMapTypeId(window.kakao.maps.MapTypeId.NORMAL);
+    }
+
+    // 2. 지적도 변경
+    if (showCadastral) {
+        map.addOverlayMapTypeId(window.kakao.maps.MapTypeId.USE_DISTRICT);
+    } else {
+        map.removeOverlayMapTypeId(window.kakao.maps.MapTypeId.USE_DISTRICT);
+    }
+  }, [mapType, showCadastral, mapInstanceRef]); // 3가지 state가 바뀔 때마다 실행
+
+  // ★ (추가) 로드뷰 컨트롤 토글을 위한 useEffect
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !roadviewControlRef.current) return; // map과 컨트롤러가 준비되었는지 확인
+
+    if (showRoadview) {
+        // 로드뷰 켜기
+        map.addControl(roadviewControlRef.current, window.kakao.maps.ControlPosition.TOPRIGHT);
+    } else {
+        // 로드뷰 끄기
+        map.removeControl(roadviewControlRef.current);
+    }
+  }, [showRoadview, mapInstanceRef]); // showRoadview 상태가 바뀔 때마다 실행
+
 
   return (
     <section className={styles.mapSection}>
-      {/* ★ 21일차 (수정): '뇌'에서 받은 mapRef를 div에 연결 */}
       <div ref={mapRef} className={styles.map}>
         {!window.kakao.maps && (
             <div className={styles.mapError}>

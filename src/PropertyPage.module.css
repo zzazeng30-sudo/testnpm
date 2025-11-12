@@ -102,6 +102,28 @@
     margin-top: 0.5rem;
 }
 
+/* ★ (추가) 2-2. 체크박스 그룹 */
+.checkboxGroup {
+    display: flex;
+    gap: 1.5rem; /* 체크박스 사이 간격 */
+    margin-top: 0.5rem;
+}
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* 체크박스와 텍스트 사이 간격 */
+    font-size: 0.875rem;
+    color: #374151;
+    cursor: pointer;
+}
+.checkboxInput {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid #d1d5db;
+    cursor: pointer;
+}
+
 
 /* 3. 매물 리스트 (오른쪽) */
 .listSection {
@@ -140,16 +162,12 @@
   align-items: center;
   border-bottom: 1px solid #f3f4f6; /* divide-gray-100 */
 }
-.col1 { 
-    width: 35%; 
-    font-weight: 500; 
-    color: #1f2937;
-    white-space: pre-wrap;
-    word-break: break-word;
-} /* 메모 */
-.col2 { width: 15%; color: #dc2626; font-weight: 700; } /* 가격 */
-.col3 { width: 25%; color: #4b5563; } /* 좌표 */
-.col4 { width: 15%; text-align: left; color: #6b7280; } /* 등록일 */
+
+/* ★ (수정) 컬럼 너비 재조정 */
+.col1 { width: 30%; } /* 주소/건물명 */
+.col2 { width: 20%; color: #dc2626; font-weight: 700; } /* 가격 */
+.col3 { width: 30%; color: #4b5563; } /* 메모/키워드 */
+.col4 { width: 10%; text-align: left; color: #6b7280; } /* 등록일 */
 .col5 { width: 10%; text-align: right; } /* 관리 */
 
 .deleteButton {
@@ -169,9 +187,7 @@
   opacity: 0.5;
 }
 
-/* src/PropertyPage.module.css (맨 하단에 이어서 붙여넣기) */
-
-/* ★ 17-2차 수정: col1 내부 스타일 */
+/* ★ (수정) col1 내부 스타일 */
 .addressText {
   display: block;
   font-weight: 700; /* 주소는 굵게 */
@@ -186,12 +202,11 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
-
-/* ★ 17-2차 수정: 기존 .col1 스타일을 '덮어쓰기'합니다.
-  (기존 .col1의 color, font-weight 등을 제거하여 자식 스타일이 적용되게 함)
-*/
-.col1 { 
-    width: 35%; 
-    white-space: normal; /* pre-wrap 대신 normal */
-    word-break: normal;
+/* ★ (추가) col3 내부 키워드 스타일 */
+.keywordsText {
+  display: block;
+  font-size: 0.8rem;
+  color: #059669; /* emerald */
+  font-weight: 500;
+  margin-top: 0.25rem;
 }
