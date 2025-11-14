@@ -1,15 +1,15 @@
-// src/contexts/MapContext.jsx (변경 없음)
+// src/contexts/MapContext.jsx (수정)
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react'; 
 import { supabase } from '../supabaseClient.js';
 import imageCompression from 'browser-image-compression';
 import styles from '../MapPage.module.css';
 
-// (API 설정)
+// (API 설정 ... 변경 없음)
 const API_MODEL = 'gemini-2.5-flash';
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${API_MODEL}:generateContent?key=`;
 const API_KEY = "AIzaSyCGt5A6VU0Htm3c8AHOhhsGyqPlcwPYrDY";
 
-// (fetch 헬퍼)
+// (fetch 헬퍼 ... 변경 없음)
 const exponentialBackoffFetch = async (url, options, maxRetries = 5) => {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
@@ -36,7 +36,7 @@ export function useMap() {
 // 3. MapProvider (뇌)
 export function MapProvider({ children, session, mode }) {
   // --- State ---
-  const [pins, setPins] = useState([]); // ★ DB에서 가져온 '전체' 핀 (마스터 리스트)
+  const [pins, setPins] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [selectedPin, setSelectedPin] = useState(null);
   const [address, setAddress] = useState('');
@@ -68,92 +68,124 @@ export function MapProvider({ children, session, mode }) {
     visible: false, latLng: null, x: 0, y: 0
   });
   const [viewingImage, setViewingImage] = useState(null);
-  
-  // --- ★ (수정) 지도 컨트롤 State ---
-  const [activeMapType, setActiveMapType] = useState('NORMAL'); // 'NORMAL', 'SKYVIEW', 'CADASTRAL'
+  const [activeMapType, setActiveMapType] = useState('NORMAL');
   const [showRoadview, setShowRoadview] = useState(false);
-
-  // --- ★ (추가) 필터 State ---
-  const [filterPropertyType, setFilterPropertyType] = useState('ALL'); // 매물 유형
-  const [filterTransactionType, setFilterTransactionType] = useState('ALL'); // 거래 유형
-  const [filterStatus, setFilterStatus] = useState('ALL'); // 거래 상태
-
-  // --- ★ (추가) 필터링된 핀 State ---
-  const [filteredPins, setFilteredPins] = useState([]); // 마스터 리스트(pins) + 필터 3개
-  const [visiblePins, setVisiblePins] = useState([]); // filteredPins + 지도 범위 (왼쪽 리스트용)
-
-  // --- ★ (추가) 왼쪽 패널 접기 State ---
+  const [filterPropertyType, setFilterPropertyType] = useState('ALL');
+  const [filterTransactionType, setFilterTransactionType] = useState('ALL');
+  const [filterStatus, setFilterStatus] = useState('ALL');
+  const [filteredPins, setFilteredPins] = useState([]);
+  const [visiblePins, setVisiblePins] = useState([]);
   const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(true);
-
-  // --- ★ (추가) 유효성 검사 오류 State ---
   const [validationErrors, setValidationErrors] = useState([]);
+  const [listTitle, setListTitle] = useState("지도 내 매물");
+  const [isListForced, setIsListForced] = useState(false); 
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  // --- ★ (추가) 활성화된 핀(오버레이) 추적용 State ---
+  const [activeOverlayKey, setActiveOverlayKey] = useState(null);
 
   // --- Refs ---
   const tempMarkerRef = useRef(null);
   const mapInstanceRef = useRef(null);
-  const markersRef = useRef({});
+  const clustererRef = useRef(null); 
   const contextMenuRef = useRef(null);
   const mapRef = useRef(null);
   const infowindowRef = useRef(null);
+  
+  // --- ★ (추가) 생성된 오버레이 DOM 저장용 Ref ---
+  const overlayDOMsRef = useRef(new Map());
 
 
-  // --- ★ (추가) 지도 범위 + 필터링된 핀을 계산하는 핵심 함수 ---
-  const handleBoundsChanged = () => {
+  // --- (handleMapMove ... 변경 없음) ---
+  const handleMapMove = (isForced) => {
+    if (isForced) return;
+
     if (!mapInstanceRef.current || !filteredPins) {
-      setVisiblePins(filteredPins || []); // 맵이 없거나 필터된 핀이 없으면, 필터된 핀 목록을 그대로 사용
+      setVisiblePins(filteredPins || []); 
       return;
     }
     const bounds = mapInstanceRef.current.getBounds();
-    const visible = filteredPins.filter(pin => {
+    
+    const visibleStacks = [];
+    const pinsByLocation = new Map();
+    
+    const pinsInBounds = filteredPins.filter(pin => {
       const pos = new window.kakao.maps.LatLng(pin.lat, pin.lng);
       return bounds.contain(pos);
     });
-    setVisiblePins(visible);
+
+    pinsInBounds.forEach(pin => {
+        const key = `${Number(pin.lat).toFixed(4)},${Number(pin.lng).toFixed(4)}`;
+        if (!pinsByLocation.has(key)) {
+            pinsByLocation.set(key, []);
+        }
+        pinsByLocation.get(key).push(pin);
+    });
+    
+    pinsByLocation.forEach((stack) => {
+        if (stack.length === 1) {
+            visibleStacks.push(stack[0]); 
+        } else {
+            visibleStacks.push({
+                isStack: true,
+                count: stack.length,
+                id: stack[0].id, 
+                lat: stack[0].lat,
+                lng: stack[0].lng,
+                address: stack[0].address || stack[0].building_name || '매물 묶음',
+                keywords: `${stack.length}개 매물`,
+                pins: stack, 
+            });
+        }
+    });
+
+    setVisiblePins(visibleStacks);
   };
 
-  // --- ★ (추가) 마스터 핀 리스트(pins) 또는 필터가 변경될 때 실행 ---
+  // --- (필터/핀 데이터 로딩 useEffect ... 변경 없음) ---
   useEffect(() => {
     let newFilteredPins = [...pins];
-
-    // 1. 매물 유형 필터
     if (filterPropertyType !== 'ALL') {
       newFilteredPins = newFilteredPins.filter(p => p.property_type === filterPropertyType);
     }
-    
-    // 2. 거래 유형 필터
     if (filterTransactionType !== 'ALL') {
-      if (filterTransactionType === '매매') {
-        newFilteredPins = newFilteredPins.filter(p => p.is_sale);
-      } else if (filterTransactionType === '전세') {
-        newFilteredPins = newFilteredPins.filter(p => p.is_jeonse);
-      } else if (filterTransactionType === '월세') {
-        newFilteredPins = newFilteredPins.filter(p => p.is_rent);
-      }
+      if (filterTransactionType === '매매') newFilteredPins = newFilteredPins.filter(p => p.is_sale);
+      else if (filterTransactionType === '전세') newFilteredPins = newFilteredPins.filter(p => p.is_jeonse);
+      else if (filterTransactionType === '월세') newFilteredPins = newFilteredPins.filter(p => p.is_rent);
     }
-    
-    // 3. 거래 상태 필터
     if (filterStatus !== 'ALL') {
       newFilteredPins = newFilteredPins.filter(p => p.status === filterStatus);
     }
-    
     setFilteredPins(newFilteredPins);
-    
   }, [pins, filterPropertyType, filterTransactionType, filterStatus]);
   
-  // --- ★ (추가) 필터링된 핀(filteredPins)이 바뀌면 마커와 리스트를 즉시 업데이트 ---
   useEffect(() => {
-    // 1. 지도에 마커 다시 그리기
     if (mapInstanceRef.current) {
       drawMarkers(mapInstanceRef.current, filteredPins);
     }
-    // 2. 왼쪽 '지도 내 매물' 리스트 업데이트 (현재 범위 기준)
-    handleBoundsChanged(); 
+    handleMapMove(isListForced);
   }, [filteredPins]);
+  
+  // --- ★ (추가) activeOverlayKey 변경 시 CSS 클래스 적용 ---
+  useEffect(() => {
+    // 1. 모든 핀의 'active' 클래스 우선 제거
+    overlayDOMsRef.current.forEach((element) => {
+      element.classList.remove(styles.active);
+    });
+
+    // 2. activeOverlayKey에 해당하는 핀이 있다면 'active' 클래스 추가
+    if (activeOverlayKey) {
+      const activeElement = overlayDOMsRef.current.get(activeOverlayKey);
+      if (activeElement) {
+        activeElement.classList.add(styles.active);
+      }
+    }
+  }, [activeOverlayKey]); // activeOverlayKey가 바뀔 때마다 실행
 
 
   // --- Handlers ---
 
-  // (툴팁 가격 포맷팅... 변경 없음)
+  // (formatPriceForInfowindow ... 변경 없음)
   const formatPriceForInfowindow = (pin) => {
     const prices = [];
     const hasSalePrice = (pin.sale_price !== null && pin.sale_price !== undefined);
@@ -182,8 +214,7 @@ export function MapProvider({ children, session, mode }) {
     }
     return prices.join('<br>');
   };
-
-  // (주소 변환 헬퍼... 변경 없음)
+  // (getAddressFromCoords ... 변경 없음)
   const getAddressFromCoords = (lat, lng) => {
     return new Promise((resolve) => {
       if (!window.kakao || !window.kakao.maps.services || !window.kakao.maps.services.Geocoder) {
@@ -201,141 +232,36 @@ export function MapProvider({ children, session, mode }) {
       });
     });
   };
-
-  // (핀/고객 로드)
+  // (fetchPins ... 변경 없음)
   const fetchPins = async () => {
     setLoading(true);
     const { data, error } = await supabase.from('pins').select('*').order('created_at', { ascending: false });
     if (error) console.error('핀 로드 오류:', error.message);
-    else {
-      setPins(data || []); // ★ 마스터 리스트(pins) 설정 -> useEffect[pins] 트리거
-    }
+    else setPins(data || []);
     setLoading(false);
   };
+  // (fetchCustomers ... 변경 없음)
   const fetchCustomers = async () => {
     const { data, error } = await supabase.from('customers').select('id, name, phone').order('name', { ascending: true });
     if (error) console.error('고객 리스트 로드 오류:', error.message);
     else setCustomers(data || []);
   };
+  // (fetchLinkedCustomers ... 변경 없음)
   const fetchLinkedCustomers = async (pinId) => {
     if (!pinId) { setLinkedCustomers([]); return; }
     const { data, error } = await supabase.from('customer_pins').select(` id, customer:customers ( id, name ) `).eq('pin_id', pinId);
     if (error) console.error('연결된 고객 로드 오류:', error.message);
     else setLinkedCustomers(data || []);
   };
-
-  // (마커 그리기)
-  const drawMarkers = (map, pinData) => {
-    if (!window.kakao || !map) return;
-
-    // (툴팁 오버레이 생성... 변경 없음)
-    if (!infowindowRef.current && window.kakao.maps.CustomOverlay) {
-      const iwContent = document.createElement('div');
-      iwContent.className = styles.infowindow;
-      const priceContent = document.createElement('div');
-      priceContent.className = styles.infowindowPrice;
-      const notesContent = document.createElement('div');
-      notesContent.className = styles.infowindowNotes;
-      iwContent.appendChild(priceContent);
-      iwContent.appendChild(notesContent);
-      infowindowRef.current = new window.kakao.maps.CustomOverlay({
-        content: iwContent,
-        map: null,
-        position: null,
-        zIndex: 10,
-        yAnchor: 0.8,
-        xAnchor: -0.15,
-        offsetX: 40 
-      });
-    }
-    const infowindow = infowindowRef.current;
-    if (!infowindow) return;
-
-    // --- 2. 핀 오버레이 제거 및 재생성 ---
-    Object.values(markersRef.current).forEach(overlay => overlay.setMap(null));
-    markersRef.current = {};
-
-    pinData.forEach(pin => {
-      const position = new window.kakao.maps.LatLng(pin.lat, pin.lng);
-      const contentElement = createMarkerElement(pin);
-      const overlay = new window.kakao.maps.CustomOverlay({
-        map,
-        position,
-        content: contentElement,
-        yAnchor: 1, // 핀은 꼬리 끝(하단 중앙)이 기준점
-        zIndex: 3
-      });
-
-      // 5. 핀 클릭 이벤트 (DOM listener)
-      contentElement.addEventListener('click', () => {
-        if (infowindow) infowindow.setMap(null);
-        clearTempMarkerAndMenu();
-        setSelectedPin(pin);
-        // (폼 데이터 채우기 ...)
-        setAddress(pin.address || '');
-        setDetailedAddress(pin.detailed_address || '');
-        setBuildingName(pin.building_name || '');
-        setPropertyType(pin.property_type || '');
-        setPropertyTypeEtc(pin.property_type_etc || '');
-        setIsSale(pin.is_sale || false);
-        setSalePrice(pin.sale_price !== null ? String(pin.sale_price) : '');
-        setIsJeonse(pin.is_jeonse || false);
-        setJeonseDeposit(pin.jeonse_deposit !== null ? String(pin.jeonse_deposit) : '');
-        setJeonsePremium(pin.jeonse_premium !== null ? String(pin.jeonse_premium) : '');
-        setIsRent(pin.is_rent || false);
-        setRentDeposit(pin.rent_deposit !== null ? String(pin.rent_deposit) : '');
-        setRentAmount(pin.rent_amount !== null ? String(pin.rent_amount) : '');
-        setKeywords(pin.keywords || '');
-        setNotes(pin.notes || '');
-        setStatus(pin.status || '거래전');
-        setImageUrls(pin.image_urls || ['', '', '']);
-        setImageFiles([null, null, null]);
-        fetchLinkedCustomers(pin.id);
-        setImContent(null);
-        setViewingImage(null);
-        setValidationErrors([]); 
-      });
-
-      // (Hover 이벤트... 변경 없음)
-      contentElement.addEventListener('mouseenter', () => {
-        if (!infowindow) return;
-        const iwContent = infowindow.getContent();
-        const priceEl = iwContent.querySelector(`.${styles.infowindowPrice}`);
-        const notesEl = iwContent.querySelector(`.${styles.infowindowNotes}`);
-        
-        if (priceEl) {
-          priceEl.innerHTML = formatPriceForInfowindow(pin);
-        }
-        if (notesEl) {
-          notesEl.textContent = pin.notes || '상세 메모 없음';
-        }
-        infowindow.setPosition(position);
-        infowindow.setMap(map);
-      });
-
-      contentElement.addEventListener('mouseleave', () => {
-        if (infowindow) {
-          infowindow.setMap(null);
-        }
-      });
-      
-      markersRef.current[pin.id] = overlay;
-    });
-  };
-
-  // (오버레이 DOM 생성 헬퍼... 변경 없음)
+  // (createMarkerElement ... 변경 없음)
   const createMarkerElement = (pin) => {
     const typeText = pin.property_type || '유형없음';
     const keywordText = (pin.keywords || '')
-      .split(',')
-      .map(k => k.trim().replace(/^#/, ''))
-      .filter(k => k)
-      .join(', ');
-
+      .split(',').map(k => k.trim().replace(/^#/, '')).filter(k => k).join(', ');
     let statusClass = styles.statusBefore;
     if (pin.status === '거래중') statusClass = styles.statusInProgress;
     else if (pin.status === '거래완료') statusClass = styles.statusComplete;
-
+    
     const wrap = document.createElement('div');
     wrap.className = styles.customOverlay;
     const top = document.createElement('div');
@@ -351,8 +277,182 @@ export function MapProvider({ children, session, mode }) {
     wrap.appendChild(bottom);
     return wrap;
   };
+  // (createStackedMarkerElement ... 변경 없음)
+  const createStackedMarkerElement = (stack) => {
+    const wrap = document.createElement('div');
+    wrap.className = styles.customOverlay; 
+    
+    const top = document.createElement('div');
+    top.className = styles.overlayTop;
+    top.textContent = "매물 스택"; 
+    top.style.backgroundColor = "#f97316"; 
+    top.style.color = "white";
 
-  // (임시 마커/메뉴/툴팁 닫기... 변경 없음)
+    const bottom = document.createElement('div');
+    bottom.className = styles.overlayBottom; 
+    bottom.style.backgroundColor = "#f97316"; 
+    bottom.style.color = "white";
+    bottom.textContent = `📍 ${stack.length}개 매물`;
+    
+    wrap.appendChild(top);
+    wrap.appendChild(bottom);
+    return wrap;
+  };
+
+
+  // --- ★ (수정) drawMarkers (activeOverlayKey 설정 및 DOM 저장) ---
+  const drawMarkers = (map, pinData) => {
+    if (!window.kakao || !map || !clustererRef.current) return;
+    
+    // (툴팁 생성... 변경 없음)
+    if (!infowindowRef.current && window.kakao.maps.CustomOverlay) {
+      const iwContent = document.createElement('div');
+      iwContent.className = styles.infowindow;
+      const priceContent = document.createElement('div');
+      priceContent.className = styles.infowindowPrice;
+      const notesContent = document.createElement('div');
+      notesContent.className = styles.infowindowNotes;
+      iwContent.appendChild(priceContent);
+      iwContent.appendChild(notesContent);
+      infowindowRef.current = new window.kakao.maps.CustomOverlay({
+        content: iwContent, map: null, position: null, zIndex: 10,
+        yAnchor: 0.8, xAnchor: -0.15, offsetX: 40 
+      });
+    }
+    const infowindow = infowindowRef.current;
+    if (!infowindow) return;
+
+    // (스태킹 로직... 변경 없음)
+    const pinsByLocation = new Map();
+    pinData.forEach(pin => {
+        const key = `${Number(pin.lat).toFixed(4)},${Number(pin.lng).toFixed(4)}`;
+        if (!pinsByLocation.has(key)) {
+            pinsByLocation.set(key, []);
+        }
+        pinsByLocation.get(key).push(pin);
+    });
+
+    const overlays = []; 
+    overlayDOMsRef.current.clear(); // ★ (추가) DOM 참조 맵 초기화
+    
+    pinsByLocation.forEach((stack, key) => {
+        const pin = stack[0]; 
+        const position = new window.kakao.maps.LatLng(pin.lat, pin.lng);
+        let contentElement;
+
+        if (stack.length === 1) {
+            // --- A. 핀이 1개인 경우 (일반 HTML 핀) ---
+            contentElement = createMarkerElement(pin); 
+            
+            contentElement.addEventListener('click', () => {
+                if (infowindow) infowindow.setMap(null);
+                clearTempMarkerAndMenu(); 
+                setIsListForced(false); 
+                setListTitle("지도 내 매물");
+                
+                setSelectedPin(pin); 
+                setIsEditMode(false); 
+                setActiveOverlayKey(key); // ★ (추가) 활성 키 설정
+
+                // (폼 데이터 채우기...)
+                setAddress(pin.address || '');
+                setDetailedAddress(pin.detailed_address || '');
+                setBuildingName(pin.building_name || '');
+                setPropertyType(pin.property_type || '');
+                setPropertyTypeEtc(pin.property_type_etc || '');
+                setIsSale(pin.is_sale || false);
+                setSalePrice(pin.sale_price !== null ? String(pin.sale_price) : '');
+                setIsJeonse(pin.is_jeonse || false);
+                setJeonseDeposit(pin.jeonse_deposit !== null ? String(pin.jeonse_deposit) : '');
+                setJeonsePremium(pin.jeonse_premium !== null ? String(pin.jeonse_premium) : '');
+                setIsRent(pin.is_rent || false);
+                setRentDeposit(pin.rent_deposit !== null ? String(pin.rent_deposit) : '');
+                setRentAmount(pin.rent_amount !== null ? String(pin.rent_amount) : '');
+                setKeywords(pin.keywords || '');
+                setNotes(pin.notes || '');
+                setStatus(pin.status || '거래전');
+                setImageUrls(pin.image_urls || ['', '', '']);
+                setImageFiles([null, null, null]);
+                fetchLinkedCustomers(pin.id);
+                setImContent(null);
+                setViewingImage(null);
+                setValidationErrors([]);
+                
+                setTimeout(() => handleMapMove(false), 0); 
+            });
+
+            // (Hover 이벤트... 변경 없음)
+            contentElement.addEventListener('mouseenter', () => {
+              if (!infowindow) return;
+              const iwContent = infowindow.getContent();
+              const priceEl = iwContent.querySelector(`.${styles.infowindowPrice}`);
+              const notesEl = iwContent.querySelector(`.${styles.infowindowNotes}`);
+              if (priceEl) priceEl.innerHTML = formatPriceForInfowindow(pin);
+              if (notesEl) notesEl.textContent = pin.notes || '상세 메모 없음';
+              infowindow.setPosition(position);
+              infowindow.setMap(map);
+            });
+            contentElement.addEventListener('mouseleave', () => {
+              if (infowindow) infowindow.setMap(null);
+            });
+
+        } else {
+            // --- B. 핀이 2개 이상 겹친 경우 (스택 HTML 핀) ---
+            contentElement = createStackedMarkerElement(stack); 
+            
+            contentElement.addEventListener('click', () => {
+                if (infowindow) infowindow.setMap(null);
+                clearTempMarkerAndMenu();
+                setSelectedPin(null); 
+                
+                setIsListForced(true); 
+                setListTitle(`[${stack.length}개] ${pin.building_name || pin.address || '매물'}`);
+                setVisiblePins(stack); 
+                setActiveOverlayKey(key); // ★ (추가) 활성 키 설정
+            });
+
+            // (스택용 Hover 이벤트... 변경 없음)
+            contentElement.addEventListener('mouseenter', () => {
+                if (!infowindow) return;
+                const iwContent = infowindow.getContent();
+                const priceEl = iwContent.querySelector(`.${styles.infowindowPrice}`);
+                const notesEl = iwContent.querySelector(`.${styles.infowindowNotes}`);
+                if (priceEl) priceEl.innerHTML = `<strong>${stack.length}개</strong>의 매물이 있습니다.`;
+                if (notesEl) notesEl.textContent = "클릭하여 왼쪽 목록에서 확인하세요.";
+                infowindow.setPosition(position);
+                infowindow.setMap(map);
+            });
+            contentElement.addEventListener('mouseleave', () => {
+                if (infowindow) infowindow.setMap(null);
+            });
+        }
+
+        // ★ (추가) 핀이 현재 활성 핀인지 확인
+        if (activeOverlayKey === key) {
+          contentElement.classList.add(styles.active);
+        }
+        
+        // ★ (추가) DOM 요소를 Ref에 저장
+        overlayDOMsRef.current.set(key, contentElement);
+
+        // (공통) CustomOverlay 객체 생성
+        const overlay = new window.kakao.maps.CustomOverlay({
+            position: position,
+            content: contentElement,
+            yAnchor: 1, 
+            zIndex: 3
+        });
+        
+        overlays.push(overlay); 
+    });
+
+    // --- 3. 클러스터러에 'CustomOverlay' 배열 추가 ---
+    clustererRef.current.clear(); 
+    clustererRef.current.addMarkers(overlays); 
+  };
+
+
+  // --- ★ (수정) 임시 마커/메뉴 닫기 (activeOverlayKey 초기화) ---
   const clearTempMarkerAndMenu = () => {
     if (tempMarkerRef.current) {
       tempMarkerRef.current.setMap(null);
@@ -365,7 +465,16 @@ export function MapProvider({ children, session, mode }) {
     if (infowindowRef.current) {
       infowindowRef.current.setMap(null);
     }
+    
+    if (isListForced) {
+        setIsListForced(false);
+        setListTitle("지도 내 매물");
+        setTimeout(() => handleMapMove(false), 0); 
+    }
+    
+    setIsEditMode(false); 
     setValidationErrors([]); 
+    setActiveOverlayKey(null); // ★ (추가) 활성 핀 키 초기화
   };
 
   // (핀 생성... 변경 없음)
@@ -381,13 +490,17 @@ export function MapProvider({ children, session, mode }) {
       clearTempMarkerAndMenu();
       await fetchPins(); 
       setSelectedPin(createdPin);
+      setIsEditMode(false); 
+      // ★ (추가) 생성된 핀을 활성화
+      const newKey = `${Number(createdPin.lat).toFixed(4)},${Number(createdPin.lng).toFixed(4)}`;
+      setActiveOverlayKey(newKey);
       return createdPin;
     }
   };
 
   // (핀 삭제... 변경 없음)
   const handleDeletePin = async (pinId) => {
-    if (infowindowRef.current) {
+     if (infowindowRef.current) {
       infowindowRef.current.setMap(null);
     }
     setLoading(true);
@@ -526,7 +639,7 @@ export function MapProvider({ children, session, mode }) {
   };
 
 
-  // (우클릭 메뉴... 변경 없음)
+  // --- (우클릭 메뉴 핸들러 ... 변경 없음) ---
   const handleContextMenuAction = async (action) => {
     if (infowindowRef.current) {
       infowindowRef.current.setMap(null);
@@ -540,6 +653,11 @@ export function MapProvider({ children, session, mode }) {
       setLoading(false);
       const tempPinData = { id: null, lat: lat, lng: lng };
       setSelectedPin(tempPinData);
+      
+      setIsListForced(false);
+      setListTitle("지도 내 매물");
+      setIsEditMode(true); 
+
       // (폼 초기화)
       setAddress(fetchedAddress);
       setDetailedAddress('');
@@ -579,12 +697,12 @@ export function MapProvider({ children, session, mode }) {
   };
 
   
-  // (폼 저장 - 유효성 검사... 변경 없음)
+  // (폼 저장 ... 변경 없음)
   const handleSidebarSave = async (event) => {
     event.preventDefault();
     if (!selectedPin) return;
 
-    // --- 1. 유효성 검사 ---
+    // (유효성 검사... 변경 없음)
     setValidationErrors([]); 
     const errors = [];
     if (!propertyType || propertyType.trim() === '') {
@@ -600,7 +718,6 @@ export function MapProvider({ children, session, mode }) {
       setValidationErrors(errors); 
       return; 
     }
-    // --- (여기까지) ---
 
     setIsUploading(true);
 
@@ -639,6 +756,7 @@ export function MapProvider({ children, session, mode }) {
     }
     if (!savedPin) { setIsUploading(false); alert('핀 저장에 실패했습니다.'); return; }
     
+    // (이미지 업로드 로직... 변경 없음)
     let newImageUrls = [...imageUrls];
     let hasNewUploads = false;
     for (let i = 0; i < imageFiles.length; i++) {
@@ -649,7 +767,6 @@ export function MapProvider({ children, session, mode }) {
         newImageUrls[i] = ''; hasNewUploads = true;
       }
     }
-    
     if (hasNewUploads) {
       const { data: updatedPin, error: updateImageError } = await supabase.from('pins').update({ image_urls: newImageUrls }).eq('id', savedPin.id).select().single();
       if (updateImageError) console.error('이미지 URL 업데이트 오류:', updateImageError.message);
@@ -662,7 +779,7 @@ export function MapProvider({ children, session, mode }) {
     setPins(currentPins => currentPins.map(p => (p.id === savedPin.id ? savedPin : p)));
     setSelectedPin(savedPin);
     
-    // (폼 상태 업데이트 - 0값 처리)
+    // (폼 상태 업데이트... 변경 없음)
     setAddress(savedPin.address || '');
     setDetailedAddress(savedPin.detailed_address || '');
     setBuildingName(savedPin.building_name || '');
@@ -676,6 +793,8 @@ export function MapProvider({ children, session, mode }) {
     setRentAmount(savedPin.rent_amount !== null ? String(savedPin.rent_amount) : '');
     setImageUrls(savedPin.image_urls || ['', '', '']);
     setImageFiles([null, null, null]);
+    
+    setIsEditMode(false); // ★ (추가) 저장 완료 후 '읽기 모드'로 전환
   };
 
 
@@ -728,14 +847,24 @@ export function MapProvider({ children, session, mode }) {
     filterTransactionType, setFilterTransactionType,
     filterStatus, setFilterStatus,
     
-    visiblePins, 
+    visiblePins, // ★ LeftPanel이 사용할 리스트
     
     isLeftPanelOpen, setIsLeftPanelOpen, 
     
     validationErrors, 
     
+    listTitle, 
+    isListForced,
+    
+    isEditMode, setIsEditMode, 
+    
+    activeOverlayKey, setActiveOverlayKey, // ★ (추가)
+    
     // Refs
-    tempMarkerRef, mapInstanceRef, markersRef, contextMenuRef, mapRef,
+    tempMarkerRef, mapInstanceRef, 
+    clustererRef, 
+    contextMenuRef, mapRef,
+    // overlayDOMsRef, // ★ (추가) -> 아, 이건 context 내부에서만 쓰므로 export 불필요
     
     // Handlers
     fetchPins, fetchCustomers, fetchLinkedCustomers,
@@ -748,7 +877,7 @@ export function MapProvider({ children, session, mode }) {
     handleImageChange, handleImageRemove,
     toggleRoadview,
     
-    handleBoundsChanged, 
+    handleMapMove, 
     
     // Props
     session, mode

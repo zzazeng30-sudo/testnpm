@@ -1,10 +1,10 @@
-// src/components/map/KakaoMap.jsx (변경 없음)
+// src/components/map/KakaoMap.jsx (수정)
 import React, { useEffect, useRef } from 'react';
 import { useMap } from '../../contexts/MapContext';
 import { supabase } from '../../supabaseClient.js';
 import styles from '../../MapPage.module.css';
 
-// --- ★ 1. 디바운스(Debounce) 헬퍼 함수 ---
+// --- 1. 디바운스(Debounce) 헬퍼 함수 ---
 function debounce(func, delay) {
   let timeout;
   return function(...args) {
@@ -28,19 +28,28 @@ export default function KakaoMap() {
     mapRef,
     activeMapType,
     showRoadview,
-    handleBoundsChanged, 
+    
+    // ★ (수정) handleBoundsChanged -> handleMapMove
+    handleMapMove, 
+    
+    isListForced, // ★ (추가) 리스트 강제 상태
+    
+    clustererRef // ★ (추가) 클러스터러 Ref
   } = useMap();
 
+  // ★ (핵심 수정) roadviewControlRef를 KakaoMap 컴포넌트가 직접 소유
   const roadviewControlRef = useRef(null);
 
   // 5. (Init) 지도 초기화
   useEffect(() => {
+    // ★ (추가) mapRef.current가 없으면 즉시 중단
     if (!mapRef.current) return;
 
     const handleContextMenu = (e) => e.preventDefault();
-    const mapContainer = mapRef.current;
+    // ★ (수정) mapContainer 변수를 콜백 내부에서 선언하도록 이동
+    // const mapContainer = mapRef.current; 
 
-    // (getInitialCenter 헬퍼 함수... 변경 없음)
+    // (getInitialCenter 헬퍼 함수)
     const getInitialCenter = (geocoder, defaultCenter) => {
       return new Promise(async (resolve) => {
         if (!session || !session.user) {
@@ -69,8 +78,15 @@ export default function KakaoMap() {
     };
 
     // --- kakao.maps.load() ---
+    // ★ (수정) 'clusterer' 라이브러리 추가
     window.kakao.maps.load(async () => {
-      if (!mapContainer) return;
+      
+      // ★ (핵심 수정) 콜백 함수 시점의 mapRef.current를 사용
+      const mapContainer = mapRef.current;
+      if (!mapContainer) {
+        // 컴포넌트가 언마운트되었으면 중단
+        return;
+      }
 
       const DEFAULT_CENTER = new window.kakao.maps.LatLng(37.566826, 126.9786567);
       const DEFAULT_ZOOM = 4;
@@ -89,13 +105,26 @@ export default function KakaoMap() {
 
       const map = mapInstanceRef.current;
       
+      // --- ★ (추가) MarkerClusterer 생성 ---
+      if (window.kakao.maps.MarkerClusterer) {
+        clustererRef.current = new window.kakao.maps.MarkerClusterer({
+            map: map, // 맵 객체
+            averageCenter: true, // 클러스터 마커의 위치를 중심(좌표 평균)으로 설정
+            minLevel: 6, // 클러스터할 최소 지도 레벨 (숫자가 클수록 많이 줌인)
+        });
+      } else {
+        console.error("❌ [진단] MarkerClusterer 라이브러리 로드 실패.");
+      }
+      // --- (여기까지) ---
+      
       if (window.kakao.maps.RoadviewControl) {
+        // ★ (수정) 로컬 ref에 할당
         roadviewControlRef.current = new window.kakao.maps.RoadviewControl();
       } else {
         console.error("❌ [진단] RoadviewControl 라이브러리가 로드되지 않았습니다.");
       }
 
-      // ('rightclick' 이벤트... 변경 없음)
+      // ('rightclick' 이벤트)
       window.kakao.maps.event.addListener(map, 'rightclick', (mouseEvent) => {
         clearTempMarkerAndMenu();
         setSelectedPin(null);
@@ -136,54 +165,55 @@ export default function KakaoMap() {
         });
       });
 
-      // ('click' 이벤트... 변경 없음)
+      // ('click' 이벤트)
       window.kakao.maps.event.addListener(map, 'click', () => {
         clearTempMarkerAndMenu();
       });
-
-      // --- 'bounds_changed' 리스너 제거 ---
       
+      // ★ (수정) mapContainer에 이벤트 리스너 추가
       mapContainer.addEventListener('contextmenu', handleContextMenu);
 
       fetchPins();
       fetchCustomers();
-    });
+      
+    }, ["services", "clusterer"]); 
 
     return () => {
-      if (mapContainer) {
-        mapContainer.removeEventListener('contextmenu', handleContextMenu);
+      // ★ (수정) 클린업 함수에서 mapRef.current 확인
+      if (mapRef.current) {
+        mapRef.current.removeEventListener('contextmenu', handleContextMenu);
       }
     };
-  }, [session]); 
+  }, [session]); // session 의존성 유지
 
   
-  // --- ★ 'bounds_changed' 리스너를 위한 별도 useEffect (디바운싱 적용) ---
+  // --- ★ (수정) 'bounds_changed' 리스너 ---
   useEffect(() => {
     const map = mapInstanceRef.current;
-    if (!map || !window.kakao || !handleBoundsChanged) {
+    if (!map || !window.kakao || !handleMapMove) {
       return;
     }
     
-    // 200ms(0.2초) 딜레이로 디바운스 핸들러 생성
-    const debouncedHandler = debounce(handleBoundsChanged, 200);
+    const debouncedHandler = debounce(() => {
+        handleMapMove(isListForced); 
+    }, 200);
 
     const listener = window.kakao.maps.event.addListener(
       map, 
-      'bounds_changed', 
+      'bounds_changed', // 줌 변경과 이동을 모두 감지
       debouncedHandler
     );
 
     return () => {
-      // ★ (수정) 리스너 객체를 사용하여 정확하게 제거
       if (listener) {
         listener.remove();
       }
     };
-  }, [mapInstanceRef, handleBoundsChanged]); 
+  }, [mapInstanceRef, handleMapMove, isListForced]); 
   // --- (여기까지) ---
 
 
-  // (지도 타입 토글... 변경 없음)
+  // (지도 타입 토글)
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || !window.kakao.maps.MapTypeId) return;
@@ -202,9 +232,10 @@ export default function KakaoMap() {
     }
   }, [activeMapType, mapInstanceRef]); 
 
-  // (로드뷰 컨트롤 토글... 변경 없음)
+  // (로드뷰 컨트롤 토글)
   useEffect(() => {
     const map = mapInstanceRef.current;
+    // ★ (수정) 로컬 ref 확인
     if (!map || !roadviewControlRef.current) return; 
 
     if (showRoadview) {
@@ -212,7 +243,7 @@ export default function KakaoMap() {
     } else {
       map.removeControl(roadviewControlRef.current);
     }
-  }, [showRoadview, mapInstanceRef]);
+  }, [showRoadview, mapInstanceRef]); // ★ roadviewControlRef는 의존성 배열에서 제거
 
 
   return (

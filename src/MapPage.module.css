@@ -11,10 +11,9 @@
   position: relative; 
 }
 
-/* ★ (추가) 1-1. 패널 열림 상태 클래스 (MapPage.jsx에서 사용) */
+/* ★ (수정) 1-1. 패널 열림 상태 클래스 */
 .panelOpen {
-  /* 이 클래스 자체는 스타일이 없지만, 
-     자식 요소(.mapFilterContainer)의 위치를 바꾸는 데 사용됩니다. */
+  /* (LeftPanel.jsx가 20rem 너비를 가짐) */
 }
 
 
@@ -30,7 +29,7 @@
 }
 .sidebarOpen {
   width: 24rem; 
-  padding: 1.5rem; 
+  padding: 1.25rem; /* ★ (수정) 1.5rem -> 1.25rem */
 }
 .sidebarClosed {
   width: 0;
@@ -39,13 +38,13 @@
 .sidebarContent {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem; 
+  gap: 0.75rem; /* ★ (수정) 1.5rem -> 0.75rem */
 }
 .sidebarTitle {
   font-size: 1.25rem; 
   font-weight: 700;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
+  margin-bottom: 0.75rem; /* ★ (수정) 1rem -> 0.75rem */
+  padding-bottom: 0.75rem; /* ★ (수정) 1rem -> 0.75rem */
   border-bottom: 1px solid #e5e7eb; 
   color: #1f2937; 
 }
@@ -93,11 +92,11 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem; /* ★ (수정) 1rem -> 0.5rem */
 }
 
 .formGroup {
-  margin-bottom: 1rem; 
+  margin-bottom: 0.5rem; /* ★ (수정) 1rem -> 0.5rem */
 }
 
 .label {
@@ -204,18 +203,18 @@
 
 /* 5. 고객 매칭 폼 */
 .customerMatcher {
-  margin-top: 1.5rem; 
-  padding-top: 1.5rem; 
+  margin-top: 0.75rem; /* ★ (수정) 1rem -> 0.75rem */
+  padding-top: 0.75rem; /* ★ (수정) 1rem -> 0.75rem */
   border-top: 1px solid #e5e7eb; 
 }
 .sidebarSubtitle {
   font-size: 1.125rem; 
   font-weight: 700;
   color: #1f2937; 
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem; /* ★ (수정) 0.75rem -> 0.5rem */
 }
 .linkedListContainer {
-  margin-top: 1.5rem; 
+  margin-top: 0.75rem; /* ★ (수정) 1rem -> 0.75rem */
 }
 .linkedListTitle {
   font-size: 1rem; 
@@ -368,6 +367,14 @@
   gap: 0.5rem;
   flex-shrink: 0;
 }
+/* ★ (추가) LeftPanel 로드뷰 버튼 컨테이너 */
+.layerToggleContainer {
+  margin-bottom: 1rem;
+}
+.layerToggleContainer .button {
+  width: 100%;
+}
+
 
 /* 8. AI 요약 리포트 (pre 태그) 스타일 */
 .imContentPre {
@@ -440,6 +447,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* ★ (추가) 9-3-1. 스택(묶음)일 때 주소 텍스트 */
+.manageItemAddress:has(span) {
+  font-weight: 700;
+  color: #f97316; /* orange */
+}
+
 
 /* ★ (추가) 9-4. 키워드 텍스트 (하단) */
 .manageItemKeywords {
@@ -529,8 +542,8 @@
     color: #111827; /* text-gray-900 */
     padding-bottom: 0.5rem;
     border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
+    margin-top: 1rem;     /* ★ (수정) 1.25rem -> 1rem */
+    margin-bottom: 0.5rem; /* ★ (수정) 0.75rem -> 0.5rem */
 }
 
 /* 12. 체크박스 그룹 */
@@ -561,7 +574,7 @@
 .imageUploadContainer {
     display: flex;
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem; /* ★ (수정) 1rem -> 0.5rem */
 }
 
 .imageSlot {
@@ -919,6 +932,7 @@
 }
 
 /* --- ★ (수정) 23-1. 필터 드롭다운 공통 스타일 (모던) --- */
+/* .filterSelect는 LeftPanel 내부용 */
 .filterSelect, .mapFilterSelect {
   /* 1. 기본 OS 스타일 제거 */
   -webkit-appearance: none;
@@ -955,11 +969,12 @@
   border-color: #9ca3af;
 }
 
-/* --- ★ (수정) 24. 지도 위 필터 컨테이너 (좌상단) --- */
+/* --- ★ (수정) 24. 지도 위 필터 컨테이너 (중앙 상단) --- */
 .mapFilterContainer {
     position: absolute;
     top: 1rem;
-    left: 1rem; /* ★ 기본 위치 (패널 닫혔을 때) */
+    left: 50%; /* ★ (수정) 중앙으로 */
+    transform: translateX(-50%); /* ★ (수정) 중앙 정렬 */
     z-index: 30; 
     display: flex;
     gap: 0.5rem; 
@@ -968,14 +983,10 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     border: 1px solid #d1d5db; 
     padding: 0.5rem; 
-    transition: left 0.3s ease-in-out; /* ★ (추가) 부드러운 이동 */
+    transition: left 0.3s ease-in-out; 
 }
 
-/* ★ (추가) 24-1. 패널 열렸을 때 필터 위치 */
-.panelOpen .mapFilterContainer {
-  /* 20rem (패널) + 20px (토글버튼) + 1rem (여백) */
-  left: calc(20rem + 20px + 1rem); 
-}
+/* ★ (제거) .panelOpen .mapFilterContainer (LeftPanel과 분리) */
 
 
 /* 25. 지도 위 필터 Select */
@@ -983,4 +994,115 @@
    여기서는 크기/패딩 조정만 남깁니다. */
 .mapFilterSelect {
   padding: 0.375rem 2rem 0.375rem 0.75rem; /* py-1.5, 화살표 공간 포함 */
+}
+
+
+/* --- 26. (수정) '원장 상세' (읽기 전용) 뷰 스타일 --- */
+
+.readOnlyContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* ★ (수정) 0.75rem -> 0.5rem (더 콤팩트하게) */
+  
+  /* ★ (제거) padding-bottom: 5rem; (스티키 버튼 제거) */
+}
+
+.readOnlyTitle {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 700;
+  margin-bottom: 0.5rem; /* mb-2 */
+  padding-bottom: 0.75rem; /* ★ (수정) 1rem -> 0.75rem */
+  border-bottom: 1px solid #e5e7eb; 
+  color: #1f2937; /* text-gray-800 */
+}
+
+.readOnlyPrice {
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 700;
+  color: #dc2626; /* text-red-600 */
+  margin-bottom: 0.25rem;
+}
+
+.readOnlyAddress {
+  font-size: 0.875rem; /* text-sm */
+  color: #4b5563; /* text-gray-600 */
+  margin-bottom: 0.5rem; /* ★ (수정) 0.75rem -> 0.5rem */
+}
+
+/* (formSectionTitle 스타일은 기존 것을 재사용) */
+
+.readOnlyTable {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* ★ (수정) 0.6rem -> 0.5rem */
+  border: 1px solid #e5e7eb; /* border-gray-200 */
+  border-radius: 0.375rem; /* rounded-md */
+  padding: 0.5rem 0.75rem; /* ★ (수정) 0.75rem -> 0.5rem 0.75rem */
+  background-color: #f9fafb; /* bg-gray-50 */
+}
+
+.readOnlyRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: 0.875rem; /* text-sm */
+  line-height: 1.5; /* 줄 높이 추가 */
+}
+
+.readOnlyLabel {
+  font-weight: 500; /* font-medium */
+  color: #374151; /* text-gray-700 */
+  flex-shrink: 0;
+  width: 5rem; /* 80px */
+}
+
+.readOnlyValue {
+  font-weight: 400;
+  color: #1f2937; /* text-gray-800 */
+  text-align: right;
+  flex-grow: 1;
+  word-break: break-word; /* 긴 텍스트 줄바꿈 */
+}
+
+/* 읽기 전용 뷰의 사진 슬롯 (입력 필드 없을 때) */
+.imageSlotEmpty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  color: #e5e7eb; /* text-gray-200 */
+  background-color: #f9fafb;
+  border: 2px dashed #e5e7eb;
+  border-radius: 0.375rem;
+  box-sizing: border-box;
+}
+
+/* 읽기 전용 뷰의 AI/임장 버튼 (세로 정렬) */
+.buttonGroupVertical {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* ★ (수정) 0.75rem -> 0.5rem */
+  margin-top: 0.5rem; /* ★ (수정) 0.75rem -> 0.5rem */
+}
+
+/* ★ (수정) .buttonGroupSticky -> .readOnlyBottomButtons (non-sticky) */
+.readOnlyBottomButtons {
+  margin-top: 1.5rem;
+  padding: 0; /* (부모인 .buttonGroup의 gap만 사용) */
+}
+
+/* --- ★ (추가) 27. 활성화된 핀 스타일 --- */
+
+.customOverlay.active {
+  /* z-index: 10; (z-index는 카카오맵이 관리) */
+  border: 2px solid #2563eb; /* 파란색 테두리 */
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5); /* 파란색 그림자 */
+  opacity: 1;
+}
+
+/* 활성화된 핀의 꼬리(::after)도 파란색으로 */
+.customOverlay.active::after {
+  border-top: 10px solid #2563eb; 
 }

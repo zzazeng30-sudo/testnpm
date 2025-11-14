@@ -15,7 +15,31 @@ export default function MapPage({ session, mode = 'tour' }) {
   );
 }
 
-/* ★ (수정) useMap에서 필터 state 가져오기 */
+// --- ★ (추가) 읽기 전용 뷰를 위한 가격 포맷팅 헬퍼 ---
+const formatPriceForDisplay = (pin) => {
+  const formatNum = (val) => Number(val || 0).toLocaleString();
+  const prices = [];
+  
+  if (pin.is_sale && (pin.sale_price !== null && pin.sale_price !== undefined)) {
+    prices.push(`매매 ${formatNum(pin.sale_price)}`);
+  }
+  if (pin.is_jeonse) {
+    let jeonseStr = `전세 ${formatNum(pin.jeonse_deposit)}`;
+    if (pin.jeonse_premium !== null && pin.jeonse_premium !== undefined && Number(pin.jeonse_premium) > 0) {
+      jeonseStr += ` (권 ${formatNum(pin.jeonse_premium)})`;
+    }
+    prices.push(jeonseStr);
+  }
+  if (pin.is_rent) {
+    prices.push(`월세 ${formatNum(pin.rent_deposit)} / ${formatNum(pin.rent_amount)}`);
+  }
+  
+  if (prices.length === 0) return "가격 정보 없음";
+  // | (파이프)로 구분
+  return prices.join(' | '); 
+}
+
+/* ★ (수정) useMap에서 isEditMode 및 필터 state 가져오기 */
 function MapPageContent() {
   const {
     // PinSidebar용 state
@@ -62,10 +86,13 @@ function MapPageContent() {
     // ★ (추가) 패널 접기 state
     isLeftPanelOpen, setIsLeftPanelOpen,
 
-    // ★ (추가) 필터 state (필터 UI를 이 파일로 옮기기 위함)
+    // ★ (추가) 필터 state (LeftPanel에서 다시 가져옴)
     filterPropertyType, setFilterPropertyType,
     filterTransactionType, setFilterTransactionType,
     filterStatus, setFilterStatus,
+
+    // ★ (추가) 읽기/수정 모드
+    isEditMode, setIsEditMode,
 
     // PinSidebar용 handlers
     handleSidebarSave, handleDeletePin, handleGenerateIm, handleAddToTour,
@@ -100,101 +127,97 @@ function MapPageContent() {
       >
         {selectedPin && (
           <div className={styles.sidebarContent}>
-            {/* --- ★ (수정) 폼 시작 ★ --- */}
-            <form key={selectedPin.id || 'new-pin'} onSubmit={handleSidebarSave}>
-              <h2 className={styles.sidebarTitle}>
-                {selectedPin.id ? '매물 정보 수정' : '새 매물 등록'}
-              </h2>
+            
+            {/* --- ★ (핵심 수정) 모드 전환 로직 --- */}
+            { (isEditMode || !selectedPin.id) ? (
+              // --- 1. 수정 모드 또는 새 핀 등록 모드 (기존 폼) ---
+              <form key={selectedPin.id || 'new-pin'} onSubmit={handleSidebarSave}>
+                <h2 className={styles.sidebarTitle}>
+                  {selectedPin.id ? '매물 정보 수정' : '새 매물 등록'}
+                </h2>
 
-              {/* --- 1. 소재 정보 --- */}
-              <h3 className={styles.formSectionTitle}>소재 정보</h3>
+                {/* --- 1. 소재 정보 --- */}
+                <h3 className={styles.formSectionTitle}>소재 정보</h3>
 
-              {/* --- ★ (수정) 매물 유형 (2-column layout) --- */}
-              <div className={styles.formRow}>
-                {/* Main Type Dropdown */}
-                <div className={`${styles.formGroup} ${propertyType === '기타' ? styles.formGroupHalf : styles.formGroupFull}`}>
-                  
-                  {/* ★ (수정) 레이블에 (필수) 추가 */}
-                  <label className={styles.label}>
-                    매물 유형 
-                    <span className={styles.requiredText}>(필수)</span>
-                  </label>
-                  
-                  <select
-                    className={styles.input} // ★ 사이드바 select는 .input 스타일 상속
-                    value={propertyType}
-                    onChange={(e) => setPropertyType(e.target.value)}
-                  >
-                    <option value="">-- 유형 선택 --</option>
-                    <option value="주택">주택</option>
-                    <option value="상가">상가</option>
-                    <option value="토지">토지</option>
-                    <option value="아파트">아파트</option>
-                    <option value="기타">기타</option>
-                  </select>
-                </div>
-
-                {/* Etc Type Dropdown (Conditional) */}
-                {propertyType === '기타' && (
-                  <div className={`${styles.formGroup} ${styles.formGroupHalf}`}>
-                    <label className={styles.label}>기타 유형 (상세)</label>
+                {/* (매물 유형 2-column) */}
+                <div className={styles.formRow}>
+                  <div className={`${styles.formGroup} ${propertyType === '기타' ? styles.formGroupHalf : styles.formGroupFull}`}>
+                    <label className={styles.label}>
+                      매물 유형 
+                      <span className={styles.requiredText}>(필수)</span>
+                    </label>
                     <select
-                      className={styles.input} // ★ 사이드바 select는 .input 스타일 상속
-                      value={propertyTypeEtc}
-                      onChange={(e) => setPropertyTypeEtc(e.target.value)}
+                      className={styles.input}
+                      value={propertyType}
+                      onChange={(e) => setPropertyType(e.target.value)}
                     >
-                      <option value="">-- 기타 유형 선택 --</option>
-                      {Array.from({ length: 10 }, (_, i) => (
-                        <option key={i} value={`기타${i + 1}`}>{`기타${i + 1}`}</option>
-                      ))}
+                      <option value="">-- 유형 선택 --</option>
+                      <option value="주택">주택</option>
+                      <option value="상가">상가</option>
+                      <option value="토지">토지</option>
+                      <option value="아파트">아파트</option>
+                      <option value="기타">기타</option>
                     </select>
                   </div>
-                )}
-              </div>
-              {/* --- (여기까지) --- */}
+                  {propertyType === '기타' && (
+                    <div className={`${styles.formGroup} ${styles.formGroupHalf}`}>
+                      <label className={styles.label}>기타 유형 (상세)</label>
+                      <select
+                        className={styles.input}
+                        value={propertyTypeEtc}
+                        onChange={(e) => setPropertyTypeEtc(e.target.value)}
+                      >
+                        <option value="">-- 기타 유형 선택 --</option>
+                        {Array.from({ length: 10 }, (_, i) => (
+                          <option key={i} value={`기타${i + 1}`}>{`기타${i + 1}`}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+                
+                {/* (주소 관련 폼 ... 변경 없음) */}
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>주소 (자동 입력)</label>
+                  <input
+                    className={styles.input}
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="핀을 찍은 곳의 주소"
+                    required
+                    readOnly
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>상세 주소</label>
+                  <input
+                    className={styles.input}
+                    type="text"
+                    value={detailedAddress}
+                    onChange={(e) => setDetailedAddress(e.target.value)}
+                    placeholder="예: 101동 101호"
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>건물명</label>
+                  <input
+                    className={styles.input}
+                    type="text"
+                    value={buildingName}
+                    onChange={(e) => setBuildingName(e.target.value)}
+                    placeholder="예: 현대아파트 101동"
+                  />
+                </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.label}>주소 (자동 입력)</label>
-                <input
-                  className={styles.input}
-                  type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="핀을 찍은 곳의 주소"
-                  required
-                  readOnly
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>상세 주소</label>
-                <input
-                  className={styles.input}
-                  type="text"
-                  value={detailedAddress}
-                  onChange={(e) => setDetailedAddress(e.target.value)}
-                  placeholder="예: 101동 101호"
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>건물명</label>
-                <input
-                  className={styles.input}
-                  type="text"
-                  value={buildingName}
-                  onChange={(e) => setBuildingName(e.target.value)}
-                  placeholder="예: 현대아파트 101동"
-                />
-              </div>
+                {/* --- 2. 거래 정보 --- */}
+                <h3 className={styles.formSectionTitle}>거래 정보</h3>
 
-              {/* --- 2. 거래 정보 --- */}
-              <h3 className={styles.formSectionTitle}>거래 정보</h3>
-
-              {/* --- 2.5. 거래 상태 (★ 기존 핀에만 보임) --- */}
-              {selectedPin && selectedPin.id && (
+                {/* (거래 상태 ... 변경 없음) */}
                 <div className={styles.formGroup}>
                   <label className={styles.label}>거래 상태</label>
                   <select
-                    className={styles.input} // ★ 사이드바 select는 .input 스타일 상속
+                    className={styles.input}
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
                   >
@@ -203,286 +226,322 @@ function MapPageContent() {
                     <option value="거래완료">거래완료</option>
                   </select>
                 </div>
-              )}
 
-              <div className={styles.formGroup}>
-                {/* ★ (수정) 레이블에 (필수) 추가 */}
-                <label className={styles.label}>
-                  거래 유형 (중복 가능)
-                  <span className={styles.requiredText}>(필수)</span>
-                </label>
-                {/* 체크박스 그룹 */}
-                <div className={styles.checkboxGroup}>
-                  <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      className={styles.checkboxInput}
-                      checked={isSale}
-                      onChange={(e) => setIsSale(e.target.checked)}
-                    />
-                    매매
-                  </label>
-                  <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      className={styles.checkboxInput}
-                      checked={isJeonse}
-                      onChange={(e) => setIsJeonse(e.target.checked)}
-                    />
-                    전세
-                  </label>
-                  <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      className={styles.checkboxInput}
-                      checked={isRent}
-                      onChange={(e) => setIsRent(e.target.checked)}
-                    />
-                    월세
-                  </label>
-                </div>
-              </div>
-
-              {/* --- 2-1. 조건부 입력칸 (매매) --- */}
-              {isSale && (
+                {/* (거래 유형 ... 변경 없음) */}
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>매매 금액 (만원)</label>
-                  <input
-                    className={styles.input}
-                    type="number"
-                    value={salePrice}
-                    onChange={(e) => setSalePrice(e.target.value)}
-                    placeholder="숫자만 입력 (예: 10000)"
-                  />
+                  <label className={styles.label}>
+                    거래 유형 (중복 가능)
+                    <span className={styles.requiredText}>(필수)</span>
+                  </label>
+                  <div className={styles.checkboxGroup}>
+                    {/* (매매, 전세, 월세 체크박스) */}
+                     <label className={styles.checkboxLabel}>
+                      <input
+                        type="checkbox"
+                        className={styles.checkboxInput}
+                        checked={isSale}
+                        onChange={(e) => setIsSale(e.target.checked)}
+                      />
+                      매매
+                    </label>
+                    <label className={styles.checkboxLabel}>
+                      <input
+                        type="checkbox"
+                        className={styles.checkboxInput}
+                        checked={isJeonse}
+                        onChange={(e) => setIsJeonse(e.target.checked)}
+                      />
+                      전세
+                    </label>
+                    <label className={styles.checkboxLabel}>
+                      <input
+                        type="checkbox"
+                        className={styles.checkboxInput}
+                        checked={isRent}
+                        onChange={(e) => setIsRent(e.target.checked)}
+                      />
+                      월세
+                    </label>
+                  </div>
                 </div>
-              )}
 
-              {/* --- 2-2. 조건부 입력칸 (전세) --- */}
-              {isJeonse && (
-                <>
+                {/* (조건부 가격 입력칸 ... 변경 없음) */}
+                {isSale && (
                   <div className={styles.formGroup}>
-                    <label className={styles.label}>전세 보증금 (만원)</label>
-                    <input
-                      className={styles.input}
-                      type="number"
-                      value={jeonseDeposit}
-                      onChange={(e) => setJeonseDeposit(e.target.value)}
-                      placeholder="숫자만 입력 (예: 5000)"
-                    />
+                    <label className={styles.label}>매매 금액 (만원)</label>
+                    <input className={styles.input} type="number" value={salePrice} onChange={(e) => setSalePrice(e.target.value)} placeholder="숫자만 입력 (예: 10000)"/>
                   </div>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label}>권리금 (만원)</label>
-                    <input
-                      className={styles.input}
-                      type="number"
-                      value={jeonsePremium}
-                      onChange={(e) => setJeonsePremium(e.target.value)}
-                      placeholder="숫자만 입력 (없으면 0)"
-                    />
-                  </div>
-                </>
-              )}
-
-              {/* --- 2-3. 조건부 입력칸 (월세) --- */}
-              {isRent && (
-                <>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label}>월세 보증금 (만원)</label>
-                    <input
-                      className={styles.input}
-                      type="number"
-                      value={rentDeposit}
-                      onChange={(e) => setRentDeposit(e.target.value)}
-                      placeholder="숫자만 입력 (예: 1000)"
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label className={styles.label}>월세 (만원)</label>
-                    <input
-                      className={styles.input}
-                      type="number"
-                      value={rentAmount}
-                      onChange={(e) => setRentAmount(e.target.value)}
-                      placeholder="숫자만 입력 (예: 100)"
-                    />
-                  </div>
-                </>
-              )}
-
-              {/* --- 3. 매물 노트 --- */}
-              <h3 className={styles.formSectionTitle}>매물 노트</h3>
-              <div className={styles.formGroup}>
-                {/* ★ (수정) 레이블에 (필수) 추가 */}
-                <label className={styles.label}>
-                  키워드
-                  <span className={styles.requiredText}>(필수)</span>
-                </label>
-                <input
-                  className={styles.input}
-                  type="text"
-                  value={keywords}
-                  onChange={(e) => setKeywords(e.target.value)}
-                  placeholder="예: #역세권, #신축, #급매"
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>상세 메모</label>
-                <textarea
-                  className={styles.textarea}
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="매물에 대한 상세 정보를 입력하세요..."
-                />
-              </div>
-
-              {/* --- ★ (추가) 사진 업로드 --- */}
-              <h3 className={styles.formSectionTitle}>사진 등록 (최대 3개)</h3>
-              <div className={styles.imageUploadContainer}>
-                {[0, 1, 2].map((index) => (
-                  <div key={index} className={styles.imageSlot}>
-                    {imageUrls[index] && imageUrls[index] !== 'remove' ? (
-                      <div className={styles.imagePreviewWrapper}>
-                        <img
-                          src={imageUrls[index].startsWith('blob:') ? imageUrls[index] : imageUrls[index] + `?t=${new Date().getTime()}`}
-                          alt={`매물 사진 ${index + 1}`}
-                          className={`${styles.imagePreviewThumbnail} ${styles.imagePreviewClickable}`} 
-                          onClick={() => setViewingImage(imageUrls[index])} 
-                        />
-                        <button
-                          type="button"
-                          className={styles.imageRemoveButton}
-                          onClick={() => handleImageRemove(index)}
-                          disabled={isUploading}
-                        >
-                          X
-                        </button>
-                      </div>
-                    ) : (
-                      <label className={styles.fileInputLabel}>
-                        +
-                        <input
-                          type="file"
-                          className={styles.fileInput}
-                          accept="image/*"
-                          onChange={(e) => handleImageChange(index, e.target.files[0])}
-                          disabled={isUploading}
-                        />
-                      </label>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* --- ★ (추가) 4.5. 유효성 검사 에러 --- */}
-              {validationErrors.length > 0 && (
-                <div className={styles.validationErrorContainer}>
-                  <p className={styles.validationErrorTitle}>다음 필수 항목을 입력하세요:</p>
-                  <ul className={styles.validationErrorList}>
-                    {validationErrors.map(error => (
-                      <li key={error}>{error}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* --- 5. 버튼 그룹 --- */}
-              <div className={styles.buttonGroup}>
-                <button onClick={() => {
-                  setSelectedPin(null);
-                  clearTempMarkerAndMenu();
-                }} type="button" className={`${styles.button} ${styles.buttonGray}`}>
-                  닫기
-                </button>
-                {selectedPin.id && (
-                  <button onClick={() => handleDeletePin(selectedPin.id)} type="button" className={`${styles.button} ${styles.buttonRed}`} disabled={loading || isGenerating || isUploading}>
-                    삭제
-                  </button>
                 )}
-                <button type="submit" className={`${styles.button} ${styles.buttonBlue}`} disabled={loading || isGenerating || isUploading}>
-                  {isUploading ? '저장 중...' : '저장'}
-                </button>
-              </div>
+                {isJeonse && (
+                  <>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>전세 보증금 (만원)</label>
+                      <input className={styles.input} type="number" value={jeonseDeposit} onChange={(e) => setJeonseDeposit(e.target.value)} placeholder="숫자만 입력 (예: 5000)"/>
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>권리금 (만원)</label>
+                      <input className={styles.input} type="number" value={jeonsePremium} onChange={(e) => setJeonsePremium(e.target.value)} placeholder="숫자만 입력 (없으면 0)"/>
+                    </div>
+                  </>
+                )}
+                {isRent && (
+                  <>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>월세 보증금 (만원)</label>
+                      <input className={styles.input} type="number" value={rentDeposit} onChange={(e) => setRentDeposit(e.target.value)} placeholder="숫자만 입력 (예: 1000)"/>
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.label}>월세 (만원)</label>
+                      <input className={styles.input} type="number" value={rentAmount} onChange={(e) => setRentAmount(e.target.value)} placeholder="숫자만 입력 (예: 100)"/>
+                    </div>
+                  </>
+                )}
 
-              {/* --- 6. 추가 기능 버튼 (기존 핀) --- */}
-              {selectedPin.id && (
-                <>
-                  <div className={styles.pdfButtonContainer}>
-                    <button
-                      onClick={() => handleGenerateIm(selectedPin)}
-                      type="button"
-                      className={`${styles.button} ${styles.buttonPurple}`}
-                      disabled={isGenerating || loading || isUploading}
-                    >
-                      {isGenerating ? 'AI 입지 분석 중...' : 'AI 입지 분석 (정확도 UP)'}
-                    </button>
+                {/* --- 3. 매물 노트 --- */}
+                <h3 className={styles.formSectionTitle}>매물 노트</h3>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>
+                    키워드
+                    <span className={styles.requiredText}>(필수)</span>
+                  </label>
+                  <input className={styles.input} type="text" value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="예: #역세권, #신축, #급매"/>
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>상세 메모</label>
+                  <textarea className={styles.textarea} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="매물에 대한 상세 정보를 입력하세요..."/>
+                </div>
+
+                {/* --- 4. 사진 등록 --- */}
+                <h3 className={styles.formSectionTitle}>사진 등록 (최대 3개)</h3>
+                <div className={styles.imageUploadContainer}>
+                  {[0, 1, 2].map((index) => (
+                    <div key={index} className={styles.imageSlot}>
+                      {imageUrls[index] && imageUrls[index] !== 'remove' ? (
+                        <div className={styles.imagePreviewWrapper}>
+                          <img
+                            src={imageUrls[index].startsWith('blob:') ? imageUrls[index] : imageUrls[index] + `?t=${new Date().getTime()}`}
+                            alt={`매물 사진 ${index + 1}`}
+                            className={`${styles.imagePreviewThumbnail} ${styles.imagePreviewClickable}`} 
+                            onClick={() => setViewingImage(imageUrls[index])} 
+                          />
+                          <button type="button" className={styles.imageRemoveButton} onClick={() => handleImageRemove(index)} disabled={isUploading}> X </button>
+                        </div>
+                      ) : (
+                        <label className={styles.fileInputLabel}> + <input type="file" className={styles.fileInput} accept="image/*" onChange={(e) => handleImageChange(index, e.target.files[0])} disabled={isUploading}/>
+                        </label>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* --- 4.5. 유효성 검사 에러 --- */}
+                {validationErrors.length > 0 && (
+                  <div className={styles.validationErrorContainer}>
+                    <p className={styles.validationErrorTitle}>다음 필수 항목을 입력하세요:</p>
+                    <ul className={styles.validationErrorList}>
+                      {validationErrors.map(error => ( <li key={error}>{error}</li> ))}
+                    </ul>
                   </div>
-                  {mode === 'tour' && (
-                    <div className={styles.pdfButtonContainer}>
-                      <button
-                        onClick={() => handleAddToTour(selectedPin)}
-                        type="button"
-                        className={`${styles.button} ${styles.buttonGreen}`}
-                        disabled={isGenerating || loading || isUploading}
-                      >
-                        🚩 임장 목록에 추가
-                      </button>
+                )}
+
+                {/* --- 5. 버튼 그룹 --- */}
+                <div className={styles.buttonGroup}>
+                  <button onClick={() => {
+                    // ★ (수정) 새 핀이 아니면 읽기 모드로, 새 핀이면 닫기
+                    if (selectedPin.id) {
+                      setIsEditMode(false); 
+                      setValidationErrors([]);
+                    } else {
+                      setSelectedPin(null);
+                      clearTempMarkerAndMenu();
+                    }
+                  }} type="button" className={`${styles.button} ${styles.buttonGray}`}>
+                    {selectedPin.id ? '수정 취소' : '등록 취소'}
+                  </button>
+                  {selectedPin.id && (
+                    <button onClick={() => handleDeletePin(selectedPin.id)} type="button" className={`${styles.button} ${styles.buttonRed}`} disabled={loading || isGenerating || isUploading}>
+                      삭제
+                    </button>
+                  )}
+                  <button type="submit" className={`${styles.button} ${styles.buttonBlue}`} disabled={loading || isGenerating || isUploading}>
+                    {isUploading ? '저장 중...' : '저장'}
+                  </button>
+                </div>
+              </form>
+            
+            ) : (
+              // --- 2. 읽기 전용 모드 (새로운 '원장 상세' 뷰) ---
+              <div className={styles.readOnlyContainer}>
+                <h2 className={styles.readOnlyTitle}>원장 상세</h2>
+                
+                {/* 가격 정보 */}
+                <h3 className={styles.readOnlyPrice}>{formatPriceForDisplay(selectedPin)}</h3>
+                <p className={styles.readOnlyAddress}>
+                  {selectedPin.address || '주소 없음'} {selectedPin.detailed_address || ''}
+                </p>
+
+                {/* ★ (수정) 모든 정보를 하나의 테이블로 통합 */}
+                <div className={styles.readOnlyTable}>
+                  {/* 관리 정보 */}
+                  <div className={styles.readOnlyRow}>
+                    <span className={styles.readOnlyLabel}>물건유형</span>
+                    <span className={styles.readOnlyValue}>
+                      {selectedPin.property_type || '-'}
+                      {selectedPin.property_type_etc ? ` (${selectedPin.property_type_etc})` : ''}
+                    </span>
+                  </div>
+                  <div className={styles.readOnlyRow}>
+                    <span className={styles.readOnlyLabel}>건물명</span>
+                    <span className={styles.readOnlyValue}>{selectedPin.building_name || '-'}</span>
+                  </div>
+                  <div className={styles.readOnlyRow}>
+                    <span className={styles.readOnlyLabel}>거래상태</span>
+                    <span className={styles.readOnlyValue}>{selectedPin.status || '-'}</span>
+                  </div>
+
+                  {/* 거래 정보 */}
+                  {selectedPin.is_sale && (
+                    <div className={styles.readOnlyRow}>
+                      <span className={styles.readOnlyLabel}>매매</span>
+                      <span className={styles.readOnlyValue}>{Number(selectedPin.sale_price || 0).toLocaleString()} 만원</span>
                     </div>
                   )}
-                </>
-              )}
-            </form>
-            {/* --- ★ (수정) 폼 끝 ★ --- */}
+                  {selectedPin.is_jeonse && (
+                    <>
+                      <div className={styles.readOnlyRow}>
+                        <span className={styles.readOnlyLabel}>전세</span>
+                        <span className={styles.readOnlyValue}>{Number(selectedPin.jeonse_deposit || 0).toLocaleString()} 만원</span>
+                      </div>
+                      <div className={styles.readOnlyRow}>
+                        <span className={styles.readOnlyLabel}>권리금</span>
+                        <span className={styles.readOnlyValue}>{Number(selectedPin.jeonse_premium || 0).toLocaleString()} 만원</span>
+                      </div>
+                    </>
+                  )}
+                  {selectedPin.is_rent && (
+                    <>
+                      <div className={styles.readOnlyRow}>
+                        <span className={styles.readOnlyLabel}>월세</span>
+                        <span className={styles.readOnlyValue}>{Number(selectedPin.rent_deposit || 0).toLocaleString()} / {Number(selectedPin.rent_amount || 0).toLocaleString()}</span>
+                      </div>
+                    </>
+                  )}
 
-            {/* --- 7. 고객 매칭 (기존 핀) --- */}
-            {selectedPin.id && (
-              <div className={styles.customerMatcher}>
-                <h3 className={styles.sidebarSubtitle}>고객 매칭</h3>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const customerId = e.target.elements['customer-select'].value;
-                    handleLinkCustomer(selectedPin.id, Number(customerId));
-                  }}
-                >
-                  <label className={styles.label}>고객 선택</label>
-                  <select
-                    id="customer-select"
-                    className={styles.input} // ★ 사이드바 select는 .input 스타일 상속
-                    defaultValue=""
+                  {/* 매물 노트 */}
+                  <div className={styles.readOnlyRow}>
+                    <span className={styles.readOnlyLabel}>키워드</span>
+                    <span className={styles.readOnlyValue}>{selectedPin.keywords || '-'}</span>
+                  </div>
+                  <div className={styles.readOnlyRow}>
+                    <span className={styles.readOnlyLabel}>상세메모</span>
+                    <span className={styles.readOnlyValue} style={{whiteSpace: 'pre-wrap'}}>
+                      {selectedPin.notes || '-'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 사진 정보 */}
+                <h3 className={styles.formSectionTitle}>사진</h3>
+                <div className={styles.imageUploadContainer}>
+                  {[0, 1, 2].map((index) => (
+                    <div key={index} className={styles.imageSlot}>
+                      {imageUrls[index] && imageUrls[index] !== 'remove' ? (
+                        <div className={styles.imagePreviewWrapper}>
+                          <img
+                            src={imageUrls[index].startsWith('blob:') ? imageUrls[index] : imageUrls[index] + `?t=${new Date().getTime()}`}
+                            alt={`매물 사진 ${index + 1}`}
+                            className={`${styles.imagePreviewThumbnail} ${styles.imagePreviewClickable}`} 
+                            onClick={() => setViewingImage(imageUrls[index])} 
+                          />
+                        </div>
+                      ) : (
+                        <div className={styles.imageSlotEmpty}>-</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* --- 추가 기능 버튼 (AI, 임장) --- */}
+                <div className={styles.buttonGroupVertical}>
+                  <button
+                    onClick={() => handleGenerateIm(selectedPin)}
+                    type="button"
+                    className={`${styles.button} ${styles.buttonPurple}`}
+                    disabled={isGenerating || loading}
                   >
-                    <option value="" disabled>-- 등록된 고객 --</option>
-                    {customers.map(customer => (
-                      <option key={customer.id} value={customer.id}>
-                        {customer.name} ({customer.phone})
-                      </option>
-                    ))}
-                  </select>
-                  <button type="submit" className={`${styles.button} ${styles.buttonCyan}`} disabled={loading || isGenerating || isUploading}>
-                    {loading ? '...' : '이 핀에 고객 연결'}
+                    {isGenerating ? 'AI 입지 분석 중...' : 'AI 입지 분석 (정확도 UP)'}
                   </button>
-                </form>
-                <div className={styles.linkedListContainer}>
-                  <h4 className={styles.linkedListTitle}>연결된 고객 목록</h4>
-                  {linkedCustomers.length === 0 && <p className={styles.emptyText}>연결된 고객이 없습니다.</p>}
-                  <ul className={styles.linkedList}>
-                    {linkedCustomers.map(link => (
-                      <li key={link.id} className={styles.linkedListItem}>
-                        <span>{link.customer ? link.customer.name : '삭제된 고객'}</span>
-                        <button
-                          onClick={() => handleUnlinkCustomer(link.id)}
-                          className={styles.unlinkButton}
-                          disabled={isGenerating || loading || isUploading}
-                        >
-                          연결 해제
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                  {mode === 'tour' && (
+                    <button
+                      onClick={() => handleAddToTour(selectedPin)}
+                      type="button"
+                      className={`${styles.button} ${styles.buttonGreen}`}
+                      disabled={isGenerating || loading}
+                    >
+                      🚩 임장 목록에 추가
+                    </button>
+                  )}
+                </div>
+
+                {/* --- 고객 매칭 --- */}
+                {selectedPin.id && (
+                  <div className={styles.customerMatcher}>
+                    <h3 className={styles.sidebarSubtitle}>고객 매칭</h3>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        const customerId = e.target.elements['customer-select'].value;
+                        handleLinkCustomer(selectedPin.id, Number(customerId));
+                      }}
+                    >
+                      <label className={styles.label}>고객 선택</label>
+                      <select id="customer-select" className={styles.input} defaultValue="">
+                        <option value="" disabled>-- 등록된 고객 --</option>
+                        {customers.map(customer => (
+                          <option key={customer.id} value={customer.id}>
+                            {customer.name} ({customer.phone})
+                          </option>
+                        ))}
+                      </select>
+                      <button type="submit" className={`${styles.button} ${styles.buttonCyan}`} disabled={loading || isGenerating}>
+                        {loading ? '...' : '이 핀에 고객 연결'}
+                      </button>
+                    </form>
+                    <div className={styles.linkedListContainer}>
+                      <h4 className={styles.linkedListTitle}>연결된 고객 목록</h4>
+                      {linkedCustomers.length === 0 && <p className={styles.emptyText}>연결된 고객이 없습니다.</p>}
+                      <ul className={styles.linkedList}>
+                        {linkedCustomers.map(link => (
+                          <li key={link.id} className={styles.linkedListItem}>
+                            <span>{link.customer ? link.customer.name : '삭제된 고객'}</span>
+                            <button onClick={() => handleUnlinkCustomer(link.id)} className={styles.unlinkButton} disabled={isGenerating || loading}>
+                              연결 해제
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+                
+                {/* --- ★ (수정) 하단 버튼 그룹 (non-sticky) --- */}
+                <div className={`${styles.buttonGroup} ${styles.readOnlyBottomButtons}`}>
+                  <button onClick={() => {
+                      setSelectedPin(null);
+                      clearTempMarkerAndMenu(); 
+                  }} type="button" className={`${styles.button} ${styles.buttonGray}`}>
+                    매물 닫기
+                  </button>
+                  <button onClick={() => setIsEditMode(true)} type="button" className={`${styles.button} ${styles.buttonBlue}`}>
+                    매물 수정
+                  </button>
                 </div>
               </div>
             )}
+            
           </div>
         )}
+        {/* (사이드바 닫혔을 때 ... 변경 없음) */}
         {!selectedPin && (
           <div className={styles.sidebarEmpty}>
             <p>지도를 우클릭하여 새 핀을 등록하세요.</p>
@@ -494,10 +553,9 @@ function MapPageContent() {
       {/* 3. 카카오 지도 (분리된 컴포넌트) */}
       <KakaoMap />
 
-      {/* ★ (추가) 3-1. 커스텀 필터 컨트롤 (지도 좌상단) */}
+      {/* ★ (추가) 지도 위 필터 컨트롤 (중앙 상단) */}
       <div className={styles.mapFilterContainer}>
-        {/* 필터 1: 매물 유형 */}
-        <select 
+         <select 
           className={styles.mapFilterSelect}
           value={filterPropertyType}
           onChange={(e) => setFilterPropertyType(e.target.value)}
@@ -509,7 +567,6 @@ function MapPageContent() {
           <option value="아파트">아파트</option>
           <option value="기타">기타</option>
         </select>
-        {/* 필터 2: 거래 유형 */}
         <select 
           className={styles.mapFilterSelect}
           value={filterTransactionType}
@@ -520,7 +577,6 @@ function MapPageContent() {
           <option value="전세">전세</option>
           <option value="월세">월세</option>
         </select>
-        {/* 필터 3: 거래 상태 */}
         <select 
           className={styles.mapFilterSelect}
           value={filterStatus}
@@ -531,9 +587,9 @@ function MapPageContent() {
           <option value="거래중">거래중</option>
           <option value="거래완료">거래완료</option>
         </select>
-      </div>
+      </div> 
 
-      {/* ★ (수정) 3-2. 커스텀 지도 컨트롤 (지도 우상단) */}
+      {/* (지도 컨트롤 ... 변경 없음) */}
       <div className={styles.mapControlContainer}>
         <button
           className={`${styles.mapControlButton} ${activeMapType === 'NORMAL' ? styles.active : ''}`}
@@ -592,15 +648,15 @@ function MapPageContent() {
         </div>
       )}
 
-      {/* ★ (추가) 6. 사진 뷰어 모달 */}
+      {/* 6. 사진 뷰어 모달 (★ 변경 없음) */}
       {viewingImage && (
         <div
-          className={styles.imModalOverlay} // 기존 모달 오버레이 스타일 재사용
-          onClick={() => setViewingImage(null)} // ★ 배경 클릭 시 닫기
+          className={styles.imModalOverlay} 
+          onClick={() => setViewingImage(null)}
         >
           <div
-            className={styles.imageViewerModal} // ★ 새 스타일
-            onClick={(e) => e.stopPropagation()} // ★ 이미지 클릭 시 닫히는 것 방지
+            className={styles.imageViewerModal} 
+            onClick={(e) => e.stopPropagation()} 
           >
             <img
               src={viewingImage.startsWith('blob:') ? viewingImage : viewingImage + `?t=${new Date().getTime()}`}
@@ -608,7 +664,7 @@ function MapPageContent() {
             />
             <button
               onClick={() => setViewingImage(null)}
-              className={styles.imageViewerCloseButton} // ★ 새 스타일
+              className={styles.imageViewerCloseButton} 
             >
               X
             </button>
