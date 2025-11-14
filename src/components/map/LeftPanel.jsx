@@ -1,14 +1,34 @@
 // src/components/map/LeftPanel.jsx (수정)
 import React from 'react';
-// ★ 21일차 (수정): '../../' 경로 수정
 import { useMap } from '../../contexts/MapContext'; 
 import styles from '../../MapPage.module.css'; 
 
+// ★ (추가) 가격 포맷팅 헬퍼
+const formatPriceForList = (pin) => {
+  // 숫자 포맷팅 (0이나 null일 경우 0으로)
+  const formatNum = (val) => Number(val || 0).toLocaleString();
+  const salePrice = pin.sale_price;
+  const jeonseDeposit = pin.jeonse_deposit;
+  const rentDeposit = pin.rent_deposit;
+  const rentAmount = pin.rent_amount;
+
+  if (pin.is_sale && (salePrice !== null && salePrice !== undefined)) {
+    return `매) ${formatNum(salePrice)} 만`;
+  }
+  if (pin.is_jeonse && (jeonseDeposit !== null && jeonseDeposit !== undefined)) {
+    return `전) ${formatNum(jeonseDeposit)} 만`;
+  }
+  if (pin.is_rent) {
+    return `월) ${formatNum(rentDeposit)} / ${formatNum(rentAmount)}`;
+  }
+  return '-'; // 아무것도 해당 안될 시
+}
+
+
 export default function LeftPanel() {
-  // ★ (수정) '뇌'에서 필요한 데이터와 기능을 모두 가져옵니다.
   const {
     mode,
-    pins,
+    visiblePins, // ★ pins -> visiblePins
     tourPins,
     loading,
     isGenerating,
@@ -20,17 +40,21 @@ export default function LeftPanel() {
     fetchLinkedCustomers,
     setImContent,
     mapInstanceRef,
-
-    // ★ (수정) showCadastral 대신 showRoadview 사용
     showRoadview, setShowRoadview,
+    
+    // ★ (제거) 필터 state는 MapPage.jsx로 이동
+    // filterPropertyType, setFilterPropertyType,
+    // filterTransactionType, setFilterTransactionType,
+    // filterStatus, setFilterStatus,
 
-    // ★ (추가) 새 폼 state setters
     setAddress, setDetailedAddress, setBuildingName,
+    setPropertyType, setPropertyTypeEtc,
     setIsSale, setSalePrice,
     setIsJeonse, setJeonseDeposit, setJeonsePremium,
     setIsRent, setRentDeposit, setRentAmount,
     setKeywords, setNotes, setStatus,
-    setImageUrls, setImageFiles
+    setImageUrls, setImageFiles,
+    setValidationErrors,
   } = useMap();
 
   // --- A. '임장 동선' 모드 ---
@@ -40,6 +64,9 @@ export default function LeftPanel() {
         <h3 className={styles.tourTitle}>
           🚩 임장 동선 최적화 ({tourPins.length})
         </h3>
+        
+        {/* ★ (제거) 필터 섹션 (MapPage.jsx로 이동) */}
+
         <div className={styles.tourList}>
           {tourPins.length === 0 && (
             <p className={styles.emptyText}>선택된 핀의 [임장 목록에 추가] 버튼을 눌러 매물을 담아주세요.</p>
@@ -48,7 +75,6 @@ export default function LeftPanel() {
             <div key={pin.id} className={styles.tourItem}>
               <span className={styles.tourItemIndex}>{index + 1}</span>
               <span className={styles.tourItemMemo} title={pin.notes || pin.building_name}>
-                {/* ★ (수정) pin.memo 대신 pin.building_name 또는 pin.notes 사용 */}
                 {(pin.building_name || pin.notes || '이름 없음').length > 15 
                   ? `${(pin.building_name || pin.notes || '이름 없음').substring(0, 15)}...` 
                   : (pin.building_name || pin.notes || '이름 없음')}
@@ -64,7 +90,6 @@ export default function LeftPanel() {
           ))}
         </div>
         
-        {/* ★ (수정) '지적도' 버튼을 '로드뷰' 버튼으로 교체 */}
         <div className={styles.layerToggleContainer}>
           <button
             onClick={() => setShowRoadview(prev => !prev)}
@@ -98,39 +123,46 @@ export default function LeftPanel() {
   if (mode === 'manage') {
     return (
       <aside className={styles.managePanel}> 
+        
+        {/* ★ (제거) 필터 섹션 (MapPage.jsx로 이동) */}
+
         <h3 className={styles.manageTitle}>
-          🏠 전체 매물 리스트 ({pins.length})
+          🏠 지도 내 매물 ({visiblePins.length})
         </h3>
         <div className={styles.manageList}>
-          {pins.length === 0 && (
-            <p className={styles.emptyText}>등록된 매물이 없습니다. 지도에서 우클릭하여 핀을 등록하세요.</p>
+          {visiblePins.length === 0 && (
+            <p className={styles.emptyText}>
+              {loading ? '매물 로딩 중...' : '지도 범위에 해당하는 매물이 없습니다.'}
+            </p>
           )}
-          {pins.map((pin) => (
+          
+          {/* ★ (수정) 리스트 아이템 JSX 구조 변경 */}
+          {visiblePins.map((pin) => (
             <div 
               key={pin.id} 
               className={styles.manageItem}
               onClick={() => {
                   clearTempMarkerAndMenu(); 
                   setSelectedPin(pin);
-
-                  // ★ (수정) setEditMemo/Price 대신 새 폼 state로 모두 채우기
                   setAddress(pin.address || '');
                   setDetailedAddress(pin.detailed_address || '');
                   setBuildingName(pin.building_name || '');
+                  setPropertyType(pin.property_type || ''); 
+                  setPropertyTypeEtc(pin.property_type_etc || ''); 
                   setIsSale(pin.is_sale || false);
-                  setSalePrice(pin.sale_price || '');
+                  setSalePrice(pin.sale_price !== null ? String(pin.sale_price) : ''); 
                   setIsJeonse(pin.is_jeonse || false);
-                  setJeonseDeposit(pin.jeonse_deposit || '');
-                  setJeonsePremium(pin.jeonse_premium || '');
+                  setJeonseDeposit(pin.jeonse_deposit !== null ? String(pin.jeonse_deposit) : ''); 
+                  setJeonsePremium(pin.jeonse_premium !== null ? String(pin.jeonse_premium) : ''); 
                   setIsRent(pin.is_rent || false);
-                  setRentDeposit(pin.rent_deposit || '');
-                  setRentAmount(pin.rent_amount || '');
+                  setRentDeposit(pin.rent_deposit !== null ? String(pin.rent_deposit) : ''); 
+                  setRentAmount(pin.rent_amount !== null ? String(pin.rent_amount) : ''); 
                   setKeywords(pin.keywords || '');
                   setNotes(pin.notes || '');
                   setStatus(pin.status || '거래전');
                   setImageUrls(pin.image_urls || ['', '', '']);
                   setImageFiles([null, null, null]);
-
+                  setValidationErrors([]); 
                   fetchLinkedCustomers(pin.id);
                   setImContent(null);
                   if (mapInstanceRef.current && window.kakao) {
@@ -138,21 +170,26 @@ export default function LeftPanel() {
                   }
               }}
             >
-              <span className={styles.manageItemMemo} title={pin.notes}>
-                {/* ★ (수정) pin.memo 대신 pin.building_name 또는 pin.notes */}
-                {pin.building_name || pin.notes || '메모 없음'}
-              </span>
+              {/* 1. 왼쪽 (주소, 키워드) */}
+              <div className={styles.manageItemLeft}>
+                <span className={styles.manageItemAddress} title={pin.address}>
+                  {/* ★ (수정) 주소 또는 건물명, 둘 다 없으면 '주소 없음' */}
+                  {pin.address || pin.building_name || '주소 없음'}
+                </span>
+                <span className={styles.manageItemKeywords} title={pin.keywords}>
+                  {pin.keywords || '키워드 없음'}
+                </span>
+              </div>
+              
+              {/* 2. 오른쪽 (가격) */}
               <span className={styles.manageItemPrice}>
-                {/* ★ (수정) pin.price 대신 거래 유형별 가격 표시 */}
-                {pin.is_sale && pin.sale_price ? `${pin.sale_price.toLocaleString()} 만원` : 
-                 (pin.is_jeonse && pin.jeonse_deposit ? `${pin.jeonse_deposit.toLocaleString()} 만원` : 
-                 (pin.is_rent && pin.rent_amount ? `${pin.rent_deposit}/${pin.rent_amount}` : '-'))}
+                {formatPriceForList(pin)}
               </span>
             </div>
           ))}
+          {/* ★ (여기까지 수정) */}
         </div>
 
-        {/* ★ (수정) '지적도' 버튼을 '로드뷰' 버튼으로 교체 */}
         <div className={styles.layerToggleContainer}>
           <button
             onClick={() => setShowRoadview(prev => !prev)}

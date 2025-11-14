@@ -1,10 +1,19 @@
-// src/components/map/KakaoMap.jsx (수정)
+// src/components/map/KakaoMap.jsx (변경 없음)
 import React, { useEffect, useRef } from 'react';
-import { useMap } from '../../contexts/MapContext'; 
+import { useMap } from '../../contexts/MapContext';
 import { supabase } from '../../supabaseClient.js';
-import styles from '../../MapPage.module.css'; 
+import styles from '../../MapPage.module.css';
 
-const GRAY_PIN_IMAGE_URL = 'https://placehold.co/36x36/888888/ffffff';
+// --- ★ 1. 디바운스(Debounce) 헬퍼 함수 ---
+function debounce(func, delay) {
+  let timeout;
+  return function(...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), delay);
+  };
+}
+// --- (여기까지) ---
 
 export default function KakaoMap() {
   const {
@@ -14,162 +23,205 @@ export default function KakaoMap() {
     clearTempMarkerAndMenu,
     setSelectedPin,
     setContextMenu,
-    contextMenu, 
     fetchPins,
     fetchCustomers,
     mapRef,
-    // ★ (추가) 지도 컨트롤 state
-    mapType,
-    showCadastral,
-    showRoadview
+    activeMapType,
+    showRoadview,
+    handleBoundsChanged, 
   } = useMap();
-  
-  // ★ (추가) 로드뷰 컨트롤러 인스턴스를 저장할 Ref
+
   const roadviewControlRef = useRef(null);
 
   // 5. (Init) 지도 초기화
   useEffect(() => {
     if (!mapRef.current) return;
-    
-    const handleContextMenu = (e) => e.preventDefault();
-    const mapContainer = mapRef.current; 
 
-    // 'getInitialCenter' 헬퍼 함수
+    const handleContextMenu = (e) => e.preventDefault();
+    const mapContainer = mapRef.current;
+
+    // (getInitialCenter 헬퍼 함수... 변경 없음)
     const getInitialCenter = (geocoder, defaultCenter) => {
       return new Promise(async (resolve) => {
-          if (!session || !session.user) {
-              resolve(defaultCenter); return;
+        if (!session || !session.user) {
+          resolve(defaultCenter); return;
+        }
+        try {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('address')
+            .eq('id', session.user.id)
+            .single();
+          if (profileError || !profile.address) {
+            resolve(defaultCenter); return;
           }
-          try {
-              const { data: profile, error: profileError } = await supabase
-                  .from('profiles')
-                  .select('address')
-                  .eq('id', session.user.id)
-                  .single();
-              if (profileError || !profile.address) {
-                  resolve(defaultCenter); return;
-              }
-              geocoder.addressSearch(profile.address, (result, status) => {
-                  if (status === window.kakao.maps.services.Status.OK) {
-                      resolve(new window.kakao.maps.LatLng(result[0].y, result[0].x)); 
-                  } else {
-                      resolve(defaultCenter); 
-                  }
-              });
-          } catch (error) {
-              resolve(defaultCenter); 
-          }
+          geocoder.addressSearch(profile.address, (result, status) => {
+            if (status === window.kakao.maps.services.Status.OK) {
+              resolve(new window.kakao.maps.LatLng(result[0].y, result[0].x));
+            } else {
+              resolve(defaultCenter);
+            }
+          });
+        } catch (error) {
+          resolve(defaultCenter);
+        }
       });
     };
 
     // --- kakao.maps.load() ---
-    window.kakao.maps.load(async () => { 
-        if (!mapContainer) return; 
-        
-        const DEFAULT_CENTER = new window.kakao.maps.LatLng(37.566826, 126.9786567); 
-        const DEFAULT_ZOOM = 4; 
-        
-        if (!window.kakao.maps.services || !window.kakao.maps.services.Geocoder) {
-            console.error("❌ [진단] Geocoder 서비스 로드 실패. 기본 위치로 시작.");
-            mapInstanceRef.current = new window.kakao.maps.Map(mapContainer, { center: DEFAULT_CENTER, level: DEFAULT_ZOOM });
-        } else {
-            const geocoder = new window.kakao.maps.services.Geocoder();
-            const initialCenter = await getInitialCenter(geocoder, DEFAULT_CENTER);
-            const options = {
-                center: initialCenter, level: DEFAULT_ZOOM, draggable: true, scrollwheel: true
-            };
-            mapInstanceRef.current = new window.kakao.maps.Map(mapContainer, options);
-        }
-        
-        const map = mapInstanceRef.current;
+    window.kakao.maps.load(async () => {
+      if (!mapContainer) return;
 
-        // ★ (수정) 기본 컨트롤들 모두 제거
-        // map.addControl(mapTypeControl, window.kakao.maps.ControlPosition.TOPRIGHT);
-        
-        // ★ (수정) 로드뷰 컨트롤러를 생성만 하고, Ref에 저장 (아직 지도에 추가 안 함)
-        if (window.kakao.maps.RoadviewControl) {
-            roadviewControlRef.current = new window.kakao.maps.RoadviewControl();
-        } else {
-            console.error("❌ [진단] RoadviewControl 라이브러리가 로드되지 않았습니다.");
-        }
+      const DEFAULT_CENTER = new window.kakao.maps.LatLng(37.566826, 126.9786567);
+      const DEFAULT_ZOOM = 4;
 
-        // 'rightclick' 이벤트 
-        window.kakao.maps.event.addListener(map, 'rightclick', (mouseEvent) => {
-            clearTempMarkerAndMenu();
-            setSelectedPin(null);
-            const imageSize = new window.kakao.maps.Size(36, 36);
-            const grayMarkerImage = new window.kakao.maps.MarkerImage(GRAY_PIN_IMAGE_URL, imageSize);
-            const marker = new window.kakao.maps.Marker({
-                map: map, position: mouseEvent.latLng, image: grayMarkerImage
-            });
-            tempMarkerRef.current = marker; 
-            setContextMenu({
-                visible: true, latLng: mouseEvent.latLng, x: mouseEvent.point.x, y: mouseEvent.point.y    
-            });
+      if (!window.kakao.maps.services || !window.kakao.maps.services.Geocoder) {
+        console.error("❌ [진단] Geocoder 서비스 로드 실패. 기본 위치로 시작.");
+        mapInstanceRef.current = new window.kakao.maps.Map(mapContainer, { center: DEFAULT_CENTER, level: DEFAULT_ZOOM });
+      } else {
+        const geocoder = new window.kakao.maps.services.Geocoder();
+        const initialCenter = await getInitialCenter(geocoder, DEFAULT_CENTER);
+        const options = {
+          center: initialCenter, level: DEFAULT_ZOOM, draggable: true, scrollwheel: true
+        };
+        mapInstanceRef.current = new window.kakao.maps.Map(mapContainer, options);
+      }
+
+      const map = mapInstanceRef.current;
+      
+      if (window.kakao.maps.RoadviewControl) {
+        roadviewControlRef.current = new window.kakao.maps.RoadviewControl();
+      } else {
+        console.error("❌ [진단] RoadviewControl 라이브러리가 로드되지 않았습니다.");
+      }
+
+      // ('rightclick' 이벤트... 변경 없음)
+      window.kakao.maps.event.addListener(map, 'rightclick', (mouseEvent) => {
+        clearTempMarkerAndMenu();
+        setSelectedPin(null);
+        
+        const content = document.createElement('div');
+        content.className = styles.tempPin; 
+        content.innerHTML = `
+          <svg
+            width="14"
+            height="32.5"
+            viewBox="0 0 28 65"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M14 27.8549C21.732 27.8549 28 21.6193 28 13.9274C28 6.23552 21.732 0 14 0C6.26801 0 0 6.23552 0 13.9274C0 21.6193 6.26801 27.8549 14 27.8549Z"
+              fill="#E71F19"
+            />
+            <path
+              d="M9.45117 31.5678V57.1758L14.0004 65L18.5496 57.1758V31.5678C17.156 32.1414 15.6182 32.4602 14.0004 32.4602C12.3825 32.4602 10.8608 32.1414 9.45117 31.5678Z"
+              fill="#000000"
+            />
+          </svg>
+        `;
+
+        const customOverlay = new window.kakao.maps.CustomOverlay({
+          map: map,
+          position: mouseEvent.latLng,
+          content: content,
+          yAnchor: 1, 
+          xAnchor: 0.5
         });
         
-        // 'click' 이벤트 
-        window.kakao.maps.event.addListener(map, 'click', () => {
-            if (contextMenu.visible) {
-                clearTempMarkerAndMenu(); 
-            }
-        });
-
-        mapContainer.addEventListener('contextmenu', handleContextMenu);
+        tempMarkerRef.current = customOverlay;
         
-        fetchPins(); 
-        fetchCustomers(); 
+        setContextMenu({
+          visible: true, latLng: mouseEvent.latLng, x: mouseEvent.point.x, y: mouseEvent.point.y
+        });
+      });
+
+      // ('click' 이벤트... 변경 없음)
+      window.kakao.maps.event.addListener(map, 'click', () => {
+        clearTempMarkerAndMenu();
+      });
+
+      // --- 'bounds_changed' 리스너 제거 ---
+      
+      mapContainer.addEventListener('contextmenu', handleContextMenu);
+
+      fetchPins();
+      fetchCustomers();
     });
 
     return () => {
-        if (mapContainer) {
-          mapContainer.removeEventListener('contextmenu', handleContextMenu);
-        }
+      if (mapContainer) {
+        mapContainer.removeEventListener('contextmenu', handleContextMenu);
+      }
     };
   }, [session]); 
 
-  // ★ (수정) 지도 타입(지도/스카이뷰) + 지적도 레이어 토글을 위한 useEffect
+  
+  // --- ★ 'bounds_changed' 리스너를 위한 별도 useEffect (디바운싱 적용) ---
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !window.kakao || !handleBoundsChanged) {
+      return;
+    }
+    
+    // 200ms(0.2초) 딜레이로 디바운스 핸들러 생성
+    const debouncedHandler = debounce(handleBoundsChanged, 200);
+
+    const listener = window.kakao.maps.event.addListener(
+      map, 
+      'bounds_changed', 
+      debouncedHandler
+    );
+
+    return () => {
+      // ★ (수정) 리스너 객체를 사용하여 정확하게 제거
+      if (listener) {
+        listener.remove();
+      }
+    };
+  }, [mapInstanceRef, handleBoundsChanged]); 
+  // --- (여기까지) ---
+
+
+  // (지도 타입 토글... 변경 없음)
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || !window.kakao.maps.MapTypeId) return;
 
-    // 1. 지도/스카이뷰 변경
-    if (mapType === 'SKYVIEW') {
-        map.setMapTypeId(window.kakao.maps.MapTypeId.HYBRID);
-    } else {
-        map.setMapTypeId(window.kakao.maps.MapTypeId.NORMAL);
+    if (activeMapType === 'SKYVIEW') {
+      map.setMapTypeId(window.kakao.maps.MapTypeId.HYBRID);
+      map.removeOverlayMapTypeId(window.kakao.maps.MapTypeId.USE_DISTRICT);
+    } 
+    else if (activeMapType === 'CADASTRAL') {
+      map.setMapTypeId(window.kakao.maps.MapTypeId.NORMAL); 
+      map.addOverlayMapTypeId(window.kakao.maps.MapTypeId.USE_DISTRICT); 
+    } 
+    else {
+      map.setMapTypeId(window.kakao.maps.MapTypeId.NORMAL);
+      map.removeOverlayMapTypeId(window.kakao.maps.MapTypeId.USE_DISTRICT);
     }
+  }, [activeMapType, mapInstanceRef]); 
 
-    // 2. 지적도 변경
-    if (showCadastral) {
-        map.addOverlayMapTypeId(window.kakao.maps.MapTypeId.USE_DISTRICT);
-    } else {
-        map.removeOverlayMapTypeId(window.kakao.maps.MapTypeId.USE_DISTRICT);
-    }
-  }, [mapType, showCadastral, mapInstanceRef]); // 3가지 state가 바뀔 때마다 실행
-
-  // ★ (추가) 로드뷰 컨트롤 토글을 위한 useEffect
+  // (로드뷰 컨트롤 토글... 변경 없음)
   useEffect(() => {
     const map = mapInstanceRef.current;
-    if (!map || !roadviewControlRef.current) return; // map과 컨트롤러가 준비되었는지 확인
+    if (!map || !roadviewControlRef.current) return; 
 
     if (showRoadview) {
-        // 로드뷰 켜기
-        map.addControl(roadviewControlRef.current, window.kakao.maps.ControlPosition.TOPRIGHT);
+      map.addControl(roadviewControlRef.current, window.kakao.maps.ControlPosition.TOPRIGHT);
     } else {
-        // 로드뷰 끄기
-        map.removeControl(roadviewControlRef.current);
+      map.removeControl(roadviewControlRef.current);
     }
-  }, [showRoadview, mapInstanceRef]); // showRoadview 상태가 바뀔 때마다 실행
+  }, [showRoadview, mapInstanceRef]);
 
 
   return (
     <section className={styles.mapSection}>
       <div ref={mapRef} className={styles.map}>
         {!window.kakao.maps && (
-            <div className={styles.mapError}>
-              카카오맵 로딩 실패. (API 키, 도메인 등록, 광고 차단기 확인)
-            </div>
+          <div className={styles.mapError}>
+            카카오맵 로딩 실패. (API 키, 도메인 등록, 광고 차단기 확인)
+          </div>
         )}
       </div>
     </section>

@@ -8,8 +8,15 @@
   flex-grow: 1;
   background: #fff;
   overflow: hidden;
-  position: relative; /* ★ 20일차 v3: .contextMenu의 기준점이 되도록 relative 추가 */
+  position: relative; 
 }
+
+/* ★ (추가) 1-1. 패널 열림 상태 클래스 (MapPage.jsx에서 사용) */
+.panelOpen {
+  /* 이 클래스 자체는 스타일이 없지만, 
+     자식 요소(.mapFilterContainer)의 위치를 바꾸는 데 사용됩니다. */
+}
+
 
 /* 2. 사이드바 (핀 클릭 시) */
 .sidebar {
@@ -19,7 +26,7 @@
   transition: all 0.3s ease-in-out;
   overflow-y: auto;
   box-sizing: border-box; 
-  z-index: 20; /* ★ 20일차 v3: 컨텍스트 메뉴보다 뒤에 있도록 z-index 추가 */
+  z-index: 20; 
 }
 .sidebarOpen {
   width: 24rem; 
@@ -83,9 +90,16 @@
 }
 
 /* 4. 폼 스타일 */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .formGroup {
   margin-bottom: 1rem; 
 }
+
 .label {
   display: block;
   font-size: 0.875rem; 
@@ -93,22 +107,30 @@
   color: #374151; 
   margin-bottom: 0.25rem; 
 }
-.input, .textarea {
+.input, .textarea, .sidebar select { /* ★ 사이드바 select에도 적용 */
   width: 100%;
   padding: 0.5rem 0.75rem; 
   border: 1px solid #d1d5db; 
   border-radius: 0.375rem; 
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); 
   box-sizing: border-box; 
-  /* ★ <select> 태그도 이 스타일을 상속받아 사용합니다 */
-  background-color: #ffffff; /* select 배경색 강제 */
-  appearance: none; /* OS 기본 화살표 제거 (선택적) */
+  background-color: #ffffff; 
+  appearance: none; 
 }
-.input:focus, .textarea:focus {
+.input:focus, .textarea:focus, .sidebar select:focus { /* ★ 포커스 스타일 */
   outline: none;
   border-color: #2563eb; 
   box-shadow: 0 0 0 2px #dbeafe; 
 }
+/* ★ (수정) 사이드바 select에만 커스텀 화살표 적용 */
+.sidebar select {
+  padding-right: 2rem; /* 화살표 공간 */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1.25em 1.25em;
+}
+
 .textarea {
   height: 7rem; 
 }
@@ -248,7 +270,7 @@
     justify-content: center;
     align-items: center;
     z-index: 50;
-    cursor: pointer; /* ★ 닫기 기능 암시 */
+    cursor: pointer; 
 }
 .imModal {
     background: white;
@@ -260,7 +282,7 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    cursor: default; /* ★ 모달 내용은 기본 커서 */
+    cursor: default; 
 }
 .imModalTitle {
     font-size: 1.5rem;
@@ -292,7 +314,7 @@
   flex-direction: column;
   overflow-y: auto;
   box-sizing: border-box;
-  z-index: 20; /* ★ 20일차 v3: z-index 추가 */
+  z-index: 20; 
 }
 .tourTitle {
   font-size: 1.125rem; 
@@ -368,7 +390,7 @@
   flex-direction: column;
   overflow-y: auto;
   box-sizing: border-box;
-  z-index: 20; /* ★ 20일차 v3: z-index 추가 */
+  z-index: 20; 
 }
 .manageTitle {
   font-size: 1.125rem;
@@ -384,36 +406,64 @@
   margin-bottom: 1rem;
   min-height: 200px;
 }
+
+/* --- ★ (수정) 9-1. 매물 리스트 아이템 --- */
 .manageItem {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: space-between; /* 왼쪽, 오른쪽 분리 */
+  align-items: flex-start; /* 상단 정렬 */
   gap: 0.5rem;
   padding: 0.75rem 0.25rem; 
   border-bottom: 1px solid #f3f4f6;
-  font-size: 0.875rem;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 .manageItem:hover {
   background-color: #f0f0f0;
 }
-.manageItemMemo {
+
+/* ★ (수정) 9-2. 왼쪽 그룹 (주소 + 키워드) */
+.manageItemLeft {
   flex-grow: 1;
+  display: flex;
+  flex-direction: column; /* 수직 정렬 */
+  gap: 0.25rem; /* 주소와 키워드 사이 간격 */
+  min-width: 0; /* flex item이 줄어들 수 있도록 */
+}
+
+/* ★ (추가) 9-3. 주소 텍스트 (상단) */
+.manageItemAddress {
+  font-size: 0.875rem; /* 14px */
+  color: #1f2937; /* text-gray-800 */
+  font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: #374151;
-  font-weight: 500;
 }
+
+/* ★ (추가) 9-4. 키워드 텍스트 (하단) */
+.manageItemKeywords {
+  font-size: 0.8rem; /* 13px */
+  color: #6b7280; /* text-gray-500 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ★ (수정) 9-5. 가격 텍스트 (오른쪽) */
 .manageItemPrice {
   flex-shrink: 0;
   color: #dc2626; 
   font-size: 0.8rem;
   font-weight: 700;
-  width: 80px; 
+  width: auto; /* 너비 자동 */
+  min-width: 80px; /* 최소 너비 */
   text-align: right;
+  padding-top: 0.125rem; /* 주소와 높이 맞춤 */
 }
+/* --- (여기까지 리스트 아이템 수정) --- */
+
+
 .manageButtonContainer {
   display: flex;
   gap: 0.5rem;
@@ -439,11 +489,9 @@
   z-index: 1000; 
   min-width: 180px; 
   display: flex;
-  flex-direction: column; /* ★ 세로 정렬 */
+  flex-direction: column; 
   padding: 0.5rem; 
   border: 1px solid #e5e7eb; 
-
-  /* ★ (수정) 클릭 지점 오른쪽, 수직 중앙 */
   transform: translate(20px, -50%);
 }
 .contextMenu button {
@@ -526,7 +574,7 @@
     align-items: center;
     position: relative;
     background-color: #f9fafb;
-    overflow: hidden; /* ★ 썸네일이 삐져나가지 않게 */
+    overflow: hidden; 
 }
 
 .fileInputLabel {
@@ -553,7 +601,7 @@
 .imagePreviewThumbnail {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* ★ 사진이 꽉 차도록 */
+    object-fit: cover; 
 }
 
 .imageRemoveButton {
@@ -579,7 +627,6 @@
 
 /* --- ★ (추가) 14. 사진 뷰어 모달 --- */
 
-/* 썸네일에 마우스 커서 변경 */
 .imagePreviewClickable {
     cursor: pointer;
     transition: opacity 0.2s;
@@ -588,48 +635,40 @@
     opacity: 0.8;
 }
 
-/* 뷰어 모달 (imModal과 비슷하지만, 이미지에 맞게 조정) */
 .imageViewerModal {
     background: #ffffff;
     padding: 1rem;
     border-radius: 0.5rem;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    
-    max-width: 90vw;    /* 화면 너비의 90% */
-    max-height: 90vh;   /* 화면 높이의 90% */
-    
+    max-width: 90vw;    
+    max-height: 90vh;   
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative; /* 닫기 버튼 기준점 */
-    cursor: default; /* ★ 내부 클릭 시 닫히지 않게 */
+    position: relative; 
+    cursor: default; 
 }
 
-/* 뷰어 모달 내부의 이미지 */
 .imageViewerModal img {
     max-width: 100%;
     max-height: 100%;
-    object-fit: contain; /* 이미지가 찌그러지지 않게 비율 유지 */
+    object-fit: contain; 
 }
 
-/* 뷰어 모달 닫기 버튼 */
 .imageViewerCloseButton {
     position: absolute;
     top: -1rem;
     right: -1rem;
-    
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 50%;
-    background-color: #dc2626; /* 빨간색 */
+    background-color: #dc2626; 
     color: white;
     border: 2px solid white;
     font-weight: bold;
     font-size: 1.25rem;
-    
     cursor: pointer;
     z-index: 100;
-    
     display: flex;
     justify-content: center;
     align-items: center;
@@ -640,41 +679,24 @@
     background-color: #b91c1c;
 }
 
-/* src/MapPage.module.css */
-
-/* ... (파일 상단의 1~14번 스타일은 그대로) ... */
-
-/* ★ (추가) 15. 지적도 토글 버튼 컨테이너 */
-.layerToggleContainer {
-  flex-shrink: 0;
-  margin-bottom: 1rem;
-}
-
-/* 버튼 스타일 재사용 */
-.layerToggleContainer button {
-  width: 100%;
-}
-
-/* src/MapPage.module.css 파일 맨 아래에 이 코드를 추가하세요 */
-
-/* --- (추가) 15. 커스텀 지도 컨트롤 (지도/스카이뷰/지적도) --- */
+/* 15. 커스텀 지도 컨트롤 (지도/스카이뷰/지적도) (우상단) */
 .mapControlContainer {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    z-index: 30; /* 사이드바(20)보다 높게 */
+    z-index: 30; 
     display: flex;
     background-color: #ffffff;
     border-radius: 0.375rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border: 1px solid #d1d5db; /* border-gray-300 */
+    border: 1px solid #d1d5db; 
 }
 
 .mapControlButton {
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #374151; /* text-gray-700 */
+    color: #374151; 
     background-color: #ffffff;
     border: none;
     cursor: pointer;
@@ -682,7 +704,7 @@
 }
 
 .mapControlButton:not(:last-child) {
-    border-right: 1px solid #d1d5db; /* 버튼 사이 구분선 */
+    border-right: 1px solid #d1d5db; 
 }
 
 .mapControlButton:first-child {
@@ -696,11 +718,269 @@
 }
 
 .mapControlButton:hover {
-    background-color: #f3f4f6; /* bg-gray-100 */
+    background-color: #f3f4f6; 
 }
 
-/* 활성화된 버튼 스타일 (파란색) */
 .mapControlButton.active {
-    background-color: #2563eb; /* bg-blue-600 */
+    background-color: #2563eb; 
     color: #ffffff;
+}
+
+
+/* 16. (추가) 커스텀 오버레이 (핀) 스타일 */
+.customOverlay {
+  position: relative; 
+  background-color: white;
+  border: 1px solid #333;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transform: translateY(10px); 
+  cursor: pointer;
+}
+
+.customOverlay::after {
+  content: '';
+  position: absolute;
+  bottom: -10px; 
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 10px solid #333; 
+}
+
+.overlayTop {
+  font-size: 10px;
+  font-weight: bold;
+  color: #333;
+  padding: 4px 6px;
+  border-bottom: 1px solid #ccc;
+  min-width: 60px;
+  text-align: center;
+  white-space: nowrap; 
+}
+
+.overlayBottom {
+  font-size: 11px;
+  font-weight: bold;
+  color: #000;
+  padding: 5px 6px;
+  text-align: center;
+  white-space: nowrap; 
+}
+
+.overlayBottom.statusBefore {
+  background-color: #ffab73; 
+  color: #000000;
+}
+.overlayBottom.statusInProgress {
+  background-color: #dc2626; 
+  color: #ffffff;
+}
+.overlayBottom.statusComplete {
+  background-color: #7dd3fc; 
+  color: #000000;
+}
+
+/* 17. 2-column 폼 레이아웃 */
+.formRow {
+  display: flex;
+  gap: 1rem; 
+  align-items: flex-start;
+}
+.formGroupHalf {
+  flex: 1 1 50%; 
+  min-width: 0;
+}
+.formGroupFull {
+  flex: 1 1 100%; 
+}
+
+/* 18. 인포윈도우 (툴팁) 스타일 */
+.infowindow {
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #333;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  padding: 0.75rem;
+  min-width: 200px;
+  max-width: 250px;
+  transform: translateX(15px);
+  pointer-events: none; 
+}
+
+.infowindow::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -10px; 
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 10px solid #333;
+}
+
+.infowindowPrice {
+  font-size: 0.875rem; 
+  font-weight: bold;
+  color: #1f2937; 
+  line-height: 1.5;
+  padding-bottom: 0.5rem; 
+  margin-bottom: 0.5rem; 
+  border-bottom: 1px solid #e5e7eb; 
+}
+
+.infowindowNotes {
+  font-size: 0.8rem; 
+  color: #4b5563; 
+  line-height: 1.4;
+  white-space: pre-wrap; 
+  word-break: break-word;
+  max-height: 100px; 
+  overflow-y: auto;
+}
+
+/* 19. 임시 핀 (우클릭 핀) 스타일 */
+.tempPin {
+  width: 14px;
+  height: 32.5px;
+}
+.tempPin svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* 20. '필수' 텍스트 스타일 */
+.requiredText {
+  font-size: 0.75rem; 
+  color: #dc2626; 
+  font-weight: 500;
+  margin-left: 0.25rem;
+}
+
+/* 21. 유효성 검사 오류 메시지 박스 */
+.validationErrorContainer {
+  background-color: #fee2e2; 
+  border: 1px solid #fca5a5; 
+  padding: 0.75rem;
+  border-radius: 0.375rem; 
+  margin-bottom: 1rem; 
+}
+.validationErrorTitle {
+  font-size: 0.875rem; 
+  font-weight: 700;
+  color: #b91c1c; 
+  margin-bottom: 0.25rem;
+}
+.validationErrorList {
+  list-style-type: disc;
+  padding-left: 1.25rem; 
+  font-size: 0.875rem;
+  color: #dc2626; 
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* 22. 패널 토글 버튼 */
+.panelToggleButton {
+  width: 20px; 
+  flex-shrink: 0;
+  background-color: #f9fafb; 
+  border: none;
+  border-left: 1px solid #e5e7eb; 
+  border-right: 1px solid #e5e7eb; 
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem; 
+  color: #4b5563; 
+  z-index: 20; 
+  transition: background-color 0.2s;
+}
+.panelToggleButton:hover {
+  background-color: #f3f4f6; 
+}
+
+/* 23. '필터' 컨테이너 (LeftPanel 내부) */
+.filterContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; 
+  margin-bottom: 1rem; 
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* --- ★ (수정) 23-1. 필터 드롭다운 공통 스타일 (모던) --- */
+.filterSelect, .mapFilterSelect {
+  /* 1. 기본 OS 스타일 제거 */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  
+  /* 2. 공통 디자인 */
+  padding: 0.5rem 2rem 0.5rem 0.75rem; /* 오른쪽 패딩(화살표 공간) */
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  
+  /* 3. 커스텀 화살표 (SVG Data URI, #6b7280 회색) */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1.25em 1.25em;
+}
+
+/* 4. 포커스 스타일 */
+.filterSelect:focus, .mapFilterSelect:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px #dbeafe; 
+}
+
+/* 5. 호버 스타일 */
+.filterSelect:hover, .mapFilterSelect:hover {
+  border-color: #9ca3af;
+}
+
+/* --- ★ (수정) 24. 지도 위 필터 컨테이너 (좌상단) --- */
+.mapFilterContainer {
+    position: absolute;
+    top: 1rem;
+    left: 1rem; /* ★ 기본 위치 (패널 닫혔을 때) */
+    z-index: 30; 
+    display: flex;
+    gap: 0.5rem; 
+    background-color: #ffffff;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #d1d5db; 
+    padding: 0.5rem; 
+    transition: left 0.3s ease-in-out; /* ★ (추가) 부드러운 이동 */
+}
+
+/* ★ (추가) 24-1. 패널 열렸을 때 필터 위치 */
+.panelOpen .mapFilterContainer {
+  /* 20rem (패널) + 20px (토글버튼) + 1rem (여백) */
+  left: calc(20rem + 20px + 1rem); 
+}
+
+
+/* 25. 지도 위 필터 Select */
+/* ★ (수정) .mapFilterSelect는 23-1 공통 스타일을 상속받으므로
+   여기서는 크기/패딩 조정만 남깁니다. */
+.mapFilterSelect {
+  padding: 0.375rem 2rem 0.375rem 0.75rem; /* py-1.5, 화살표 공간 포함 */
 }

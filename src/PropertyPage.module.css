@@ -210,3 +210,20 @@
   font-weight: 500;
   margin-top: 0.25rem;
 }
+
+
+/* src/PropertyPage.module.css (맨 하단에 이어서 붙여넣기) */
+
+/* --- 4. (추가) 2-column 폼 레이아웃 --- */
+.formRow {
+  display: flex;
+  gap: 1rem; /* 2개 항목 사이의 간격 */
+  align-items: flex-start;
+}
+.formGroupHalf {
+  flex: 1 1 50%; /* 50% 너비 */
+  min-width: 0;
+}
+.formGroupFull {
+  flex: 1 1 100%; /* 100% 너비 */
+}
