@@ -9,7 +9,7 @@ import ConsultationLogPage from './ConsultationLogPage.jsx';
 import PropertyPage from './PropertyPage.jsx';
 import styles from './MainLayout.module.css';
 
-// ★ 21일차 (리팩토링): '고객' 탭 메뉴 재구성
+// ★ [모달] 1. '고객 추가', '고객 관리', '상담 관리' 3개 탭으로 구성
 const menuData = {
   '대시보드': [
     { id: 'dashboard-schedule', name: '스케줄표', component: <DashboardPage /> },
@@ -20,15 +20,11 @@ const menuData = {
   '매물': [
     { id: 'prop-map', name: '매물 지도', component: <MapPage />, isMap: true, mode: 'manage' },
     { id: 'prop-list', name: '매물 리스트', component: <PropertyPage />, isMap: true },
-    { id: 'prop-tour', name: '임장 동선 최적화', component: <MapPage />, isMap: true, mode: 'tour' },
   ],
   '고객': [
-    // ★ 21일차 (수정): '고객 등록'과 '고객 관리'에 mode prop 전달
-    { id: 'cust-upload', name: '고객 등록', component: <CustomerPage />, isMap: true, mode: 'upload' },
-    { id: 'cust-manage', name: '고객 관리', component: <CustomerPage />, isMap: true, mode: 'manage' },
-    { id: 'cust-match', name: '매물 매칭', component: <MapPage />, isMap: true, mode: 'tour' }, 
-    { id: 'cust-log', name: '상담 이력 관리', component: <ConsultationLogPage />, isMap: true },
-    { id: 'cust-briefing', name: '브리핑룸 관리' },
+    { id: 'cust-upload', name: '고객 추가' }, // (컴포넌트 없음, 클릭 시 트리거 역할)
+    { id: 'cust-manage', name: '고객 관리', component: <CustomerPage />, isMap: true },
+    { id: 'cust-log', name: '상담 관리', component: <ConsultationLogPage />, isMap: true }, 
   ],
   '계약': [
     { id: 'cont-list', name: '계약 리스트', component: <ContractPage />, isMap: true }, 
@@ -62,18 +58,38 @@ export default function MainLayout({ session }) {
   const [activeMainMenu, setActiveMainMenu] = useState(mainMenus[1]); 
   const [activeSubMenu, setActiveSubMenu] = useState(menuData[mainMenus[1]][0].id);
 
+  // ★ [모달] 2. '고객 추가' 클릭 시 모달을 열기 위한 '트리거' state
+  const [customerModalTrigger, setCustomerModalTrigger] = useState(0);
+
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) console.error('로그아웃 오류:', error);
   };
 
+  // ★★★ (수정) '고객' 메인 탭 클릭 시 '고객 관리'로 이동하도록 수정 ★★★
   const handleMainMenuClick = (menuName) => {
     setActiveMainMenu(menuName);
-    setActiveSubMenu(menuData[menuName][0].id);
+    
+    // 1. '고객' 탭을 클릭한 경우
+    if (menuName === '고객') {
+      setActiveSubMenu('cust-manage'); // 2. '고객 관리' 탭을 기본으로 설정
+    } 
+    // 3. 그 외 다른 탭은 기존 로직대로 첫 번째 하위 탭을 선택
+    else {
+      setActiveSubMenu(menuData[menuName][0].id);
+    }
   };
+  // ★★★ (수정 완료) ★★★
+
 
   const handleSubMenuClick = (menuId) => {
-    setActiveSubMenu(menuId);
+    // ★ [모달] 3. '고객 추가' 탭을 클릭했을 때의 특별 로직
+    if (menuId === 'cust-upload') {
+      setActiveSubMenu('cust-manage'); // 1. '고객 관리' 탭을 활성화
+      setCustomerModalTrigger(prev => prev + 1); // 2. 트리거 숫자를 1 증가시켜 모달 열기 신호
+    } else {
+      setActiveSubMenu(menuId); // 3. 그 외에는 일반 탭 이동
+    }
   };
 
   const renderPageContent = () => {
@@ -82,31 +98,28 @@ export default function MainLayout({ session }) {
 
     if (activePage && activePage.component) {
       
+      let propsToPass = { session };
+
       if (activePage.isMyPage) {
           const tabId = activePage.id === 'my-info' ? 'info' : 
                         activePage.id === 'my-staff' ? 'staff' : 'info';
-          
-          activePage = {
-            ...activePage,
-            component: React.cloneElement(activePage.component, { 
-                session, 
-                initialTab: tabId 
-            })
-          };
-      } else {
-           // ★ 21일차 (수정): CustomerPage에도 mode prop이 전달되도록 함
-           const propsToPass = { session };
-           
-           if (activePage.mode) {
-              propsToPass.mode = activePage.mode;
-           }
-
-           activePage = {
-            ...activePage,
-            component: React.cloneElement(activePage.component, propsToPass)
-          };
+          propsToPass.initialTab = tabId;
+      } 
+      
+      if (activePage.mode) {
+          propsToPass.mode = activePage.mode;
+      }
+      
+      // ★ [모달] 4. '고객 관리' 탭(CustomerPage)에만 'modalTrigger' prop 전달
+      if (activePage.id === 'cust-manage') {
+          propsToPass.modalTrigger = customerModalTrigger;
       }
 
+      activePage = {
+        ...activePage,
+        component: React.cloneElement(activePage.component, propsToPass)
+      };
+      
       if (activePage.isMap) {
         return <div className={styles.pageContainerMap}>{activePage.component}</div>;
       }
@@ -168,7 +181,7 @@ export default function MainLayout({ session }) {
 
       <footer className={styles.footer}>
         <p>
-          &copy; {new Date().getFullYear()} 사장님 CRM. All rights reserved. (21일차 '고객 탭' 분리)
+          &copy; {new Date().getFullYear()} 사장님 CRM. All rights reserved. (고객 관리 모달 적용)
         </p>
       </footer>
 

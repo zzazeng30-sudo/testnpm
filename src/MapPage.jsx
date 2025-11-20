@@ -1,5 +1,5 @@
-// src/MapPage.jsx (수정)
-import React from 'react';
+// src/MapPage.jsx (전체 덮어쓰기)
+import React, { useRef, useEffect, useState } from 'react';
 import { MapProvider } from './contexts/MapContext';
 import LeftPanel from './components/map/LeftPanel';
 import KakaoMap from './components/map/KakaoMap';
@@ -39,7 +39,7 @@ const formatPriceForDisplay = (pin) => {
   return prices.join(' | '); 
 }
 
-/* ★ (수정) useMap에서 isEditMode 및 필터 state 가져오기 */
+/* ★ (수정) useMap에서 필요한 모든 상태/핸들러를 가져옵니다. */
 function MapPageContent() {
   const {
     // PinSidebar용 state
@@ -47,88 +47,131 @@ function MapPageContent() {
     loading, isGenerating, session, mode,
     customers, linkedCustomers,
 
-    // (수정) 새 폼 state
-    address, setAddress,
-    detailedAddress, setDetailedAddress,
-    buildingName, setBuildingName,
-    
-    // ★ (추가) 매물 유형 state
-    propertyType, setPropertyType,
-    propertyTypeEtc, setPropertyTypeEtc,
+    // 폼 state
+    address, setAddress, detailedAddress, setDetailedAddress, buildingName, setBuildingName,
+    propertyType, setPropertyType, propertyTypeEtc, setPropertyTypeEtc,
+    isSale, setIsSale, salePrice, setSalePrice,
+    isJeonse, setIsJeonse, jeonseDeposit, setJeonseDeposit, jeonsePremium, setJeonsePremium,
+    isRent, setIsRent, rentDeposit, setRentDeposit, rentAmount, setRentAmount,
+    keywords, setKeywords, notes, setNotes, status, setStatus,
 
-    isSale, setIsSale,
-    salePrice, setSalePrice,
-    isJeonse, setIsJeonse,
-    jeonseDeposit, setJeonseDeposit,
-    jeonsePremium, setJeonsePremium,
-    isRent, setIsRent,
-    rentDeposit, setRentDeposit,
-    rentAmount, setRentAmount,
-    keywords, setKeywords,
-    notes, setNotes,
-    status, setStatus,
+    // 사진 state
+    imageUrls, isUploading, handleImageChange, handleImageRemove, viewingImage, setViewingImage,
 
-    // ★ 사진 state
-    imageUrls,
-    isUploading,
-    handleImageChange,
-    handleImageRemove,
+    // ★ [수정] roadviewMode, toggleRoadview, setRoadviewMode
+    roadviewMode,
+    toggleRoadview,
+    setRoadviewMode, // 닫기 버튼용
 
-    // ★ 사진 뷰어 state
-    viewingImage, setViewingImage,
+    // 지도/필터 컨트롤 state
+    activeMapType, setActiveMapType, filterPropertyType, setFilterPropertyType,
+    filterTransactionType, setFilterTransactionType, filterStatus, setFilterStatus,
 
-    // ★ (수정) 지도 컨트롤 state
-    activeMapType, setActiveMapType,
+    // UI/모드/에러 state
+    validationErrors, isLeftPanelOpen, setIsLeftPanelOpen, isEditMode, setIsEditMode,
+    imContent, setImContent, contextMenu, contextMenuRef,
 
-    // ★ (추가) 유효성 검사 state
-    validationErrors,
-    
-    // ★ (추가) 패널 접기 state
-    isLeftPanelOpen, setIsLeftPanelOpen,
-
-    // ★ (추가) 필터 state (LeftPanel에서 다시 가져옴)
-    filterPropertyType, setFilterPropertyType,
-    filterTransactionType, setFilterTransactionType,
-    filterStatus, setFilterStatus,
-
-    // ★ (추가) 읽기/수정 모드
-    isEditMode, setIsEditMode,
-
-    // PinSidebar용 handlers
+    // Handlers & Refs
     handleSidebarSave, handleDeletePin, handleGenerateIm, handleAddToTour,
     handleLinkCustomer, handleUnlinkCustomer, clearTempMarkerAndMenu,
-    // ImModal용
-    imContent, setImContent,
-    // MapContextMenu용
-    contextMenu, contextMenuRef, handleContextMenuAction,
-    // KakaoMap용
-    mapRef
+    handleContextMenuAction, mapRef
   } = useMap();
 
-  return (
-    // --- ★ (수정) 최상위 div에 패널 상태 클래스 추가 ---
-    <div className={`${styles.pageContainerMap} ${isLeftPanelOpen ? styles.panelOpen : ''}`}>
+  // ★ (수정) isLeftPanelOpen에 따른 LeftPanel 스타일을 동적으로 결정합니다.
+  const leftPanelStyle = {
+    // LeftPanel 너비 20rem (320px)
+    left: isLeftPanelOpen ? '0' : '-20rem',
+    transition: 'left 0.3s ease-in-out',
+  };
 
-      {/* 1. 왼쪽 패널 (★ 조건부 렌더링) */}
-      {isLeftPanelOpen && <LeftPanel />}
+  // ★ (수정) isLeftPanelOpen에 따른 토글 버튼 스타일을 동적으로 결정합니다.
+  const toggleButtonStyle = {
+      // 20rem (LeftPanel 너비)
+      left: isLeftPanelOpen ? '20rem' : '0',
+      transition: 'left 0.3s ease-in-out',
+  };
+  
+  // ★ (추가) MapSection의 시작 오프셋 (LeftPanel과 ToggleButton의 너비)을 DOM에서 직접 계산
+  const getMapSectionOffsetLeft = () => {
+      // MapSection 엘리먼트 (mapRef.current의 부모)가 로드된 후에만 접근
+      if (mapRef.current && mapRef.current.parentElement) {
+          // MapSection이 .pageContainerMap 내에서 시작하는 위치를 반환
+          return mapRef.current.parentElement.offsetLeft;
+      }
+      return 0;
+  };
+  
+  // (Context Menu 외부 클릭 시 닫기 로직 ... 변경 없음)
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {
+        if (contextMenu.visible) {
+            handleContextMenuAction('close');
+        }
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [contextMenu.visible, handleContextMenuAction]);
+
+
+  // (컨텍스트 메뉴 위치 계산 ... 변경 없음)
+  const contextMenuPositionStyle = (() => {
+    if (!mapRef.current || !contextMenu.visible || !mapRef.current.parentElement) return {};
+    
+    const mapSectionOffsetLeft = getMapSectionOffsetLeft();
+    const mapWidth = mapRef.current.parentElement.clientWidth;
+    const mapHeight = mapRef.current.parentElement.clientHeight;
+    
+    const menuHalfWidth = 90;
+    const menuHalfHeight = 100;
+
+    if (contextMenu.pinId) {
+      return {
+        top: `${mapHeight / 2 - menuHalfHeight}px`, 
+        left: `${mapSectionOffsetLeft + mapWidth / 2 - menuHalfWidth}px`
+      };
+    } else {
+      return {
+        top: `${contextMenu.y}px`,
+        left: `${contextMenu.x + mapSectionOffsetLeft}px` 
+      };
+    }
+  })();
+
+
+  return (
+    <div className={styles.pageContainerMap}>
+
+      {/* 1. 왼쪽 패널 (★ 오버레이 스타일 적용) */}
+      <div 
+        style={leftPanelStyle} 
+        className={mode === 'tour' ? styles.tourPanel : styles.managePanel}
+      >
+        <LeftPanel />
+      </div>
       
       {/* ★ (추가) 1.5. 패널 토글 버튼 */}
       <button
-        className={styles.panelToggleButton}
+        className={`${styles.panelToggleButton}`}
+        style={toggleButtonStyle}
         onClick={() => setIsLeftPanelOpen(prev => !prev)}
         title={isLeftPanelOpen ? "패널 접기" : "패널 펼치기"}
       >
         {isLeftPanelOpen ? '◀' : '▶'}
       </button>
 
-      {/* 2. 매물 정보 사이드바 (★ 폼 내부 JSX 수정 ★) */}
+      {/* 2. 매물 정보 사이드바 (★ 오버레이 스타일 적용) */}
       <aside
         className={`${styles.sidebar} ${selectedPin ? styles.sidebarOpen : styles.sidebarClosed}`}
       >
+        {/* ... (사이드바 내부 폼, 읽기 전용 뷰 등 ... 변경 없음) ... */}
         {selectedPin && (
           <div className={styles.sidebarContent}>
             
-            {/* --- ★ (핵심 수정) 모드 전환 로직 --- */}
+            {/* --- 폼 또는 읽기 전용 뷰 --- */}
             { (isEditMode || !selectedPin.id) ? (
               // --- 1. 수정 모드 또는 새 핀 등록 모드 (기존 폼) ---
               <form key={selectedPin.id || 'new-pin'} onSubmit={handleSidebarSave}>
@@ -347,7 +390,6 @@ function MapPageContent() {
                 {/* --- 5. 버튼 그룹 --- */}
                 <div className={styles.buttonGroup}>
                   <button onClick={() => {
-                    // ★ (수정) 새 핀이 아니면 읽기 모드로, 새 핀이면 닫기
                     if (selectedPin.id) {
                       setIsEditMode(false); 
                       setValidationErrors([]);
@@ -392,7 +434,7 @@ function MapPageContent() {
                   </div>
                   <div className={styles.readOnlyRow}>
                     <span className={styles.readOnlyLabel}>건물명</span>
-                    <span className={styles.readOnlyValue}>{selectedPin.building_name || '-'}</span>
+                    <span className={styles.readOnlyValue}>{selectedPin.buildingName || '-'}</span>
                   </div>
                   <div className={styles.readOnlyRow}>
                     <span className={styles.readOnlyLabel}>거래상태</span>
@@ -403,18 +445,18 @@ function MapPageContent() {
                   {selectedPin.is_sale && (
                     <div className={styles.readOnlyRow}>
                       <span className={styles.readOnlyLabel}>매매</span>
-                      <span className={styles.readOnlyValue}>{Number(selectedPin.sale_price || 0).toLocaleString()} 만원</span>
+                      <span className={styles.readOnlyValue}>{Number(selectedPin.salePrice || 0).toLocaleString()} 만원</span>
                     </div>
                   )}
                   {selectedPin.is_jeonse && (
                     <>
                       <div className={styles.readOnlyRow}>
                         <span className={styles.readOnlyLabel}>전세</span>
-                        <span className={styles.readOnlyValue}>{Number(selectedPin.jeonse_deposit || 0).toLocaleString()} 만원</span>
+                        <span className={styles.readOnlyValue}>{Number(selectedPin.jeonseDeposit || 0).toLocaleString()} 만원</span>
                       </div>
                       <div className={styles.readOnlyRow}>
                         <span className={styles.readOnlyLabel}>권리금</span>
-                        <span className={styles.readOnlyValue}>{Number(selectedPin.jeonse_premium || 0).toLocaleString()} 만원</span>
+                        <span className={styles.readOnlyValue}>{Number(selectedPin.jeonsePremium || 0).toLocaleString()} 만원</span>
                       </div>
                     </>
                   )}
@@ -422,7 +464,7 @@ function MapPageContent() {
                     <>
                       <div className={styles.readOnlyRow}>
                         <span className={styles.readOnlyLabel}>월세</span>
-                        <span className={styles.readOnlyValue}>{Number(selectedPin.rent_deposit || 0).toLocaleString()} / {Number(selectedPin.rent_amount || 0).toLocaleString()}</span>
+                        <span className={styles.readOnlyValue}>{Number(selectedPin.rentDeposit || 0).toLocaleString()} / {Number(selectedPin.rentAmount || 0).toLocaleString()}</span>
                       </div>
                     </>
                   )}
@@ -589,7 +631,7 @@ function MapPageContent() {
         </select>
       </div> 
 
-      {/* (지도 컨트롤 ... 변경 없음) */}
+      {/* (지도 컨트롤 ... ✅ [수정] 로드뷰 버튼 추가) */}
       <div className={styles.mapControlContainer}>
         <button
           className={`${styles.mapControlButton} ${activeMapType === 'NORMAL' ? styles.active : ''}`}
@@ -608,6 +650,16 @@ function MapPageContent() {
           onClick={() => setActiveMapType('CADASTRAL')}
         >
           지적도
+        </button>
+        
+        {/* ✅ [수정] 1. 지도 우측 상단 로드뷰 버튼 */}
+        <button
+          // ★ [수정] roadviewMode === 'MAP' 일 때 active
+          className={`${styles.mapControlButton} ${roadviewMode === 'MAP' ? styles.active : ''}`}
+          // ★ [수정] 'MAP' 모드로 toggleRoadview 호출
+          onClick={() => toggleRoadview('MAP')}
+        >
+          로드뷰
         </button>
       </div>
 
@@ -629,22 +681,60 @@ function MapPageContent() {
         </div>
       )}
 
-      {/* 5. 'div' 기반 컨텍스트 메뉴 (★ 임시: 원래는 MapContextMenu.jsx) */}
+      {/* 5. 'div' 기반 컨텍스트 메뉴 (★ 수정된 부분) */}
       {contextMenu.visible && (
         <div
           ref={contextMenuRef}
           className={styles.contextMenu}
-          style={{
-            top: `${contextMenu.y}px`,
-            left: `${(mapRef.current ? mapRef.current.parentElement.offsetLeft : 0) + contextMenu.x}px`
-          }}
+          style={contextMenu.pinId ? (
+            {
+              top: `calc(50% - 100px)`, 
+              left: `calc(50% + ${getMapSectionOffsetLeft()}px + 30px)` 
+            }
+          ) : (
+            {
+              top: `${contextMenu.y}px`,
+              left: `${contextMenu.x + getMapSectionOffsetLeft()}px` 
+            }
+          )}
         >
-          <button onClick={() => handleContextMenuAction('createPin')}>
-            임장 등록 (핀 생성)
-          </button>
-          <button disabled>예시 2 (준비중)</button>
-          <button disabled>예시 3 (준비중)</button>
-          <button disabled>예시 4 (준비중)</button>
+          {/* ★ 핀에 대한 오른쪽 클릭 메뉴 ★ */}
+          {contextMenu.pinId ? (
+            <>
+              <button onClick={() => handleContextMenuAction('editPin')}>
+                매물 수정 (사이드바)
+              </button>
+              <button 
+                onClick={() => handleContextMenuAction('deletePin')} 
+                disabled={loading || isGenerating || contextMenu.isStack} 
+              >
+                매물 삭제
+              </button>
+              <div style={{ borderTop: '1px solid #e5e7eb', margin: '0.5rem 0' }} />
+              <button onClick={() => handleContextMenuAction('addPinToStack')} disabled={loading || isGenerating}>
+                매물 스택 추가
+              </button>
+              {contextMenu.isStack && (
+                <button 
+                    onClick={() => handleContextMenuAction('editPin')}
+                    disabled={loading || isGenerating}
+                    style={{ marginTop: '0.5rem' }}
+                >
+                  📍 스택 (묶음) 매물 {contextMenu.pins ? contextMenu.pins.length : 0}개 보기
+                </button>
+              )}
+            </>
+          ) : (
+            /* ★ 지도 빈 공간에 대한 오른쪽 클릭 메뉴 (기존 로직) ★ */
+            <>
+              <button onClick={() => handleContextMenuAction('createPin')}>
+                임장 등록 (핀 생성)
+              </button>
+              <button disabled>예시 2 (준비중)</button>
+              <button disabled>예시 3 (준비중)</button>
+              <button disabled>예시 4 (준비중)</button>
+            </>
+          )}
         </div>
       )}
 
@@ -670,6 +760,17 @@ function MapPageContent() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* ★ [추가] 로드뷰 닫기 버튼 */}
+      {roadviewMode !== 'OFF' && (
+        <button
+          className={styles.roadviewCloseButton}
+          onClick={() => setRoadviewMode('OFF')}
+          title="로드뷰 닫기"
+        >
+          &times;
+        </button>
       )}
 
     </div>

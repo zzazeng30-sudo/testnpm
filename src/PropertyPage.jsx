@@ -7,7 +7,7 @@ export default function PropertyPage({ session }) {
   const [properties, setProperties] = useState([])
   const [loading, setLoading] = useState(true)
 
-  // 폼 상태
+  // --- 폼 상태 (변경 없음) ---
   const [newAddress, setNewAddress] = useState('')
   const [newDetailedAddress, setNewDetailedAddress] = useState('');
   const [newBuildingName, setNewBuildingName] = useState('');
@@ -24,6 +24,30 @@ export default function PropertyPage({ session }) {
   const [newKeywords, setNewKeywords] = useState('');
   const [newNotes, setNewNotes] = useState('');
   const [newCoords, setNewCoords] = useState(null)
+  
+  // --- ★ (수정/추가) 검색 및 필터 상태 ---
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState('ALL'); // 매물 유형 (드롭다운)
+  
+  // ★ 거래 모드 (ALL, SALE, JEONSE, RENT 중 하나만 선택)
+  const [filterTransactionMode, setFilterTransactionMode] = useState('ALL'); 
+
+  // ★ 가격 필터 토글 상태
+  const [isPriceFilterVisible, setIsPriceFilterVisible] = useState(false);
+
+  // ★ (NEW) 권리금 필터 그룹
+  const [premiumMin, setPremiumMin] = useState(''); 
+  const [premiumMax, setPremiumMax] = useState(''); 
+
+  // ★ 일시금/보증금 필터 그룹 (매매가, 전세보증금, 권리금, 월세보증금)
+  const [lumpSumMin, setLumpSumMin] = useState('');
+  const [lumpSumMax, setLumpSumMax] = useState('');
+  // ★ (REMOVED) 일시금 대상 체크박스
+  // const [lumpSumTargets, setLumpSumTargets] = useState(new Set(['SALE_PRICE', 'JEONSE_DEPOSIT', 'RENT_DEPOSIT', 'PREMIUM']));
+
+  // ★ 월세 필터 그룹 (월세 금액)
+  const [rentMin, setRentMin] = useState('');
+  const [rentMax, setRentMax] = useState('');
 
   // (주소 변환 헬퍼)
   const getAddressFromCoords = (lat, lng) => {
@@ -68,6 +92,9 @@ export default function PropertyPage({ session }) {
       window.kakao.maps.load(() => {
         fetchProperties();
       });
+    } else {
+        // 카카오맵이 로드되지 않았을 경우 (SPA 환경)
+        fetchProperties();
     }
   }, [])
 
@@ -179,24 +206,153 @@ export default function PropertyPage({ session }) {
     return new Date(dateString).toLocaleDateString('ko-KR');
   }
 
-  // 가격 포맷팅 유틸리티 (0값 처리)
+  // ★ 가격 포맷팅 유틸리티 (가격 컬럼용)
+  // [NEW] 세구분(col3)과 가격(col4)에 들어갈 데이터를 반환하도록 수정
   const formatPrice = (pin) => {
-    const hasSalePrice = (pin.sale_price !== null && pin.sale_price !== undefined);
-    const hasJeonseDeposit = (pin.jeonse_deposit !== null && pin.jeonse_deposit !== undefined);
-    const hasRentDeposit = (pin.rent_deposit !== null && pin.rent_deposit !== undefined);
-    const hasRentAmount = (pin.rent_amount !== null && pin.rent_amount !== undefined);
+    const data = {
+        transactionType: [],
+        priceDetail: []
+    };
+    
+    const formatNum = (val) => Number(val || 0).toLocaleString();
+    
+    // 1. 매매
+    if (pin.is_sale && (pin.sale_price !== null && pin.sale_price !== undefined)) {
+        data.transactionType.push('매매');
+        data.priceDetail.push(
+            `<span class="${styles.labelEmphasis}">매매가</span> [ <span class="${styles.priceValueSale}">${formatNum(pin.sale_price)} 만원</span> ]`
+        );
+    }
+    
+    // 2. 전세
+    if (pin.is_jeonse) {
+        data.transactionType.push('전세');
+        const deposit = (pin.jeonse_deposit !== null && pin.jeonse_deposit !== undefined) ? formatNum(pin.jeonse_deposit) : '-';
+        const premium = (pin.jeonse_premium !== null && pin.jeonse_premium !== undefined && pin.jeonse_premium > 0) 
+            ? `<span class="${styles.labelEmphasis}"> / 권리금</span> [ <span class="${styles.priceValuePremium}">${formatNum(pin.jeonse_premium)} 만원</span> ]`
+            : '';
+        
+        // ★ 전세 레이블을 '보증금'이 아닌 '전세금'으로 표시
+        data.priceDetail.push(
+            `<span class="${styles.labelEmphasis}">전세금</span> [ <span class="${styles.priceValueJeonse}">${deposit} 만원</span> ] ${premium}`
+        );
+    }
+    
+    // 3. 월세
+    if (pin.is_rent) {
+        data.transactionType.push('월세');
+        const deposit = (pin.rent_deposit !== null && pin.rent_deposit !== undefined) ? formatNum(pin.rent_deposit) : '0';
+        const rent = (pin.rent_amount !== null && pin.rent_amount !== undefined) ? formatNum(pin.rent_amount) : '0';
+        data.priceDetail.push(
+            `<span class="${styles.labelEmphasis}">보증금</span> [ <span class="${styles.priceValueRentDeposit}">${deposit} 만원</span> ] <span class="${styles.labelEmphasis}"> / 월세</span> [ <span class="${styles.priceValueRentAmount}">${rent} 만원</span> ]`
+        );
+    }
 
-    if (pin.is_sale && hasSalePrice) {
-      return `${pin.sale_price.toLocaleString()} 만원`;
-    }
-    if (pin.is_jeonse && hasJeonseDeposit) {
-      return `${pin.jeonse_deposit.toLocaleString()} 만원`;
-    }
-    if (pin.is_rent && (hasRentDeposit || hasRentAmount)) {
-      return `${pin.rent_deposit || 0}/${pin.rent_amount || 0}`;
-    }
-    return '-';
+    return {
+        transactionType: data.transactionType.join('\n'), // 줄바꿈으로 구분
+        priceDetail: data.priceDetail.join('\n')
+    };
   }
+
+  // ★ 상태 텍스트 포맷팅 유틸리티
+  const formatStatus = (pin) => {
+      return pin.status || '거래전';
+  }
+  
+  // ★ 거래 모드 선택 핸들러 (필수 선택 로직 포함)
+  const handleTransactionModeChange = (mode) => {
+    if (filterTransactionMode === mode && mode !== 'ALL') {
+      // 이미 선택된 모드(전체 제외)를 다시 누르면, '전체'로 돌아가야 하지만
+      // 요구사항: 무조건 1개는 선택되어야 함. 따라서 다시 누르면 선택 취소가 안되게 막음
+      alert('거래 유형은 최소 1개(전체 포함)를 선택해야 합니다.');
+      return;
+    }
+    setFilterTransactionMode(mode);
+  }
+
+  // --- ★ (수정) 매물 필터링 및 검색 로직 ---
+  const filteredAndSearchedProperties = properties.filter(pin => {
+    // 1. 검색어 필터링 (주소/건물명 또는 메모/키워드)
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch = pin.address?.toLowerCase().includes(searchLower) ||
+                          pin.building_name?.toLowerCase().includes(searchLower) ||
+                          pin.notes?.toLowerCase().includes(searchLower) ||
+                          pin.keywords?.toLowerCase().includes(searchLower);
+    if (!matchesSearch) return false;
+
+    // 2. 매물 유형 필터링
+    if (filterType !== 'ALL' && pin.property_type !== filterType) {
+      return false;
+    }
+
+    // 3. 거래 유형 필터링 (단일 모드)
+    if (filterTransactionMode !== 'ALL') {
+      if (filterTransactionMode === 'SALE' && !pin.is_sale) return false;
+      if (filterTransactionMode === 'JEONSE' && !pin.is_jeonse) return false;
+      if (filterTransactionMode === 'RENT' && !pin.is_rent) return false;
+    }
+    
+    // 4. 가격대별 필터링 (권리금) ★ NEW
+    const isPremiumMinValid = !isNaN(Number(premiumMin)) && Number(premiumMin) >= 0 && premiumMin !== '';
+    const isPremiumMaxValid = !isNaN(Number(premiumMax)) && Number(premiumMax) >= 0 && premiumMax !== '';
+
+    if (isPremiumMinValid || isPremiumMaxValid) {
+        const premiumAmount = (pin.is_jeonse && pin.jeonse_premium !== null) ? Number(pin.jeonse_premium) : -1;
+
+        if (premiumAmount === -1) return false; // 전세 매물 자체가 아니거나 권리금이 없으면 제외
+
+        const meetsMin = !isPremiumMinValid || premiumAmount >= Number(premiumMin);
+        const meetsMax = !isPremiumMaxValid || premiumAmount <= Number(premiumMax);
+
+        if (!meetsMin || !meetsMax) return false;
+    }
+
+    // 5. 가격대별 필터링 (매매/전세/보증금) ★ MODIFIED: 체크박스 제거에 따라 로직 변경
+    const isLumpSumMinValid = !isNaN(Number(lumpSumMin)) && Number(lumpSumMin) >= 0 && lumpSumMin !== '';
+    const isLumpSumMaxValid = !isNaN(Number(lumpSumMax)) && Number(lumpSumMax) >= 0 && lumpSumMax !== '';
+
+    if (isLumpSumMinValid || isLumpSumMaxValid) {
+        const targets = [];
+        // 매매가
+        if (pin.is_sale && pin.sale_price !== null) targets.push(Number(pin.sale_price));
+        // 전세보증금
+        if (pin.is_jeonse && pin.jeonse_deposit !== null) targets.push(Number(pin.jeonse_deposit));
+        // 월세보증금
+        if (pin.is_rent && pin.rent_deposit !== null) targets.push(Number(pin.rent_deposit));
+        
+        // 검색 범위가 있으나, 매물에 대상 가격이 없는 경우 제외
+        if (targets.length === 0) return false;
+
+        let matches = false;
+        for (const price of targets) {
+            const meetsMin = !isLumpSumMinValid || price >= Number(lumpSumMin);
+            const meetsMax = !isLumpSumMaxValid || price <= Number(lumpSumMax);
+            if (meetsMin && meetsMax) {
+                matches = true;
+                break;
+            }
+        }
+        if (!matches) return false;
+    }
+
+    // 6. 가격대별 필터링 (월세 금액)
+    const isRentMinValid = !isNaN(Number(rentMin)) && Number(rentMin) >= 0 && rentMin !== '';
+    const isRentMaxValid = !isNaN(Number(rentMax)) && Number(rentMax) >= 0 && rentMax !== '';
+
+    if (isRentMinValid || isRentMaxValid) {
+        const rentAmount = (pin.is_rent && pin.rent_amount !== null) ? Number(pin.rent_amount) : -1;
+
+        if (rentAmount === -1) return false; // 월세 매물 자체가 아니면 제외
+
+        const meetsMin = !isRentMinValid || rentAmount >= Number(rentMin);
+        const meetsMax = !isRentMaxValid || rentAmount <= Number(rentMax);
+
+        if (!meetsMin || !meetsMax) return false;
+    }
+
+    return true;
+  });
+  // --- (필터링 및 검색 로직 종료) ---
 
 
   // 화면 렌더링
@@ -209,7 +365,6 @@ export default function PropertyPage({ session }) {
           새 매물 등록
         </h2>
         <form className={styles.form} onSubmit={handleCreateProperty}>
-
           {/* --- 매물 유형 (2-column layout) --- */}
           <div className={styles.formRow}>
             <div className={`${styles.formGroup} ${newPropertyType === '기타' ? styles.formGroupHalf : styles.formGroupFull}`}>
@@ -243,7 +398,6 @@ export default function PropertyPage({ session }) {
               </div>
             )}
           </div>
-
           {/* --- 주소 관련 --- */}
           <div>
             <label className={styles.label}>주소 (좌표 변환용)</label>
@@ -290,7 +444,6 @@ export default function PropertyPage({ session }) {
               placeholder="예: 현대아파트"
             />
           </div>
-
           {/* --- 거래 유형 --- */}
           <div>
             <label className={styles.label}>거래 유형</label>
@@ -306,7 +459,6 @@ export default function PropertyPage({ session }) {
               </label>
             </div>
           </div>
-
           {/* --- 조건부 가격 폼 --- */}
           {newIsSale && (
             <div>
@@ -338,7 +490,6 @@ export default function PropertyPage({ session }) {
               </div>
             </>
           )}
-
           {/* --- 키워드 및 메모 --- */}
           <div>
             <label className={styles.label}>키워드</label>
@@ -374,57 +525,231 @@ export default function PropertyPage({ session }) {
       {/* 2. '매물 리스트' (오른쪽) */}
       <section className={styles.listSection}>
         <h2 className={styles.listTitle}>
-          매물 리스트 (총 {properties.length}건)
+          매물 리스트 (총 {filteredAndSearchedProperties.length}건 / 전체 {properties.length}건)
         </h2>
+
+        {/* --- ★ (수정) 검색 및 필터 영역 --- */}
+        <div className={styles.filterBarContainer}>
+            {/* 1. 검색창 */}
+            <input
+                className={styles.filterSearchInput}
+                type="text"
+                placeholder="주소, 건물명, 키워드, 메모 검색"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            
+            {/* 2. 메인 필터 그룹 (유형 + 거래유형 모드) */}
+            <div className={styles.mainFilterGroup}>
+                {/* 1. 유형 드롭다운 */}
+                <select 
+                    className={styles.filterSelect}
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value)}
+                >
+                    <option value="ALL">전체 유형</option>
+                    <option value="주택">주택</option>
+                    <option value="상가">상가</option>
+                    <option value="토지">토지</option>
+                    <option value="아파트">아파트</option>
+                    <option value="기타">기타</option>
+                </select>
+
+                {/* 2. 거래 유형 모드 선택 버튼 (애플 UI 스타일) */}
+                <div className={styles.transactionModeGroup}>
+                    {['ALL', 'SALE', 'JEONSE', 'RENT'].map((mode) => (
+                      <button
+                        key={mode}
+                        type="button"
+                        className={`${styles.transactionModeButton} ${filterTransactionMode === mode ? styles.active : ''}`}
+                        onClick={() => handleTransactionModeChange(mode)}
+                      >
+                        {mode === 'ALL' ? '전체' : mode === 'SALE' ? '매매' : mode === 'JEONSE' ? '전세' : '월세'}
+                      </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* 3. 가격 필터 섹션 (입력창 + 토글 버튼) */}
+            <div className={styles.priceFilterSection}>
+                {/* 가격 입력창은 토글 버튼을 눌러야 나타나도록 변경 */}
+                <button
+                    type="button"
+                    className={styles.priceFilterToggleButton}
+                    onClick={() => setIsPriceFilterVisible(prev => !prev)}
+                >
+                    {isPriceFilterVisible ? '▲ 가격 필터 닫기' : '▼ 가격대 설정'}
+                </button>
+            </div>
+
+            {/* ★ 가격 필터 상세 박스 (토글) -> 순서 변경 및 체크박스 제거 */}
+            {isPriceFilterVisible && (
+                <div className={styles.detailedPriceBox}>
+                    
+                    {/* A. 권리금 그룹 ★ NEW / ORDER 1 */}
+                    <div className={styles.priceGroup}>
+                        <div className={styles.priceGroupHeader}>
+                          <span className={styles.priceTargetLabel}>권리금 (만원)</span>
+                          <div className={styles.priceInputRow}>
+                            <input
+                                className={`${styles.filterInput} ${styles.filterPriceInput}`}
+                                type="number"
+                                placeholder="최소 금액"
+                                value={premiumMin} 
+                                onChange={(e) => setPremiumMin(e.target.value)} 
+                                min="0"
+                            />
+                            <span className={styles.priceRangeSeparator}>~</span>
+                            <input
+                                className={`${styles.filterInput} ${styles.filterPriceInput}`}
+                                type="number"
+                                placeholder="최대 금액"
+                                value={premiumMax} 
+                                onChange={(e) => setPremiumMax(e.target.value)} 
+                                min="0"
+                            />
+                          </div>
+                        </div>
+                    </div>
+                    
+                    {/* B. 일시금/보증금 그룹 ★ MODIFIED LABEL / ORDER 2 */}
+                    <div className={styles.priceGroup}>
+                        <div className={styles.priceGroupHeader}>
+                          <span className={styles.priceTargetLabel}>매매, 전세, 보증금 (만원)</span>
+                          <div className={styles.priceInputRow}>
+                            <input
+                                className={`${styles.filterInput} ${styles.filterPriceInput}`}
+                                type="number"
+                                placeholder="최소 금액"
+                                value={lumpSumMin}
+                                onChange={(e) => setLumpSumMin(e.target.value)}
+                                min="0"
+                            />
+                            <span className={styles.priceRangeSeparator}>~</span>
+                            <input
+                                className={`${styles.filterInput} ${styles.filterPriceInput}`}
+                                type="number"
+                                placeholder="최대 금액"
+                                value={lumpSumMax}
+                                onChange={(e) => setLumpSumMax(e.target.value)}
+                                min="0"
+                            />
+                          </div>
+                        </div>
+                    </div>
+
+                    {/* C. 월세 금액 그룹 ★ ORDER 3 */}
+                    <div className={styles.priceGroup}>
+                        <div className={styles.priceGroupHeader}>
+                          <span className={styles.priceTargetLabel}>월세 금액 (만원)</span>
+                          <div className={styles.priceInputRow}>
+                            <input
+                                className={`${styles.filterInput} ${styles.filterPriceInput}`}
+                                type="number"
+                                placeholder="최소 월세"
+                                value={rentMin}
+                                onChange={(e) => setRentMin(e.target.value)}
+                                min="0"
+                            />
+                            <span className={styles.priceRangeSeparator}>~</span>
+                            <input
+                                className={`${styles.filterInput} ${styles.filterPriceInput}`}
+                                type="number"
+                                placeholder="최대 월세"
+                                value={rentMax}
+                                onChange={(e) => setRentMax(e.target.value)}
+                                min="0"
+                            />
+                          </div>
+                        </div>
+                    </div>
+
+                </div>
+            )}
+        </div>
+        {/* --- (검색 및 필터 영역 종료) --- */}
 
         {loading && <p>매물 목록을 불러오는 중...</p>}
         {!loading && properties.length === 0 && (
           <p className={styles.emptyText}>등록된 매물이 없습니다. 왼쪽 폼에서 새 매물을 등록하세요.</p>
         )}
+        
+        {!loading && properties.length > 0 && filteredAndSearchedProperties.length === 0 && (
+            <p className={styles.emptyText}>검색 및 필터 조건에 맞는 매물이 없습니다.</p>
+        )}
 
+        {/* 매물 리스트 테이블 (컬럼 조정) */}
         <div className={styles.table}>
+          {/* 테이블 헤더: 가격(col3) -> 세구분(col3) + 가격(col4_1) */}
           <div className={styles.tableHeader}>
             <div className={styles.col1}>주소/건물명</div>
-            <div className={styles.col2}>거래정보</div>
-            <div className={styles.col3}>메모/키워드</div>
-            <div className={styles.col4}>등록일</div>
-            <div className={styles.col5}>관리</div>
+            <div className={styles.col2}>유형</div> 
+            <div className={styles.col3}>세구분</div> 
+            <div className={styles.col4_1}>가격</div> 
+            <div className={styles.col5}>상태</div> 
+            <div className={styles.col6}>메모/키워드</div> 
+            <div className={styles.col7}>등록일</div> 
+            <div className={styles.col8}>관리</div> 
           </div>
           <div>
-            {properties.map(pin => (
-              <div
-                key={pin.id}
-                className={styles.tableRow}
-              >
-                <div className={styles.col1}>
-                  <span className={styles.addressText}>
-                    {pin.property_type || '유형없음'}
-                    {pin.property_type === '기타' && pin.property_type_etc ? ` (${pin.property_type_etc})` : ''}
-                    {' / '}({pin.building_name || '-'})
-                  </span>
-                  <span className={styles.memoText}>{pin.address || '주소 로딩 중...'}</span>
-                  <span className={styles.memoText}>{pin.detailed_address || ''}</span>
+            {filteredAndSearchedProperties.map(pin => {
+              const priceData = formatPrice(pin); // 새로운 가격 데이터 구조 사용
+
+              // 주소 포맷팅: '충청남도' -> '충남'으로 통일
+              const fullAddress = pin.address || '주소 로딩 중...';
+              const shortAddress = fullAddress.replace('충청남도', '충남');
+
+              return (
+                <div
+                  key={pin.id}
+                  className={styles.tableRow}
+                >
+                  <div className={styles.col1}>
+                    {/* 건물명 (괄호 안에 표시) */}
+                    <span className={styles.addressText}>
+                      ({pin.building_name || '건물명 없음'})
+                    </span>
+                    {/* 짧은 주소 (충청남도 -> 충남) */}
+                    <span className={styles.memoText}>
+                      {shortAddress}
+                    </span>
+                    <span className={styles.memoText}>{pin.detailed_address || ''}</span>
+                  </div>
+                  <div className={styles.col2}>
+                      <span className={styles.typeText}>
+                          {pin.property_type || '-'}
+                      </span>
+                      <span className={styles.typeEtcText}>
+                          {pin.property_type === '기타' && pin.property_type_etc ? `(${pin.property_type_etc})` : ''}
+                      </span>
+                  </div>
+                  <div className={styles.col3}> {/* 세구분 */}
+                    <div className={styles.priceMultiLine}>{priceData.transactionType || '-'}</div>
+                  </div>
+                  <div className={styles.col4_1}> {/* 가격 */}
+                    {/* dangerouslySetInnerHTML을 사용하여 HTML 포맷팅 적용 */}
+                    <div className={styles.priceMultiLine} dangerouslySetInnerHTML={{ __html: priceData.priceDetail || '-' }} />
+                  </div>
+                  <div className={styles.col5}> {/* 상태 (위치 조정) */}
+                    <span className={styles.statusText}>{formatStatus(pin)}</span>
+                  </div>
+                  <div className={styles.col6}> {/* 메모/키워드 (위치 조정) */}
+                    {pin.notes || '-'}
+                    <span className={styles.keywordsText}>{pin.keywords}</span>
+                  </div>
+                  <div className={styles.col7}>{formatDate(pin.created_at)}</div> {/* 등록일 (위치 조정) */}
+                  <div className={styles.col8}> {/* 관리 (위치 조정) */}
+                    <button
+                      onClick={() => handleDeleteProperty(pin.id)}
+                      className={styles.deleteButton}
+                      disabled={loading}
+                    >
+                      삭제
+                    </button>
+                  </div>
                 </div>
-                <div className={styles.col2}>
-                  {formatPrice(pin)}
-                  <span className={styles.memoText}>({pin.status || '거래전'})</span>
-                </div>
-                <div className={styles.col3}>
-                  {pin.notes || '-'}
-                  <span className={styles.keywordsText}>{pin.keywords}</span>
-                </div>
-                <div className={styles.col4}>{formatDate(pin.created_at)}</div>
-                <div className={styles.col5}>
-                  <button
-                    onClick={() => handleDeleteProperty(pin.id)}
-                    className={styles.deleteButton}
-                    disabled={loading}
-                  >
-                    삭제
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
