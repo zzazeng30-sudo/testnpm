@@ -1,5 +1,4 @@
 import React from 'react';
-// ▼ 여기가 수정되었습니다 (점 4개!)
 import { useMap } from '../../../../contexts/MapContext';
 import styles from "../../pages/MapPage.module.css";
 
@@ -9,8 +8,9 @@ export default function MapContextMenu() {
   if (!contextMenu.visible) return null;
 
   const getPositionStyle = () => {
-    if (!mapRef.current || !mapRef.current.parentElement) return {};
-    const mapSectionOffsetLeft = mapRef.current.parentElement.offsetLeft;
+    if (!mapRef.current || !mapRef.current.parentElement) return { top: 0, left: 0 };
+    
+    const mapSectionOffsetLeft = mapRef.current.parentElement.offsetLeft; 
     
     if (contextMenu.pinId) {
       return {

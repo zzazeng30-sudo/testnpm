@@ -3,15 +3,14 @@
 /* 1. 뼈대 */
 .pageContainerMap {
   height: 100%;
-  /* display: flex; (삭제) */
-  display: block; /* ✅ float을 위해 block으로 변경 */
+  display: block; /* float을 위해 block으로 변경 */
   flex-grow: 1;
   background: #fff;
   overflow: hidden;
   position: relative; /* 자식 absolute 기준 */
 }
 
-/* 2. 사이드바 (핀 클릭 시) -> 오른쪽 오버레이 (변경 없음) */
+/* 2. 사이드바 (핀 클릭 시) -> 오른쪽 오버레이 */
 .sidebar {
   position: absolute;
   top: 0;
@@ -52,7 +51,7 @@
   color: #6b7280; 
 }
 
-/* 3. 지도 -> 전체 영역 꽉 채움 (변경 없음) */
+/* 3. 지도 -> 전체 영역 꽉 채움 */
 .mapSection {
   flex-grow: 1;
   position: relative;
@@ -75,12 +74,10 @@
   font-weight: 700;
 }
 
-/* ✅ [수정] .map (float 제거) */
 .map {
   width: 100%;
   height: 100%;
-  /* float: left; (제거) */
-  transition: width 0.3s ease-in-out; /* (삭제 무방) */
+  transition: width 0.3s ease-in-out;
 }
 .mapError {
   position: absolute;
@@ -92,7 +89,7 @@
   font-weight: 700;
 }
 
-/* 4. 폼 스타일 (변경 없음) */
+/* 4. 폼 스타일 */
 .form {
   display: flex;
   flex-direction: column;
@@ -201,7 +198,7 @@
   cursor: not-allowed;
 }
 
-/* 5. 고객 매칭 폼 (변경 없음) */
+/* 5. 고객 매칭 폼 */
 .customerMatcher {
   margin-top: 0.75rem; 
   padding-top: 0.75rem; 
@@ -260,7 +257,7 @@
   background-color: #d97706; 
 }
 
-/* 6. 모달 스타일 (AI 분석 결과창) (변경 없음) */
+/* 6. 모달 스타일 (AI 분석 결과창) */
 .imModalOverlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -302,7 +299,7 @@
   margin-top: 1rem;
 }
 
-/* 7. '임장 동선' 패널 (.tourPanel) (변경 없음) */
+/* 7. '임장 동선' 패널 (.tourPanel) */
 .tourPanel {
   width: 20rem; 
   position: absolute;
@@ -317,6 +314,7 @@
   z-index: 30;
   height: 100%;
   transition: left 0.3s ease-in-out;
+  will-change: left;
 }
 .tourTitle {
   font-size: 1.125rem; 
@@ -378,7 +376,7 @@
 }
 
 
-/* 8. AI 요약 리포트 (pre 태그) 스타일 (변경 없음) */
+/* 8. AI 요약 리포트 (pre 태그) 스타일 */
 .imContentPre {
   white-space: pre-wrap; 
   word-wrap: break-word; 
@@ -388,7 +386,7 @@
   color: #374151;
 }
 
-/* 9. '매물 관리' 패널 (.managePanel) (변경 없음) */
+/* 9. '매물 관리' 패널 (.managePanel) */
 .managePanel {
   width: 20rem; 
   position: absolute;
@@ -403,6 +401,7 @@
   z-index: 30;
   height: 100%;
   transition: left 0.3s ease-in-out;
+  will-change: left;
 }
 .manageTitle {
   font-size: 1.125rem;
@@ -419,7 +418,6 @@
   min-height: 200px;
 }
 
-/* --- 9-1. 매물 리스트 아이템 (변경 없음) --- */
 .manageItem {
   display: flex;
   justify-content: space-between;
@@ -470,14 +468,12 @@
   padding-top: 0.125rem;
 }
 
-/* ✅ [수정] LeftPanel 하단 버튼 컨테이너 (세로 정렬) */
 .manageButtonContainer {
   display: flex;
-  flex-direction: column; /* ✅ 세로 정렬 */
+  flex-direction: column; 
   gap: 0.5rem;
   flex-shrink: 0;
 }
-/* ✅ [추가] 세로 정렬 시 버튼 너비 100% */
 .manageButtonContainer .button {
   width: 100%;
 }
@@ -493,7 +489,7 @@
 }
 
 
-/* --- 10. 컨텍스트 메뉴 (변경 없음) --- */
+/* 10. 컨텍스트 메뉴 */
 .contextMenu {
   position: absolute; 
   background-color: white;
@@ -533,7 +529,7 @@
   transform: none !important; 
 }
 
-/* --- 11~14. 폼, 사진 업로드 (변경 없음) --- */
+/* 11~14. 폼, 사진 업로드 */
 .formSectionTitle {
     font-size: 1rem;
     font-weight: 700;
@@ -671,7 +667,7 @@
     background-color: #b91c1c;
 }
 
-/* 15. 커스텀 지도 컨트롤 (변경 없음) */
+/* 15. 커스텀 지도 컨트롤 */
 .mapControlContainer {
     position: absolute;
     top: 1rem;
@@ -713,7 +709,7 @@
 }
 
 
-/* 16~21. 핀, 폼, 오류 (변경 없음) */
+/* 16~21. 핀, 폼, 오류 */
 .customOverlay {
   position: relative; 
   background-color: white;
@@ -856,7 +852,7 @@
   gap: 0.25rem;
 }
 
-/* 22. 패널 토글 버튼 (변경 없음) */
+/* 22. 패널 토글 버튼 */
 .panelToggleButton {
   position: absolute;
   top: 50%;
@@ -880,7 +876,7 @@
   background-color: #f3f4f6; 
 }
 
-/* 23~25. 필터 (변경 없음) */
+/* 23~25. 필터 */
 .filterContainer {
   display: flex;
   flex-direction: column;
@@ -934,7 +930,7 @@
 }
 
 
-/* 26~29. 읽기 전용, 핀 스타일 (변경 없음) */
+/* 26~29. 읽기 전용, 핀 스타일 */
 .readOnlyContainer {
   display: flex;
   flex-direction: column;
@@ -1051,116 +1047,78 @@
     padding-left: calc(1.5rem - 4px); 
 }
 
-/* ✅ [수정] 로드뷰 Div (absolute 겹치기 모드) */
+/* ✅ 로드뷰 Div (배경색 추가) */
 .roadview {
   position: absolute;
-  top: 5rem; /* 지도 컨트롤(우측 상단)과 겹치지 않게 */
+  top: 5rem;
   right: 1rem;
-  width: 45%; /* 원하는 너비 */
-  height: 60%; /* 원하는 높이 */
-  z-index: 30; /* 지도 컨트롤과 동일 레벨 */
+  width: 45%;
+  height: 60%;
+  z-index: 30;
+  
+  /* ★ 로딩 중이거나 데이터 없을 때 투명하지 않도록 배경색 지정 */
+  background-color: #333; 
   
   border: 3px solid #ffffff;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   border-radius: 0.5rem;
   
-  /* 숨김/표시 트랜지션 */
   transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
   
   /* 초기 상태 (숨김) */
   opacity: 0;
-  transform: scale(0.9) translateX(50px); /* 약간 우측에서 작아진 상태로 시작 */
-  pointer-events: none; /* 숨겨졌을 때 클릭 안되게 */
+  transform: scale(0.9) translateX(50px);
+  pointer-events: none;
   
-  display: block; /* display: none 대신 사용 */
-  /* float: left; (제거) */
+  display: block;
 }
 
-/* (파일 맨 하단에 이어서 붙여넣기) */
-
-/* ✅ [추가] 로드뷰가 활성화된 상태 */
+/* 로드뷰가 활성화된 상태 */
 .roadviewVisible {
   opacity: 1;
   transform: scale(1) translateX(0);
-  pointer-events: auto; /* 클릭 가능하게 */
+  pointer-events: auto; 
 }
 
-
-/* (src/MapPage.module.css 파일 맨 하단에 추가) */
-
-/* 30. 로드뷰 닫기 버튼 */
+/* 30. 로드뷰 닫기 버튼 (모던 UI) */
 .roadviewCloseButton {
     position: absolute;
     top: 5.3rem; /* .roadview (top: 5rem) + 0.3rem 안쪽 */
     right: 1.3rem; /* .roadview (right: 1rem) + 0.3rem 안쪽 */
     z-index: 31; /* .roadview (30) 보다 높게 */
     
-    background-color: rgba(220, 38, 38, 0.8); /* bg-red-600 (반투명) */
+    background-color: rgba(0, 0, 0, 0.6); 
     color: white;
-    border: 2px solid white;
-    border-radius: 50%;
-    width: 2.25rem; /* w-9 */
-    height: 2.25rem; /* h-9 */
+    border: none; 
+    border-radius: 50%; 
+    width: 2.25rem; 
+    height: 2.25rem; 
     
-    font-size: 1.125rem; /* text-lg */
+    font-size: 1.25rem; 
     font-weight: 700;
     cursor: pointer;
     
     display: flex;
     justify-content: center;
     align-items: center;
+    line-height: 1; 
     
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    transition: background-color 0.2s;
-}
-.roadviewCloseButton:hover {
-    background-color: rgba(185, 28, 28, 1); /* bg-red-700 (불투명) */
-}
-/* (src/MapPage.module.css 파일 맨 하단에 추가) */
-
-/* 30. 로드뷰 닫기 버튼 (★ UI 수정) */
-.roadviewCloseButton {
-    position: absolute;
-    top: 5.3rem; /* .roadview (top: 5rem) + 0.3rem 안쪽 */
-    right: 1.3rem; /* .roadview (right: 1rem) + 0.3rem 안쪽 */
-    z-index: 31; /* .roadview (30) 보다 높게 */
-    
-    /* ★ 모던한 UI 스타일로 변경 */
-    background-color: rgba(0, 0, 0, 0.6); /* 반투명 검은색 배경 */
-    color: white;
-    border: none; /* 테두리 제거 */
-    border-radius: 50%; /* 원형 */
-    width: 2.25rem; /* w-9 */
-    height: 2.25rem; /* h-9 */
-    
-    font-size: 1.25rem; /* 글자 크기 살짝 키움 */
-    font-weight: 700;
-    cursor: pointer;
-    
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    line-height: 1; /* ★ 세로 정렬을 위해 추가 */
-    
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4); /* 그림자 */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
     transition: background-color 0.2s, transform 0.1s ease;
 }
 .roadviewCloseButton:hover {
-    background-color: rgba(0, 0, 0, 0.8); /* 더 진하게 */
-    transform: scale(1.05); /* 살짝 커지는 효과 */
+    background-color: rgba(0, 0, 0, 0.8); 
+    transform: scale(1.05); 
 }
 .roadviewCloseButton:active {
-    transform: scale(0.95); /* 클릭 시 작아지는 효과 */
+    transform: scale(0.95); 
 }
-
-/* ... 기존 CSS ... */
 
 /* --- 왼쪽 패널 상단 탭 (매물목록 / 임장리스트) --- */
 .panelHeaderTabs {
   display: flex;
   background-color: #ffffff;
   border-bottom: 1px solid #e5e7eb;
-  /* 패널의 기본 padding을 상쇄하여 꽉 차게 만듭니다 */
   margin: -1.5rem -1.5rem 1rem -1.5rem; 
 }
 
@@ -1183,19 +1141,29 @@
 }
 
 .panelTabButton.active {
-  color: #2563eb; /* 파란색 */
+  color: #2563eb; 
   border-bottom: 2px solid #2563eb;
 }
 
-/* 임장 리스트 탭이 활성화됐을 때 색상 (보라색) */
 .panelTabButton.activeTour {
-  color: #7c3aed; /* 보라색 */
+  color: #7c3aed; 
   border-bottom: 2px solid #7c3aed;
 }
 
-/* 패널 내부 내용 래퍼 */
 .panelContentWrapper {
   display: flex;
   flex-direction: column;
   height: 100%;
+}
+
+/* ★ 로드뷰 마커 (MapWalker) 스타일 */
+.mapWalker {
+  position: absolute;
+  width: 26px;
+  height: 46px;
+  background: url(https://t1.daumcdn.net/localimg/localimages/07/2018/pc/roadview_minimap_wk_2018.png) no-repeat;
+  background-position: 0 -50px; /* 기본 모양 */
+  pointer-events: none; /* 지도 클릭 방해 안 하게 */
+  z-index: 9999; /* 가장 위에 표시 */
+  transform-origin: 50% 85%; /* 회전 축 설정 */
 }

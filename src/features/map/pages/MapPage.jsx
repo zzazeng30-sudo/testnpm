@@ -1,23 +1,20 @@
+// src/features/map/pages/MapPage.jsx
 import React from 'react';
-import { MapProvider, useMap } from '../../../contexts/MapContext'; // ★ 경로 수정됨
+import { MapProvider, useMap } from '../../../contexts/MapContext';
 import styles from './MapPage.module.css';
 
-// --- 1. 기존 컴포넌트 (src/components/map 에 있는 것들) ---
-import LeftPanel from '../../../components/map/LeftPanel';
+// Components
+import LeftPanel from '../../../components/map/LeftPanel'; 
 import KakaoMap from '../../../components/map/KakaoMap';
-
-// --- 2. 새로 만든 컴포넌트 (src/features/map 에 있는 것들) ---
-import PinSidebar from '../components/Sidebar'; // index.jsx 자동 로드
+import PinSidebar from '../components/Sidebar';
 import MapFilters from '../components/Overlays/MapFilters';
 import MapControls from '../components/Overlays/MapControls';
 import MapContextMenu from '../components/Overlays/MapContextMenu';
 import RoadviewCloseButton from '../components/Overlays/RoadviewCloseButton';
-
-// --- 3. 모달 컴포넌트 ---
 import ImAnalysisModal from '../components/Modals/ImAnalysisModal';
 import ImageViewerModal from '../components/Modals/ImageViewerModal';
 
-// 껍데기 컴포넌트 (Provider 제공)
+// 1. 껍데기 컴포넌트
 export default function MapPage({ session, mode = 'tour' }) {
   return (
     <MapProvider session={session} mode={mode}>
@@ -26,11 +23,10 @@ export default function MapPage({ session, mode = 'tour' }) {
   );
 }
 
-// 실제 화면 구성
+// 2. 실제 내용 컴포넌트
 function MapPageContent() {
   const { isLeftPanelOpen, setIsLeftPanelOpen, mode } = useMap();
 
-  // 왼쪽 패널 애니메이션 스타일
   const leftPanelStyle = {
     left: isLeftPanelOpen ? '0' : '-20rem',
     transition: 'left 0.3s ease-in-out',
@@ -43,7 +39,7 @@ function MapPageContent() {
   return (
     <div className={styles.pageContainerMap}>
       
-      {/* 1. 왼쪽 리스트 패널 */}
+      {/* 왼쪽 패널 & 토글 */}
       <div style={leftPanelStyle} className={mode === 'tour' ? styles.tourPanel : styles.managePanel}>
         <LeftPanel />
       </div>
@@ -56,19 +52,19 @@ function MapPageContent() {
         {isLeftPanelOpen ? '◀' : '▶'}
       </button>
 
-      {/* 2. 오른쪽 상세정보 사이드바 */}
+      {/* 오른쪽 사이드바 */}
       <PinSidebar />
 
-      {/* 3. 메인 지도 */}
+      {/* 지도 */}
       <KakaoMap />
 
-      {/* 4. 지도 위 컨트롤 & 오버레이 */}
+      {/* 지도 위 오버레이들 */}
       <MapFilters />
       <MapControls />
       <RoadviewCloseButton />
+      <MapContextMenu /> {/* 위치 계산을 위해 여기 존재해야 함 */}
 
-      {/* 5. 각종 팝업 (조건부 렌더링은 내부에서 처리됨) */}
-      <MapContextMenu />
+      {/* 모달 */}
       <ImAnalysisModal />
       <ImageViewerModal />
 
