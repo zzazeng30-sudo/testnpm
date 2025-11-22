@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { supabase } from './supabaseClient.js'
+// ✅ (이렇게 수정하세요: 점 2개 + lib)
+import { supabase } from "../../lib/supabaseClient";
 import styles from './ContractPage.module.css'; 
 
 /* 18일차 (수정): '계약 관리' (session prop 및 user_id 저장 로직 추가) */

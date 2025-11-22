@@ -1152,3 +1152,50 @@
 .roadviewCloseButton:active {
     transform: scale(0.95); /* 클릭 시 작아지는 효과 */
 }
+
+/* ... 기존 CSS ... */
+
+/* --- 왼쪽 패널 상단 탭 (매물목록 / 임장리스트) --- */
+.panelHeaderTabs {
+  display: flex;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  /* 패널의 기본 padding을 상쇄하여 꽉 차게 만듭니다 */
+  margin: -1.5rem -1.5rem 1rem -1.5rem; 
+}
+
+.panelTabButton {
+  flex: 1;
+  padding: 0.75rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #6b7280;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.panelTabButton:hover {
+  background-color: #f9fafb;
+  color: #374151;
+}
+
+.panelTabButton.active {
+  color: #2563eb; /* 파란색 */
+  border-bottom: 2px solid #2563eb;
+}
+
+/* 임장 리스트 탭이 활성화됐을 때 색상 (보라색) */
+.panelTabButton.activeTour {
+  color: #7c3aed; /* 보라색 */
+  border-bottom: 2px solid #7c3aed;
+}
+
+/* 패널 내부 내용 래퍼 */
+.panelContentWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}

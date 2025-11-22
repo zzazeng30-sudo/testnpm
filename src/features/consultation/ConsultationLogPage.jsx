@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { supabase } from './supabaseClient.js'
+import { supabase } from '../../lib/supabaseClient.js'
 import styles from './ConsultationLogPage.module.css'; // ★ 15일차: 전용 CSS
 
 /* 15일차: '상담 이력 관리' 탭 페이지 */

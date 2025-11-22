@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react' // ★ [수정] useRef 추가
-import { supabase } from './supabaseClient.js'
+import { supabase } from '../../lib/supabaseClient.js'
 import styles from './CustomerPage.module.css'; 
 import CustomerAddModal from './CustomerAddModal.jsx'; 
 

@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { supabase } from './supabaseClient.js';
-import MapPage from './MapPage.jsx';
-import CustomerPage from './CustomerPage.jsx';
-import ContractPage from './ContractPage.jsx';
-import DashboardPage from './DashboardPage.jsx';
-import MyPage from './MyPage.jsx'; 
-import ConsultationLogPage from './ConsultationLogPage.jsx'; 
-import PropertyPage from './PropertyPage.jsx';
+// ▼ 라이브러리 경로 수정 (../../lib/...)
+import { supabase } from '../../lib/supabaseClient';
+
+// ▼ 페이지 컴포넌트 경로 수정 (../../features/...)
+import MapPage from '../../features/map/pages/MapPage';
+import CustomerPage from '../../features/customer/CustomerPage';
+import ContractPage from '../../features/contract/ContractPage';
+import DashboardPage from '../../features/dashboard/DashboardPage';
+import MyPage from '../../features/mypage/MyPage';
+import ConsultationLogPage from '../../features/consultation/ConsultationLogPage';
+import PropertyPage from '../../features/property/PropertyPage';
+
+// 스타일 파일은 MainLayout.jsx와 같은 폴더(src/components/layout/)에 있으므로 그대로 둠
 import styles from './MainLayout.module.css';
 
-// ★ [모달] 1. '고객 추가', '고객 관리', '상담 관리' 3개 탭으로 구성
+// 메뉴 데이터 설정
 const menuData = {
   '대시보드': [
     { id: 'dashboard-schedule', name: '스케줄표', component: <DashboardPage /> },
@@ -58,7 +63,7 @@ export default function MainLayout({ session }) {
   const [activeMainMenu, setActiveMainMenu] = useState(mainMenus[1]); 
   const [activeSubMenu, setActiveSubMenu] = useState(menuData[mainMenus[1]][0].id);
 
-  // ★ [모달] 2. '고객 추가' 클릭 시 모달을 열기 위한 '트리거' state
+  // '고객 추가' 클릭 시 모달을 열기 위한 '트리거' state
   const [customerModalTrigger, setCustomerModalTrigger] = useState(0);
 
   const handleLogout = async () => {
@@ -66,29 +71,26 @@ export default function MainLayout({ session }) {
     if (error) console.error('로그아웃 오류:', error);
   };
 
-  // ★★★ (수정) '고객' 메인 탭 클릭 시 '고객 관리'로 이동하도록 수정 ★★★
   const handleMainMenuClick = (menuName) => {
     setActiveMainMenu(menuName);
     
-    // 1. '고객' 탭을 클릭한 경우
+    // '고객' 탭을 클릭한 경우 '고객 관리' 탭을 기본으로 설정
     if (menuName === '고객') {
-      setActiveSubMenu('cust-manage'); // 2. '고객 관리' 탭을 기본으로 설정
+      setActiveSubMenu('cust-manage'); 
     } 
-    // 3. 그 외 다른 탭은 기존 로직대로 첫 번째 하위 탭을 선택
+    // 그 외 다른 탭은 첫 번째 하위 탭을 선택
     else {
       setActiveSubMenu(menuData[menuName][0].id);
     }
   };
-  // ★★★ (수정 완료) ★★★
-
 
   const handleSubMenuClick = (menuId) => {
-    // ★ [모달] 3. '고객 추가' 탭을 클릭했을 때의 특별 로직
+    // '고객 추가' 탭을 클릭했을 때의 특별 로직
     if (menuId === 'cust-upload') {
-      setActiveSubMenu('cust-manage'); // 1. '고객 관리' 탭을 활성화
-      setCustomerModalTrigger(prev => prev + 1); // 2. 트리거 숫자를 1 증가시켜 모달 열기 신호
+      setActiveSubMenu('cust-manage'); // '고객 관리' 탭을 활성화
+      setCustomerModalTrigger(prev => prev + 1); // 트리거 숫자를 증가시켜 모달 열기 신호 전달
     } else {
-      setActiveSubMenu(menuId); // 3. 그 외에는 일반 탭 이동
+      setActiveSubMenu(menuId); // 그 외에는 일반 탭 이동
     }
   };
 
@@ -110,7 +112,7 @@ export default function MainLayout({ session }) {
           propsToPass.mode = activePage.mode;
       }
       
-      // ★ [모달] 4. '고객 관리' 탭(CustomerPage)에만 'modalTrigger' prop 전달
+      // '고객 관리' 탭(CustomerPage)에만 'modalTrigger' prop 전달
       if (activePage.id === 'cust-manage') {
           propsToPass.modalTrigger = customerModalTrigger;
       }
@@ -181,7 +183,7 @@ export default function MainLayout({ session }) {
 
       <footer className={styles.footer}>
         <p>
-          &copy; {new Date().getFullYear()} 사장님 CRM. All rights reserved. (고객 관리 모달 적용)
+          &copy; {new Date().getFullYear()} 사장님 CRM. All rights reserved.
         </p>
       </footer>
 

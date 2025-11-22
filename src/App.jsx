@@ -1,32 +1,38 @@
 import React, { useState, useEffect } from 'react'
-import { supabase } from './supabaseClient.js'
-import Auth from './Auth.jsx' 
-import MainLayout from './MainLayout.jsx' // ★ 9일차: '메인 레이아웃'을 분리합니다.
+import { supabase } from './lib/supabaseClient.js'
+import Auth from './features/auth/Auth.jsx' 
+import MainLayout from './components/layout/MainLayout.jsx'
+import ProposalViewer from './features/property/ProposalViewer.jsx' // ★ 추가
 
-/* 9일차 '리셋': App.jsx는 '현관문' 역할만 합니다. */
 function App() {
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [shareMode, setShareMode] = useState(false) // ★ 공유 모드 상태
 
   useEffect(() => {
-    // 1. 앱이 처음 켜질 때, '현재 로그인한 사용자'가 있는지 확인
+    // 1. URL 확인: 공유 링크(?share=...)인지 체크
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('share')) {
+        setShareMode(true);
+        setLoading(false);
+        return; // 공유 모드면 로그인 체크 스킵
+    }
+
+    // 2. 기존 로그인 체크
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setLoading(false)
     })
 
-    // 2. '로그인'이나 '로그아웃' 상태가 바뀔 때마다 감지
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
     })
 
-    // 3. 리스너 정리
     return () => subscription.unsubscribe()
   }, [])
 
-  // 로딩 중일 때 (Tailwind 적용)
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-100">
@@ -35,16 +41,14 @@ function App() {
     )
   }
 
-  // 로딩 끝
+  // ★ 공유 모드이면 뷰어만 렌더링
+  if (shareMode) {
+    return <ProposalViewer />
+  }
+
   return (
     <div className="h-screen">
-      {!session ? (
-        // 세션(로그인)이 없으면 <Auth /> (로그인 화면)을 보여줌
-        <Auth />
-      ) : (
-        // 세션(로그인)이 있으면 <MainLayout /> (헤더/본문/푸터)을 보여줌
-        <MainLayout session={session} />
-      )}
+      {!session ? <Auth /> : <MainLayout session={session} />}
     </div>
   )
 }

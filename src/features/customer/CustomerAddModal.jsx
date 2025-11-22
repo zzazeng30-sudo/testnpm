@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
-import { supabase } from './supabaseClient.js';
-import styles from './CustomerPage.module.css'; // ★ CustomerPage의 CSS를 재사용
+// ▼ [수정] 라이브러리 경로 변경 (../../lib/...)
+import { supabase } from '../../lib/supabaseClient';
+// 스타일은 같은 폴더에 있으므로 그대로 둠
+import styles from './CustomerPage.module.css';
 
-// ★ [모달] CustomerPage로부터 3개의 props를 받음:
-// 1. session: user_id 저장을 위해
-// 2. onClose: '닫기' 버튼 클릭 시 모달을 닫기 위해
-// 3. onAddSuccess: 고객 추가 성공 시 부모(CustomerPage)의 리스트를 새로고침하기 위해
 export default function CustomerAddModal({ session, onClose, onAddSuccess }) {
   const [loading, setLoading] = useState(false);
 
-  // ★ 폼 필드 state
   const [customerType, setCustomerType] = useState('개인');
   const [purpose, setPurpose] = useState('매수');
   const [managerName, setManagerName] = useState('');
@@ -19,7 +16,6 @@ export default function CustomerAddModal({ session, onClose, onAddSuccess }) {
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
 
-  // '추가' 버튼 클릭 핸들러
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!name) {
@@ -47,19 +43,16 @@ export default function CustomerAddModal({ session, onClose, onAddSuccess }) {
       alert('고객 등록에 실패했습니다.');
     } else {
       alert('고객이 성공적으로 등록되었습니다.');
-      onAddSuccess(); // ★ 부모에게 성공 신호
-      onClose(); // ★ 모달 닫기
+      onAddSuccess();
+      onClose();
     }
     setLoading(false);
   };
 
   return (
-    // 1. 모달 배경 (어둡게)
     <div className={styles.modalOverlay} onClick={onClose}>
-      {/* 2. 모달 본체 (클릭해도 안 닫힘) */}
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <form onSubmit={handleSubmit}>
-          {/* 3. 모달 헤더 */}
           <div className={styles.modalHeader}>
             <h2 className={styles.sidebarTitle}>새 고객 등록</h2>
             <button type="button" className={styles.modalCloseButton} onClick={onClose}>
@@ -67,11 +60,8 @@ export default function CustomerAddModal({ session, onClose, onAddSuccess }) {
             </button>
           </div>
 
-          {/* 4. 모달 바디 (폼) */}
           <div className={styles.modalBody}>
-            {/* 2x2 그리드 폼 */}
             <div className={styles.formGrid}>
-              {/* --- 1열 --- */}
               <div>
                 <label className={styles.label}>유형</label>
                 <select
@@ -109,7 +99,6 @@ export default function CustomerAddModal({ session, onClose, onAddSuccess }) {
                 />
               </div>
 
-              {/* --- 2열 --- */}
               <div>
                 <label className={styles.label}>고객이름 (필수)</label>
                 <input
@@ -143,7 +132,6 @@ export default function CustomerAddModal({ session, onClose, onAddSuccess }) {
               </div>
             </div>
 
-            {/* --- 하단 (주소, 메모) --- */}
             <div className={styles.formFullWidth}>
               <label className={styles.label}>주소</label>
               <input
@@ -165,7 +153,6 @@ export default function CustomerAddModal({ session, onClose, onAddSuccess }) {
             </div>
           </div>
 
-          {/* 5. 모달 푸터 (버튼) */}
           <div className={styles.modalFooter}>
             <button
               type="button"
@@ -177,7 +164,7 @@ export default function CustomerAddModal({ session, onClose, onAddSuccess }) {
             </button>
             <button
               type="submit"
-              className={`${styles.button} ${styles.buttonGreen}`} // (초록색 버튼으로 변경)
+              className={`${styles.button} ${styles.buttonGreen}`}
               disabled={loading}
             >
               {loading ? '추가 중...' : '추가'}

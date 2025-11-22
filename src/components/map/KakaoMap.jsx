@@ -1,8 +1,8 @@
 // src/components/map/KakaoMap.jsx (전체 덮어쓰기 - 수정됨)
 import React, { useEffect, useRef } from 'react';
 import { useMap } from '../../contexts/MapContext';
-import { supabase } from '../../supabaseClient.js';
-import styles from '../../MapPage.module.css';
+import { supabase } from "../../lib/supabaseClient";
+import styles from "../../features/map/pages/MapPage.module.css";
 
 // --- 1. 디바운스(Debounce) 헬퍼 함수 ---
 function debounce(func, delay) {
