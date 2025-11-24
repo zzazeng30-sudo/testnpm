@@ -151,3 +151,93 @@
   color: #6b7280; /* text-gray-500 */
   margin: 0;
 }
+
+/* ... 기존 데스크탑 코드들 ... */
+
+/* ▼▼▼ [추가] 모바일 전용 스타일 (768px 이하) ▼▼▼ */
+@media (max-width: 768px) {
+  
+  /* 1. 전체 레이아웃: 스크롤 문제 방지 */
+  .layoutContainer {
+    height: 100dvh; /* 모바일 브라우저 주소창 대응 (vh -> dvh) */
+  }
+
+  /* 2. 대메뉴 (파란색 탭) */
+  .mainMenuBar {
+    padding: 0 0.5rem; /* 좌우 여백 축소 */
+    height: 3.5rem;    /* 높이 고정 */
+    gap: 0.5rem;
+  }
+
+  .mainMenuTabs {
+    flex: 1;           /* 남은 공간 차지 */
+    overflow-x: auto;  /* 내용 넘치면 가로 스크롤 */
+    white-space: nowrap; /* 줄바꿈 방지 (글자 세로로 깨짐 해결!) */
+    gap: 0;            /* 탭 사이 간격 제거 */
+    
+    /* 스크롤바 숨기기 (크롬, 사파리, 엣지) */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .mainMenuTabs::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  .mainMenuTab {
+    padding: 0 0.75rem; /* 터치 영역 확보하되 패딩 축소 */
+    height: 3.5rem;     /* 부모 높이만큼 */
+    display: flex;      /* 텍스트 중앙 정렬 */
+    align-items: center;
+    font-size: 0.95rem;
+  }
+
+  /* 사용자 정보(이메일/로그아웃)는 공간 부족 시 숨기거나 작게 처리 */
+  .mainMenuUserInfo {
+    display: none; /* 일단 모바일에서는 공간 확보를 위해 숨김 (필요시 햄버거 메뉴로 이동) */
+  }
+
+  /* 3. 상세메뉴 (서브 탭) */
+  .subMenuBar {
+    padding: 0 0.5rem;
+    height: 3rem;
+    overflow-x: auto; /* 가로 스크롤 */
+    white-space: nowrap; /* 줄바꿈 방지 */
+    
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .subMenuBar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .subMenuTab {
+    padding: 0 0.8rem;
+    height: 3rem;
+    font-size: 0.9rem;
+  }
+
+  /* 4. 콘텐츠 영역 */
+  .pageContainer {
+    padding: 1rem; /* 모바일에서는 패딩을 조금 줄임 */
+  }
+
+  .contentArea {
+    padding: 0 !important; /* 메인 콘텐츠 영역의 패딩 제거 */
+  }
+  
+  /* 지도 컨테이너 (이미 적용되어 있지만 확실하게) */
+.pageContainerMap {
+    /* 높이를 Header/Submenu를 제외한 전체 영역으로 재계산 */
+    height: calc(100dvh - 6.5rem) !important; 
+    
+    /* 맵의 모서리가 둥글면 맵 주변에 여백이 생기므로 모서리 제거 */
+    border-radius: 0; 
+    box-shadow: none; 
+  }
+.pageContainer {
+    padding: 0; 
+  }
+
+
+
+}

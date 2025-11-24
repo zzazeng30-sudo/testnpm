@@ -1,27 +1,9 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react'; 
 import { supabase } from '../lib/supabaseClient'; 
-import styles from '../features/map/pages/MapPage.module.css';
+// ▼ [수정] 커스텀 오버레이 스타일이 있는 파일로 경로 변경
+import styles from '../features/map/styles/MapOverlays.module.css';
 
-// (API 관련 코드는 그대로 둠)
-const API_MODEL = 'gemini-2.5-flash';
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${API_MODEL}:generateContent?key=`;
-const API_KEY = "AIzaSyCGt5A6VU0Htm3c8AHOhhsGyqPlcwPYrDY"; 
-
-const exponentialBackoffFetch = async (url, options, maxRetries = 5) => {
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-            const response = await fetch(url, options);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            return response;
-        } catch (error) {
-            if (attempt === maxRetries - 1) throw error;
-            const delay = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
-            await new Promise(resolve => setTimeout(resolve, delay));
-        }
-    }
-};
-
-// ▼▼▼ [수정 1] 진짜 투명한 1x1 픽셀 이미지로 교체했습니다. ▼▼▼
+// 투명 마커 이미지
 const TRANSPARENT_MARKER_IMAGE_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
 const MapContext = createContext();
@@ -75,6 +57,10 @@ export function MapProvider({ children, session, mode }) {
   const [visiblePins, setVisiblePins] = useState([]);
   const [expandedStackKeys, setExpandedStackKeys] = useState(new Set());
   const [isAddingToStack, setIsAddingToStack] = useState(false);
+  
+  // 제안서(내보내기) 관련 상태
+  const [proposalPins, setProposalPins] = useState([]);
+  const [isProposalOpen, setIsProposalOpen] = useState(false);
   
   const [filterPropertyType, setFilterPropertyType] = useState('ALL');
   const [filterTransactionType, setFilterTransactionType] = useState('ALL');
@@ -192,6 +178,7 @@ export function MapProvider({ children, session, mode }) {
       setActiveOverlayKey(pinKey);
       
       setIsLeftPanelOpen(true); 
+      setIsProposalOpen(false); 
 
       if (!isStack) {
           setSelectedPin(pin);
@@ -215,7 +202,9 @@ export function MapProvider({ children, session, mode }) {
           setListTitle(`[${pin.pins.length}개] ${pin.address || '매물 묶음'}`);
           const stackHeader = {
               isStackHeader: true, isStack: true, count: pin.pins.length, id: pinKey,
-              lat: pin.lat, lng: pin.lng, address: pin.address, keywords: '매물 묶음', pins: pin.pins
+              lat: pin.lat, lng: pin.lng, address: pin.address, 
+              building_name: pin.pins[0].building_name, // 선택 시에도 building_name 전달
+              keywords: '매물 묶음', pins: pin.pins
           };
           setVisiblePins([stackHeader, ...pin.pins]);
       }
@@ -243,8 +232,6 @@ export function MapProvider({ children, session, mode }) {
           const pin = group[0];
           const position = new window.kakao.maps.LatLng(pin.lat, pin.lng);
           
-          // ▼▼▼ [수정 2] 마커 사이즈를 (40, 40) -> (1, 1)로 줄이고 offset을 0으로 변경했습니다. ▼▼▼
-          // (어차피 투명해서 안보여야 하므로 작을수록 좋습니다)
           const markerImage = new window.kakao.maps.MarkerImage(
               TRANSPARENT_MARKER_IMAGE_URL, 
               new window.kakao.maps.Size(1, 1), 
@@ -291,8 +278,11 @@ export function MapProvider({ children, session, mode }) {
               });
 
           } else {
+              // ★ [수정된 부분] 스택(묶음) 표시 시 '건물명'을 보여줍니다.
+              const stackName = pin.building_name || '건물명 미입력';
+
               content.innerHTML = `
-                <div class="${styles.overlayTop}" style="background-color: #f97316; color: white;">매물 스택</div>
+                <div class="${styles.overlayTop}" style="background-color: #f97316; color: white;">${stackName}</div>
                 <div class="${styles.overlayBottom}" style="background-color: #f97316; color: white;">📍 ${group.length}개 매물</div>
               `;
 
@@ -357,8 +347,19 @@ export function MapProvider({ children, session, mode }) {
         if (stack.length === 1) visibleStacks.push(stack[0]);
         else {
             visibleStacks.push({
-                isStackHeader: true, isStack: true, count: stack.length, id: stack[0].id,
-                lat: stack[0].lat, lng: stack[0].lng, address: stack[0].address || '매물 묶음', keywords: `${stack.length}개`, pins: stack
+                isStackHeader: true, 
+                isStack: true, 
+                count: stack.length, 
+                id: stack[0].id,
+                lat: stack[0].lat, 
+                lng: stack[0].lng, 
+                address: stack[0].address || '매물 묶음', 
+                
+                // 리스트(패널)에 표시될 스택 정보에도 건물명을 추가합니다.
+                building_name: stack[0].building_name,
+
+                keywords: `${stack.length}개`, 
+                pins: stack
             });
         }
     });
@@ -389,15 +390,32 @@ export function MapProvider({ children, session, mode }) {
       setContextMenu({ ...contextMenu, visible: false });
       if(action === 'createPin') {
           setLoading(true); const addr = await getAddressFromCoords(latLng.getLat(), latLng.getLng()); setLoading(false);
-          setSelectedPin({ id: null, lat: latLng.getLat(), lng: latLng.getLng() }); setAddress(addr); setIsEditMode(true);
-      } else if(action === 'editPin') setIsEditMode(true);
-      else if(action === 'deletePin') await handleDeletePin(pinId);
-      else if(action === 'addPinToStack') handleOpenCreateInStack(latLng.getLat(), latLng.getLng());
+          setSelectedPin({ id: null, lat: latLng.getLat(), lng: latLng.getLng() }); setAddress(addr); setIsEditMode(true); setIsProposalOpen(false);
+      } else if(action === 'editPin') {
+          setIsEditMode(true); setIsProposalOpen(false);
+      } else if(action === 'deletePin') {
+          await handleDeletePin(pinId);
+      } else if(action === 'addPinToStack') {
+          handleOpenCreateInStack(latLng.getLat(), latLng.getLng());
+      } else if(action === 'addToProposal') {
+          const pinToAdd = pins.find(p => p.id === pinId);
+          if (pinToAdd) {
+              setProposalPins(prev => {
+                  if (prev.find(p => p.id === pinId)) {
+                      alert("이미 제안서 목록에 담긴 매물입니다.");
+                      return prev;
+                  }
+                  return [pinToAdd, ...prev];
+              });
+              setIsProposalOpen(true);
+              setSelectedPin(null);
+          }
+      }
   };
   
   const handleOpenCreateInStack = async (lat, lng) => {
       clearTempMarkerAndMenu(); setLoading(true); const addr = await getAddressFromCoords(lat, lng); setLoading(false);
-      setSelectedPin({ id: null, lat, lng }); setAddress(addr); setIsAddingToStack(true); setIsEditMode(true);
+      setSelectedPin({ id: null, lat, lng }); setAddress(addr); setIsAddingToStack(true); setIsEditMode(true); setIsProposalOpen(false);
   };
   
   const handleImageChange = async () => {}; const handleImageRemove = () => {}; const handleGenerateIm = async () => {}; 
@@ -415,6 +433,8 @@ export function MapProvider({ children, session, mode }) {
     customers, linkedCustomers, fetchCustomers, fetchLinkedCustomers, handleLinkCustomer, handleUnlinkCustomer,
     imContent, setImContent, isGenerating, handleGenerateIm, tourPins, routeLine, handleAddToTour, handleRemoveFromTour, handleClearTour, handleOptimizeTour,
     contextMenu, setContextMenu, contextMenuRef, viewingImage, setViewingImage, 
+    
+    proposalPins, setProposalPins, isProposalOpen, setIsProposalOpen,
     
     tempMarkerRef, 
     

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMap } from '../../../../contexts/MapContext';
-import styles from "../../pages/MapPage.module.css";
+import styles from '../../styles/MapOverlays.module.css';
 
 export default function MapContextMenu() {
   const { contextMenu, contextMenuRef, handleContextMenuAction, mapRef, loading, isGenerating } = useMap();
@@ -32,12 +32,14 @@ export default function MapContextMenu() {
           <button onClick={() => handleContextMenuAction('editPin')}>매물 수정 (사이드바)</button>
           <button onClick={() => handleContextMenuAction('deletePin')} disabled={loading || isGenerating || contextMenu.isStack}>매물 삭제</button>
           <div style={{ borderTop: '1px solid #e5e7eb', margin: '0.5rem 0' }} />
+          
+          {/* ★ [추가] 제안서 담기 (스택 매물 보기 삭제됨) */}
+          <button onClick={() => handleContextMenuAction('addToProposal')} disabled={loading || isGenerating}>
+             🎁 제안서에 담기 (목록)
+          </button>
+
+          <div style={{ borderTop: '1px solid #e5e7eb', margin: '0.5rem 0' }} />
           <button onClick={() => handleContextMenuAction('addPinToStack')} disabled={loading || isGenerating}>매물 스택 추가</button>
-          {contextMenu.isStack && (
-             <button onClick={() => handleContextMenuAction('editPin')} disabled={loading} style={{ marginTop: '0.5rem' }}>
-               📍 스택 매물 보기
-             </button>
-          )}
         </>
       ) : (
         <>

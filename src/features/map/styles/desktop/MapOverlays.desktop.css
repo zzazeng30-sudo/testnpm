@@ -1,0 +1,107 @@
+/* 1. 패널 토글 버튼 */
+.panelToggleButton {
+  position: absolute; top: 50%; transform: translateY(-50%); width: 20px; flex-shrink: 0;
+  background-color: #f9fafb; border: none; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; 
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; color: #4b5563; z-index: 35; transition: left 0.3s ease-in-out, background-color 0.2s;
+}
+.panelToggleButton:hover { background-color: #f3f4f6; }
+
+/* 2. 커스텀 오버레이 (지도 핀) */
+.customOverlay {
+  position: relative; background-color: white;
+  border: 1px solid #333; border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2); transform: translateY(10px); cursor: pointer;
+}
+.customOverlay::after {
+  content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid #333; 
+}
+.overlayTop {
+  font-size: 10px; font-weight: bold; color: #333; padding: 4px 6px;
+  border-bottom: 1px solid #ccc; min-width: 60px; text-align: center; white-space: nowrap; 
+}
+.overlayBottom {
+  font-size: 11px; font-weight: bold; color: #000; padding: 5px 6px; text-align: center; white-space: nowrap; 
+}
+.overlayBottom.statusBefore { background-color: #ffab73; color: #000000; }
+.overlayBottom.statusInProgress { background-color: #dc2626; color: #ffffff; }
+.overlayBottom.statusComplete { background-color: #7dd3fc; color: #000000; }
+
+.customOverlay.active {
+  border: 2px solid #2563eb; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5); opacity: 1;
+}
+.customOverlay.active::after { border-top: 10px solid #2563eb; }
+
+.tempPin { width: 14px; height: 32.5px; }
+.tempPin svg { width: 100%; height: 100%; }
+
+/* 3. 지도 컨트롤 & 필터 */
+.mapControlContainer {
+    position: absolute; top: 1rem; right: 1rem; z-index: 30; 
+    display: flex; background-color: #ffffff;
+    border-radius: 0.375rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #d1d5db; 
+}
+.mapControlButton {
+    padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500; color: #374151; 
+    background-color: #ffffff; border: none; cursor: pointer; transition: background-color 0.2s;
+}
+.mapControlButton:not(:last-child) { border-right: 1px solid #d1d5db; }
+.mapControlButton:first-child { border-top-left-radius: 0.375rem; border-bottom-left-radius: 0.375rem; }
+.mapControlButton:last-child { border-top-right-radius: 0.375rem; border-bottom-right-radius: 0.375rem; }
+.mapControlButton:hover { background-color: #f3f4f6; }
+.mapControlButton.active { background-color: #2563eb; color: #ffffff; }
+
+.mapFilterContainer {
+    position: absolute; top: 1rem; left: 50%; transform: translateX(-50%); z-index: 30; 
+    display: flex; gap: 0.5rem; background-color: #ffffff; border-radius: 0.375rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #d1d5db; padding: 0.5rem; 
+}
+.mapFilterSelect {
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+  padding: 0.375rem 2rem 0.375rem 0.75rem; font-size: 0.875rem; font-weight: 500; color: #374151;
+  background-color: #ffffff; border: 1px solid #d1d5db; border-radius: 0.375rem; cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.25em 1.25em;
+}
+
+/* 4. 컨텍스트 메뉴 */
+.contextMenu {
+  position: absolute; background-color: white; border-radius: 0.5rem; 
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+  z-index: 1000; min-width: 180px; display: flex; flex-direction: column; padding: 0.5rem; 
+  border: 1px solid #e5e7eb; transform: translate(15px, 15px); 
+}
+.contextMenu button {
+  padding: 0.5rem 0.75rem; font-size: 0.875rem; color: #374151; background: none; border: none;
+  text-align: left; cursor: pointer; border-radius: 0.25rem; display: flex; align-items: center; gap: 0.5rem; 
+  width: 100%; transform: none !important; 
+}
+.contextMenu button:hover { background-color: #f3f4f6; color: #1f2937; }
+.contextMenu button:disabled { color: #9ca3af; cursor: not-allowed; background: none; transform: none !important; }
+
+/* 5. 로드뷰 */
+.roadview {
+  position: absolute; top: 5rem; right: 1rem; width: 45%; height: 60%; z-index: 30;
+  background-color: #333; border: 3px solid #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  border-radius: 0.5rem; transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  opacity: 0; transform: scale(0.9) translateX(50px); pointer-events: none; display: block;
+}
+.roadviewVisible { opacity: 1; transform: scale(1) translateX(0); pointer-events: auto; }
+.roadviewCloseButton {
+    position: absolute; top: 5.3rem; right: 1.3rem; z-index: 31;
+    background-color: rgba(0, 0, 0, 0.6); color: white; border: none; border-radius: 50%; 
+    width: 2.25rem; height: 2.25rem; font-size: 1.25rem; font-weight: 700; cursor: pointer;
+    display: flex; justify-content: center; align-items: center; line-height: 1; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4); transition: background-color 0.2s, transform 0.1s ease;
+}
+.roadviewCloseButton:hover { background-color: rgba(0, 0, 0, 0.8); transform: scale(1.05); }
+.roadviewCloseButton:active { transform: scale(0.95); }
+
+.mapWalker {
+  position: absolute; width: 26px; height: 46px;
+  background: url(https://t1.daumcdn.net/localimg/localimages/07/2018/pc/roadview_minimap_wk_2018.png) no-repeat;
+  background-position: 0 -50px; pointer-events: none; z-index: 9999; transform-origin: 50% 85%; 
+}

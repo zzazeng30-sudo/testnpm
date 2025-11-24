@@ -1,7 +1,10 @@
-// src/features/map/pages/MapPage.jsx
 import React from 'react';
 import { MapProvider, useMap } from '../../../contexts/MapContext';
-import styles from './MapPage.module.css';
+
+// ▼ [수정] 스타일 파일 분리 import
+import layoutStyles from '../styles/MapLayout.module.css';     // 레이아웃 (pageContainerMap)
+import sidebarStyles from '../styles/MapSidebar.module.css';   // 사이드바 (tourPanel, managePanel)
+import overlayStyles from '../styles/MapOverlays.module.css';  // 오버레이 (panelToggleButton)
 
 // Components
 import LeftPanel from '../../../components/map/LeftPanel'; 
@@ -37,14 +40,20 @@ function MapPageContent() {
   };
 
   return (
-    <div className={styles.pageContainerMap}>
+    // ▼ [수정] styles.pageContainerMap -> layoutStyles.pageContainerMap
+    <div className={layoutStyles.pageContainerMap}>
       
       {/* 왼쪽 패널 & 토글 */}
-      <div style={leftPanelStyle} className={mode === 'tour' ? styles.tourPanel : styles.managePanel}>
+      <div 
+        style={leftPanelStyle} 
+        // ▼ [수정] styles.tourPanel -> sidebarStyles.tourPanel
+        className={mode === 'tour' ? sidebarStyles.tourPanel : sidebarStyles.managePanel}
+      >
         <LeftPanel />
       </div>
       <button
-        className={styles.panelToggleButton}
+        // ▼ [수정] styles.panelToggleButton -> overlayStyles.panelToggleButton
+        className={overlayStyles.panelToggleButton}
         style={toggleButtonStyle}
         onClick={() => setIsLeftPanelOpen(prev => !prev)}
         title={isLeftPanelOpen ? "패널 접기" : "패널 펼치기"}
@@ -62,7 +71,7 @@ function MapPageContent() {
       <MapFilters />
       <MapControls />
       <RoadviewCloseButton />
-      <MapContextMenu /> {/* 위치 계산을 위해 여기 존재해야 함 */}
+      <MapContextMenu /> 
 
       {/* 모달 */}
       <ImAnalysisModal />

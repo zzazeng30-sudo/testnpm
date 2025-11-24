@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMap } from '../../../../contexts/MapContext';
-import styles from "../../pages/MapPage.module.css";
+import styles from '../../styles/MapModals.module.css';
 
 export default function ImAnalysisModal() {
   const { imContent, setImContent } = useMap();

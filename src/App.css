@@ -40,3 +40,11 @@
 .read-the-docs {
   color: #888;
 }
+
+@media (max-width: 768px) {
+  /* 모바일 환경에서 #root 요소의 전역 패딩을 제거 */
+  #root {
+    padding: 0; 
+    max-width: 100%; /* 너비 제한 해제 */
+  }
+}

@@ -1,7 +1,7 @@
 import React from 'react';
-// ▼ 여기가 수정되었습니다 (점 4개!)
+// ▼ 경로 수정 완료 (CSS 모듈 분리 후 새로운 경로)
 import { useMap } from '../../../../contexts/MapContext';
-import styles from '../../pages/MapPage.module.css';
+import styles from '../../styles/MapSidebar.module.css';
 
 // 가격 포맷 헬퍼
 const formatPrice = (pin) => {
@@ -127,8 +127,8 @@ export default function PinDetail() {
         </div>
       )}
 
-      {/* 하단 버튼 */}
-      <div className={`${styles.buttonGroup} ${styles.readOnlyBottomButtons}`}>
+      {/* 하단 버튼: 모바일에서 styles.buttonGroup이 100% 너비로 배치됩니다. */}
+      <div className={styles.buttonGroup}> 
         <button onClick={() => { setSelectedPin(null); clearTempMarkerAndMenu(); }} className={`${styles.button} ${styles.buttonGray}`}>
           매물 닫기
         </button>

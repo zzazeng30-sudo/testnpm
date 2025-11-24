@@ -1,0 +1,72 @@
+@media (max-width: 768px) {
+  /* 1. 패널 토글 버튼 -> 핸들 형태로 변경 및 위치 조정 */
+  .panelToggleButton {
+    top: auto;
+    bottom: 50%; /* 리스트 높이(50%)에 맞게 배치 */
+    left: 50% !important; 
+    transform: translateX(-50%); /* 회전 제거 */
+    
+    width: 4rem; /* 너비 확보 */
+    height: 1rem; /* 높이 축소 */
+    padding: 0;
+    
+    /* 실제 버튼의 시각적인 부분은 CSS로 처리하여 핸들처럼 보이게 함 */
+    border: none;
+    background-color: transparent !important;
+    box-shadow: none;
+    color: transparent !important; /* 텍스트 숨김 */
+    z-index: 51;
+  }
+  
+  /* 핸들 모양 구현 */
+  .panelToggleButton::before {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 4px;
+      background: #d1d5db; /* 연한 회색 핸들 */
+      border-radius: 4px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+  }
+
+  /* 2. 지도 컨트롤 (지도/스카이뷰) */
+  .mapControlContainer {
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.9); /* 반투명 배경 추가 */
+  }
+  .mapControlButton {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  /* 3. 필터 (유형/거래/상태) */
+  .mapFilterContainer {
+    top: 3.5rem; 
+    width: 95%; 
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.25rem;
+    background-color: rgba(255, 255, 255, 0.9); /* 반투명 배경 추가 */
+  }
+  .mapFilterSelect {
+    font-size: 0.75rem;
+    padding: 0.3rem 1.5rem 0.3rem 0.5rem;
+    flex-shrink: 0;
+  }
+  
+  /* 4. 로드뷰 화면 (위치 조정) */
+  .roadview {
+    width: 95%;
+    height: 40%;
+    top: 10%;
+    right: 2.5%;
+  }
+  .roadviewCloseButton {
+    top: 10.5%;
+    right: 5%;
+  }
+}

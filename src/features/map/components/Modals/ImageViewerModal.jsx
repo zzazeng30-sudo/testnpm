@@ -2,7 +2,7 @@
 import React from 'react';
 // ▼ 경로 수정 (기존: ../../context/MapContext -> 수정: ../../../../contexts/MapContext)
 import { useMap } from '../../../../contexts/MapContext';
-import styles from "../../pages/MapPage.module.css";
+import styles from '../../styles/MapModals.module.css';
 
 export default function ImageViewerModal() {
   const { viewingImage, setViewingImage } = useMap();

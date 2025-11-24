@@ -1,7 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { useMap } from '../../contexts/MapContext';
 import { supabase } from '../../lib/supabaseClient';
-import styles from '../../features/map/pages/MapPage.module.css';
+
+// ▼ [수정] CSS 파일 2개를 각각 다른 이름으로 가져옵니다.
+import layoutStyles from '../../features/map/styles/MapLayout.module.css';   // 지도 크기, 레이아웃
+import overlayStyles from '../../features/map/styles/MapOverlays.module.css'; // 로드뷰, 마커, 오버레이
 
 export default function KakaoMap() {
   const {
@@ -9,8 +12,8 @@ export default function KakaoMap() {
     fetchPins, fetchCustomers, mapRef, activeMapType, roadviewMode, handleMapMove, isListForced, 
     clustererRef, 
     setIsListForced, setListTitle, setActiveOverlayKey, setIsMapReady, drawMarkers, pins,
-    selectedPin, // 단일 매물 정보
-    visiblePins  // ★ [추가] 현재 리스트에 보이는 매물들 (스택 정보 포함)
+    selectedPin, 
+    visiblePins
   } = useMap();
 
   const roadviewContainerRef = useRef(null);
@@ -65,7 +68,8 @@ export default function KakaoMap() {
 
         // 로드뷰 로봇(MapWalker) 생성
         const walkerContent = document.createElement('div');
-        walkerContent.className = styles.mapWalker;
+        // ▼ [수정] styles.mapWalker -> overlayStyles.mapWalker
+        walkerContent.className = overlayStyles.mapWalker;
         walkerOverlayRef.current = new window.kakao.maps.CustomOverlay({
             position: map.getCenter(),
             content: walkerContent,
@@ -102,7 +106,8 @@ export default function KakaoMap() {
         clearTempMarkerAndMenu();
         setSelectedPin(null);
         const content = document.createElement('div');
-        content.className = styles.tempPin; 
+        // ▼ [수정] styles.tempPin -> overlayStyles.tempPin
+        content.className = overlayStyles.tempPin; 
         content.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="fill: #DC2626; width: 100%; height: 100%; display: block;"><path d="M172.268 501.67C26.97 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.97 99.031-172.268 309.67a24 24 0 0 1-35.464 0zM192 272a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"/></svg>`;
         const customOverlay = new window.kakao.maps.CustomOverlay({ map: map, position: mouseEvent.latLng, content: content, yAnchor: 1, xAnchor: 0.5, zIndex: 100 });
         tempMarkerRef.current = customOverlay;
@@ -172,26 +177,21 @@ export default function KakaoMap() {
 
           let targetPosition = null;
 
-          // [A] PIN 모드 (매물 보기 버튼)
           if (roadviewMode === 'PIN') {
               map.removeOverlayMapTypeId(window.kakao.maps.MapTypeId.ROADVIEW); 
               
               if (selectedPin) {
-                  // 단일 매물인 경우
                   targetPosition = new window.kakao.maps.LatLng(selectedPin.lat, selectedPin.lng);
               } else if (isListForced && visiblePins && visiblePins.length > 0) {
-                  // ★ [추가] 스택(묶음) 매물인 경우: 리스트의 첫 번째 항목(헤더) 위치 사용
                   const target = visiblePins[0];
                   targetPosition = new window.kakao.maps.LatLng(target.lat, target.lng);
               }
           } 
-          // [B] MAP 모드 (지도 우측 상단 버튼)
           else if (roadviewMode === 'MAP') {
               map.addOverlayMapTypeId(window.kakao.maps.MapTypeId.ROADVIEW);
               targetPosition = map.getCenter(); 
           }
 
-          // 로드뷰 이동 실행
           if (targetPosition && rvClient && rvViewer) {
               rvClient.getNearestPanoId(targetPosition, 50, (panoId) => {
                   if (panoId) {
@@ -208,17 +208,21 @@ export default function KakaoMap() {
           if (walker) walker.setMap(null);
       }
 
-  }, [roadviewMode, selectedPin, visiblePins, isListForced]); // 의존성 추가
+  }, [roadviewMode, selectedPin, visiblePins, isListForced]);
 
   return (
-    <section className={styles.mapSection}>
-      <div ref={mapRef} className={styles.map}>
-        {!window.kakao.maps && <div className={styles.mapError}>카카오맵 로딩 실패</div>}
+    // ▼ [수정] styles.mapSection -> layoutStyles.mapSection
+    <section className={layoutStyles.mapSection}>
+      {/* ▼ [수정] styles.map -> layoutStyles.map */}
+      <div ref={mapRef} className={layoutStyles.map}>
+        {/* ▼ [수정] styles.mapError -> layoutStyles.mapError */}
+        {!window.kakao.maps && <div className={layoutStyles.mapError}>카카오맵 로딩 실패</div>}
       </div>
       
+      {/* ▼ [수정] styles.roadview -> overlayStyles.roadview */}
       <div 
         ref={roadviewContainerRef} 
-        className={`${styles.roadview} ${roadviewMode !== 'OFF' ? styles.roadviewVisible : ''}`} 
+        className={`${overlayStyles.roadview} ${roadviewMode !== 'OFF' ? overlayStyles.roadviewVisible : ''}`} 
         style={{ backgroundColor: '#333' }} 
       />
     </section>

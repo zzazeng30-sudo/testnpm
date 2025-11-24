@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMap } from '../../../../contexts/MapContext';
 // ▼ [수정] 경로 변경
-import styles from '../../pages/MapPage.module.css';
+import styles from '../../styles/MapOverlays.module.css';
 
 export default function MapControls() {
   const { activeMapType, setActiveMapType, roadviewMode, toggleRoadview } = useMap();

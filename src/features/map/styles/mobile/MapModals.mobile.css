@@ -1,0 +1,39 @@
+@media (max-width: 768px) {
+  /* AI 분석 모달 */
+  .imModal {
+    width: 95%;
+    height: 80%;
+    padding: 1rem;
+  }
+  
+  .imModalTitle {
+    font-size: 1.2rem;
+  }
+  
+  .imContentScroll {
+    font-size: 0.85rem;
+  }
+
+  /* 이미지 뷰어 */
+  .imageViewerModal {
+    width: 100%;
+    height: 100%;
+    background: black;
+    padding: 0;
+    border-radius: 0;
+  }
+  
+  .imageViewerModal img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  
+  .imageViewerCloseButton {
+    top: 1rem;
+    right: 1rem;
+    background-color: rgba(0,0,0,0.5);
+    border: none;
+    color: white;
+  }
+}
