@@ -1,0 +1,304 @@
+/* 9일차: '고객 관리' 페이지만을 위한 '전용 CSS' */
+
+/* 1. ★ 21일차 (수정): '리스트 전용' 뼈대 */
+.pageContainerList {
+  height: 100%;
+  display: flex;
+  flex-direction: column; /* '리스트'는 수직으로 꽉 참 */
+  flex-grow: 1;
+  background: #fff;
+  overflow: hidden;
+}
+
+/* 1-1. ★ 21일차 (추가): '폼 전용' 뼈대 (이제 사용 안 함) */
+.pageContainerForm {
+  height: 100%;
+  display: flex;
+  flex-direction: column; 
+  flex-grow: 1;
+  background: #fff;
+  overflow-y: auto; 
+  padding: 1.5rem; 
+  box-sizing: border-box;
+}
+
+
+/* 2. 폼 (왼쪽) (이제 모달 내부에서 사용) */
+.sidebar {
+  max-width: 48rem; 
+  width: 100%;
+  margin: 0 auto; 
+  padding: 1.5rem; 
+  box-sizing: border-box;
+}
+.sidebarFull {
+  max-width: 48rem; 
+  width: 100%;
+  margin: 0 auto; 
+  padding: 1.5rem; 
+  box-sizing: border-box;
+}
+
+.sidebarTitle {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 700;
+  margin-bottom: 1.25rem; /* mb-5 */
+  color: #1f2937; /* text-gray-800 */
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* space-y-4 */
+}
+.label {
+  display: block;
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  color: #374151; /* text-gray-700 */
+  margin-bottom: 0.25rem; /* mb-1 */
+}
+.input, .textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem; /* p-2 */
+  border: 1px solid #d1d5db; /* border-gray-300 */
+  border-radius: 0.375rem; /* rounded-md */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+  box-sizing: border-box; /* (추가) */
+  background-color: #fff; /* ★ 모달 배경과 구분되도록 */
+}
+/* ★ select 태그에도 화살표 추가 */
+.input:not(textarea) {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding-right: 2rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1.25em 1.25em;
+}
+/* ★ input[type=text]는 화살표 제거 */
+.input[type="text"], .input[type="number"] {
+  appearance: none;
+  background-image: none;
+  padding-right: 0.75rem;
+}
+
+.input:focus, .textarea:focus {
+  outline: none;
+  border-color: #2563eb; /* focus:border-blue-500 */
+  box-shadow: 0 0 0 2px #dbeafe; /* focus:ring-blue-500 */
+}
+.textarea {
+  height: 7rem; /* h-28 */
+  appearance: none;
+  background-image: none;
+}
+.button {
+  width: 100%;
+  padding: 0.5rem 1rem; /* py-2 px-4 */
+  background-color: #16a34a; /* bg-green-600 */
+  color: white;
+  font-weight: 700; /* font-bold */
+  border-radius: 0.375rem; /* rounded-md */
+  border: none;
+  cursor: pointer;
+}
+.button:hover {
+  background-color: #15803d; /* hover:bg-green-700 */
+}
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* ★ [모달] 버튼 색상 추가 */
+.buttonGreen {
+  background-color: #16a34a;
+  width: auto; /* 자동 너비 */
+  flex-shrink: 0; /* 줄어들지 않음 */
+}
+.buttonGreen:hover { background-color: #15803d; }
+.buttonGray {
+  background-color: #6b7280;
+  width: auto;
+}
+.buttonGray:hover { background-color: #4b5563; }
+
+
+/* 3. 고객 리스트 (오른쪽) */
+.listSection {
+  padding: 1.5rem; /* p-6 */
+  overflow-y: auto;
+  background-color: #ffffff;
+}
+.listSectionFull {
+  flex-grow: 1;
+  padding: 1.5rem; /* p-6 */
+  overflow-y: auto;
+  background-color: #ffffff;
+}
+
+/* ★ [모달] 리스트 헤더 (제목 + 버튼) */
+.listHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem; /* mb-5 */
+}
+
+.listTitle {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 700;
+  color: #1f2937; /* text-gray-800 */
+  margin-bottom: 0; /* 헤더에서 마진 제거 */
+}
+.emptyText {
+  color: #6b7280; /* text-gray-500 */
+}
+.table {
+  width: 100%;
+  border-top: 1px solid #e5e7eb; /* border-gray-200 */
+}
+.tableHeader {
+  display: flex;
+  background-color: #f9fafb; /* bg-gray-50 */
+  border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+  padding: 0.75rem 0.75rem; /* p-3 */
+  font-weight: 700;
+  font-size: 0.875rem; /* text-sm */
+  color: #4b5563; /* text-gray-600 */
+}
+.tableBody {
+}
+.tableRow {
+  display: flex;
+  padding: 0.75rem 0.75rem; /* p-3 */
+  font-size: 0.875rem; /* text-sm */
+  align-items: center;
+  border-bottom: 1px solid #f3f4f6; /* divide-gray-100 */
+}
+
+/* ★ [모달] 컬럼 너비 재조정 (6개 컬럼) */
+.col1 { width: 15%; font-weight: 500; color: #1f2937; } /* 고객명 */
+.col2 { width: 15%; color: #4b5563; } /* 연락처 */
+.col3 { width: 15%; } /* 유형/구분 */
+.col5 { width: 20%; color: #059669; } /* 키워드 */
+.col6 { width: 25%; color: #374151; white-space: pre-wrap; word-break: break-word; } /* 메모 */
+.col4 { width: 10%; text-align: right; } /* 관리 */
+
+/* ★ [모달] 유형/구분 텍스트 스타일 */
+.customerType {
+  display: block;
+  font-weight: 700;
+  color: #2563eb; /* blue */
+  font-size: 0.85rem;
+}
+.customerPurpose {
+  display: block;
+  font-size: 0.8rem;
+  color: #6b7280; /* gray */
+}
+
+
+.deleteButton {
+  padding: 0.25rem 0.75rem; /* py-1 px-3 */
+  background-color: #dc2626; /* bg-red-600 */
+  color: white;
+  font-size: 0.75rem; /* text-xs */
+  font-weight: 500;
+  border: none;
+  border-radius: 0.375rem; /* rounded-md */
+  cursor: pointer;
+}
+.deleteButton:hover {
+  background-color: #b91c1c; /* hover:bg-red-700 */
+}
+.deleteButton:disabled {
+  opacity: 0.5;
+}
+
+
+/* --- ★ [모달] 팝업 모달 스타일 --- */
+.modalOverlay {
+  position: fixed; /* 화면 전체 고정 */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 반투명 검은색 배경 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 최상단에 표시 */
+}
+
+.modalContent {
+  background-color: #f9fafb; /* 밝은 회색 배경 */
+  border-radius: 0.75rem; /* rounded-xl */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  width: 90%;
+  max-width: 48rem; /* 768px */
+  overflow: hidden; /* 내부 스크롤 관리 */
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem; /* p-4 p-6 */
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #fff;
+}
+.modalHeader .sidebarTitle {
+  margin-bottom: 0; /* 헤더에서는 마진 제거 */
+}
+
+.modalCloseButton {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #9ca3af;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.modalCloseButton:hover {
+  color: #1f2937;
+}
+
+.modalBody {
+  padding: 1.5rem; /* p-6 */
+  max-height: 70vh; /* 최대 높이 지정 */
+  overflow-y: auto; /* 내용 길어지면 스크롤 */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+  gap: 0.75rem; /* space-x-3 */
+  padding: 1rem 1.5rem;
+  background-color: #fff;
+  border-top: 1px solid #e5e7eb;
+}
+.modalFooter .button {
+  width: auto; /* 버튼 자동 너비 */
+}
+
+/* ★ [모달] 폼 그리드 (2열) */
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2열 */
+  gap: 1.5rem 1rem; /* row-gap, column-gap */
+}
+.formFullWidth {
+  grid-column: 1 / -1; /* 1열부터 끝까지 */
+}
+
+/* 모바일 화면 대응 (2열 -> 1열) */
+@media (max-width: 640px) {
+  .formGrid {
+    grid-template-columns: 1fr; /* 1열 */
+  }
+}

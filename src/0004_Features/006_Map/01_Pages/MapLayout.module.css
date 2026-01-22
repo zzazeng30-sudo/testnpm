@@ -1,0 +1,114 @@
+/* src/0004_Features/006_Map/01_Pages/MapLayout.module.css */
+
+.pageContainerMap {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
+  background: #fff;
+  overflow: hidden;
+  position: relative;
+}
+
+.sidebar {
+  position: relative;
+  width: 320px;
+  height: 100%;
+  background-color: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  transition: transform 0.3s ease-in-out, height 0.3s ease-in-out;
+  z-index: 40;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebarOpen { transform: translateX(0); }
+.sidebarClosed { transform: translateX(-320px); }
+
+.mapSection {
+  flex-grow: 1;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  min-width: 0;
+  background-color: #f3f4f6;
+}
+
+.handleBar { display: none; }
+
+/* ==========================================================================
+   ★ 모바일 전용 레이아웃 (768px 이하)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .pageContainerMap {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100% !important;
+    position: fixed;
+    /* 하단 메뉴바(65px) 높이 위에 배치 */
+    bottom: 65px !important;
+    left: 0;
+    z-index: 100;
+    border-right: none;
+    border-top: 1px solid #e5e7eb;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(0);
+    
+    display: flex;
+    flex-direction: column;
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+
+  .sidebarExpanded {
+    /* 내용이 적으면 내용만큼, 많으면 50%까지 확장 */
+    height: auto !important;
+    max-height: calc(50vh - 65px) !important;
+    min-height: 100px;
+  }
+
+  .sidebarMinimized {
+    height: 30px !important;
+    max-height: 30px !important;
+  }
+
+  .sidebarClosed {
+    transform: translateY(100%);
+  }
+
+  .mapSection {
+    height: 100% !important;
+    width: 100% !important;
+    padding-bottom: 70px; 
+  }
+
+  .handleBar {
+    display: flex;
+    width: 100%;
+    height: 30px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    flex-shrink: 0; /* 핸들바 높이 고정 */
+    background-color: transparent;
+  }
+
+
+
+  .arrowUp {
+    transform: rotate(-225deg);
+  }
+
+  /* 스크롤이 발생하는 핵심 영역 (글로벌 클래스 활용) */
+  .sidebar :global(.scroll-box) {
+    flex: 1; /* 부모 내 남는 공간을 꽉 채움 */
+    overflow-y: auto !important; /* 내용이 넘칠 때만 스크롤 생성 */
+    -webkit-overflow-scrolling: touch;
+    background-color: #f9fafb;
+    padding-bottom: 20px;
+  }
+}

@@ -1,0 +1,223 @@
+/* 전체 패널 컨테이너 (데스크탑 기본) */
+.panelContainer {
+  position: absolute;
+  top: 0px;
+  left: 0;
+  bottom: 0;
+  width: 320px;
+  z-index: 1000;
+  background-color: white;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* 모바일 모드일 때 컨테이너 스타일 재정의 */
+.panelContainer.mobile {
+  position: relative;
+  width: 100%;
+  border-right: none;
+}
+
+/* 상단 헤더 영역 */
+.header {
+  padding: 20px;
+  border-bottom: 1px solid #f3f4f6;
+  background-color: #fff;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+/* 스크롤 가능한 메인 콘텐츠 영역 */
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  background-color: #f9fafb;
+}
+
+/* 리스트 스타일 초기화 */
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.emptyState {
+  padding: 30px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+/* =========================================
+   개별 아이템 (매물) 스타일
+   ========================================= */
+.itemContainer {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.item {
+  padding: 14px 16px;
+  background-color: white;
+  border-left: 4px solid transparent;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.1s ease;
+}
+
+/* 자식 아이템(들여쓰기) */
+.item.child {
+  padding: 12px 16px 12px 30px;
+  background-color: #f8fafc;
+}
+
+/* 호버 상태 (JS에서 클래스로 제어) */
+.item.hovered {
+  background-color: #f3f4f6;
+  border-left-color: #3b82f6;
+}
+
+/* 활성화(선택됨) 상태 */
+.item.active {
+  background-color: #eff6ff;
+  border-left-color: #2563eb;
+}
+
+/* 아이템 내부 텍스트 스타일 */
+.itemHeader {
+  font-size: 0.9rem;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.keyword {
+  font-weight: bold;
+  color: #444;
+}
+
+.keyword.active {
+  color: #2563eb;
+}
+
+.separator {
+  color: #e5e7eb;
+}
+
+.type {
+  font-weight: bold;
+}
+
+.address {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* =========================================
+   그룹 아이템 스타일
+   ========================================= */
+.groupItem {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.groupHeader {
+  padding: 12px 16px;
+  background-color: white;
+  border-left: 4px solid transparent;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.15s;
+}
+
+.groupHeader.hovered {
+  background-color: #f3f4f6;
+  border-left-color: #3b82f6;
+}
+
+.groupHeader.active {
+  background-color: #eff6ff;
+  border-left-color: #2563eb;
+}
+
+.groupInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge {
+  color: white;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.badge.stack {
+  background-color: #10b981;
+}
+
+.badge.normal {
+  background-color: #3b82f6;
+}
+
+.groupTitle {
+  font-weight: bold;
+  color: #111827;
+  font-size: 0.95rem;
+}
+
+.groupTitle.active {
+  color: #2563eb;
+}
+
+.arrow {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+/* =========================================
+   모바일 메모 뷰 스타일
+   ========================================= */
+.memoContainer {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.memoHeader {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.memoContent {
+  background-color: #f1f5f9;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  min-height: 120px;
+  white-space: pre-wrap;
+}
+
+.backButton {
+  padding: 12px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}

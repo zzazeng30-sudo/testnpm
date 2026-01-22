@@ -1,0 +1,802 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <script src="https://cdn.tailwindcss.com"></script>
+            <title>건축물대장 좌표 정밀 분석</title>
+        </head>
+        <body class="bg-gray-50 p-10">
+            <div class="max-w-5xl mx-auto bg-white shadow-lg rounded-xl overflow-hidden">
+                <div class="bg-slate-800 p-6 text-white">
+                    <h1 class="text-2xl font-bold">🏗️ 건축물대장 좌표-텍스트 매핑 결과</h1>
+                    <p class="opacity-70 text-sm mt-1">데이터 총 97건 발견</p>
+                </div>
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-slate-100 border-b">
+                            <th class="p-4 text-left">텍스트 내용</th>
+                            <th class="p-4 text-center bg-blue-50 text-blue-700">시작 Y (Y1)</th>
+                            <th class="p-4 text-center bg-green-50 text-green-700">종료 Y (Y2)</th>
+                            <th class="p-4 text-center">Type</th>
+                            <th class="p-4 text-center">X1 (Left)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y">
+        
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">변옥순</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">3</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">충청남도 천안시 동남구 일봉로 71,</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">3</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">104동 104호 (용곡동,용곡동일하이빌</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">3</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">1단지아파트)</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">3</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">2021.10.18.</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">3</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">540614-2******</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">3</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">등기명의인표시변경</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">3</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">- 이하여백 -</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">850</td>
+                            <td class="p-4 text-center text-green-600 font-mono">0</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">350</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">0</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">건축물 현황</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">5</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">소유자 현황</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">5</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">구분</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">층별</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">구조</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">용도</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">면적(㎡)</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">성명(명칭)</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">주소</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">2</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">소유권</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">지분</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">변동일</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">주민(법인)등록번호</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">(부동산등기용등록번호)</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">변동원인</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">주1</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">1층</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">2</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">철근콘크리트구조</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">단독주택(다가구주택(계단실))</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">2</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">23.77</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">주1</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">2층</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">2</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">철근콘크리트구조</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">단독주택(다가구주택)</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">2</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">208.47</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">주1</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">3층</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">2</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">철근콘크리트구조</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">단독주택(다가구주택)</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">2</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">208.47</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">주1</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">4층</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">2</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">철근콘크리트구조</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">단독주택(다가구주택)</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">2</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">189.12</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">건물ID</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">고유번호</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">명칭</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">1동</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">2</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">호수/가구수/세대수</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">4</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">0호/18가구/0세대</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">4</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">대지위치</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">지번</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">도로명주소</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">2</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">※대지면적</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">360.2</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">㎡</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">연면적</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">629.83</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">㎡</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">※지역</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">※지구</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">※구역</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">4</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">제2종일반주거지역</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">상대정화구역</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">4</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">건축면적</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">210.36</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">㎡</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">용적률 산정용 연면적</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">2</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">㎡</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">주구조</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">주용도</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">층수</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">4</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">629.83</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">2</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">철근콘크리트구조</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">단독주택</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">지하: 층, 지상: 4층</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">4</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">※건폐율</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">58.4</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">%</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">※용적률</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">174.86</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">%</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">높이</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">12.72</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">m</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">지붕</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">부속건축물</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">동</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">2</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">(철근)콘크리트</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">㎡</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">2</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">2</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">※조경면적</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">※공개 공지·공간 면적</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">※건축선 후퇴면적</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">3</td>
+                            <td class="p-4 text-center text-green-600 font-mono">5</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">※건축선후퇴 거리</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">7</td>
+                            <td class="p-4 text-center text-green-600 font-mono">6</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">㎡</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">㎡</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">㎡</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            
+                        <tr class=" hover:bg-gray-50">
+                            <td class="p-4 border-r text-base">m</td>
+                            <td class="p-4 text-center text-red-600 font-mono text-base">1</td>
+                            <td class="p-4 text-center text-green-600 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                            <td class="p-4 text-center text-gray-400 font-mono">1</td>
+                        </tr>
+            </tbody></table></div></body></html>

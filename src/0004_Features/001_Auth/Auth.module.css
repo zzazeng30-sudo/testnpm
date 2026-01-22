@@ -1,0 +1,127 @@
+/* 9일차: '로그인' 페이지만을 위한 '전용 CSS' */
+/* (8일차의 Tailwind '암호'를 '가독성'있는 CSS로 바꿨습니다) */
+
+.authContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f3f4f6; /* bg-gray-100 */
+  font-family: sans-serif;
+}
+
+.authBox {
+  width: 100%;
+  max-width: 24rem; /* max-w-sm */
+  padding: 2rem; /* p-8 */
+  background-color: white;
+  border-radius: 0.75rem; /* rounded-xl */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+}
+
+.title {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 700; /* font-bold */
+  text-align: center;
+  color: #1f2937; /* text-gray-800 */
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 0.875rem; /* text-sm */
+  color: #4b5563; /* text-gray-600 */
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.errorMessage {
+  padding: 0.75rem; /* p-3 */
+  border-radius: 0.375rem; /* rounded-md */
+  font-size: 0.875rem; /* text-sm */
+}
+.error {
+  background-color: #fee2e2; /* bg-red-100 */
+  color: #b91c1c; /* text-red-700 */
+}
+.success {
+  background-color: #dcfce7; /* bg-green-100 */
+  color: #15803d; /* text-green-700 */
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* space-y-6 */
+}
+
+.label {
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  color: #374151; /* text-gray-700 */
+}
+
+.input {
+  margin-top: 0.25rem; /* mt-1 */
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem; /* px-3 py-2 */
+  border: 1px solid #d1d5db; /* border-gray-300 */
+  border-radius: 0.375rem; /* rounded-md */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+}
+.input:focus {
+  outline: none;
+  border-color: #2563eb; /* focus:border-blue-500 */
+  box-shadow: 0 0 0 2px #dbeafe; /* focus:ring-blue-500 */
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 1rem; /* gap-4 */
+}
+
+.button {
+  width: 100%;
+  padding: 0.5rem 1rem; /* py-2 px-4 */
+  border: 1px solid transparent;
+  border-radius: 0.375rem; /* rounded-md */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  color: white;
+  cursor: pointer;
+}
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loginButton {
+  background-color: #2563eb; /* bg-blue-600 */
+}
+.loginButton:hover {
+  background-color: #1d4ed8; /* hover:bg-blue-700 */
+}
+
+.signupButton {
+  background-color: #16a34a; /* bg-green-600 */
+}
+.signupButton:hover {
+  background-color: #15803d; /* hover:bg-green-700 */
+}
+
+/* src/Auth.module.css (맨 하단에 추가) */
+
+.toggleButton {
+  width: 100%;
+  margin-top: 1.5rem; /* mt-6 */
+  background: none;
+  border: none;
+  color: #4b5563; /* text-gray-600 */
+  font-size: 0.875rem; /* text-sm */
+  text-decoration: underline;
+  cursor: pointer;
+}
+.toggleButton:hover {
+  color: #1f2937; /* text-gray-800 */
+}

@@ -1,0 +1,276 @@
+/* src/0004_Features/006_Map/01_Pages/MapOverlays.module.css */
+
+/* =============================================================================
+   [SECTION 1] 공통 기본 스타일 (Reset & Common)
+   ============================================================================= */
+.topFilterBar {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  transition: all 0.3s ease;
+}
+
+.controlsContainer {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  /* 구체적인 디자인과 위치는 미디어 쿼리에서 정의 */
+}
+
+/* 버튼 공통 초기화 */
+.controlBtn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  color: #555;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* =============================================================================
+   [SECTION 2] 데스크탑 전용 스타일 (min-width: 769px)
+   - 디자인: 상단 중앙 필터 / 우측 상단 '긴 막대' 형태의 컨트롤
+   ============================================================================= */
+@media (min-width: 769px) {
+
+  /* 1. 필터 바 (중앙 정렬) */
+  .topFilterBar {
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* 2. 컨트롤 컨테이너 (고급스러운 유리 막대 디자인) */
+  .controlsContainer {
+    top: 24px;
+    right: 24px;
+    
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(5px);
+    overflow: hidden;
+  }
+
+  /* [중요] 데스크탑에서는 그룹 div를 투명 취급 (일렬 배치) */
+  .controlGroup {
+    display: contents; 
+  }
+
+  /* 버튼 스타일 */
+  .controlBtn {
+    padding: 10px 16px;
+    font-size: 13px;
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .controlBtn:hover {
+    background-color: #f8f9fa;
+    color: #333;
+  }
+
+  /* 그룹의 마지막 버튼 구분선 제거 */
+  .controlGroup:last-child .controlBtn:last-child {
+    border-right: none;
+  }
+
+  /* 활성화 (진한 파란 배경 + 흰 글씨) */
+  .active {
+    background-color: #2563eb;
+    color: white !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .active:hover {
+    background-color: #1d4ed8;
+  }
+
+  /* 데스크탑에서 모바일 요소 숨김 */
+  .mobileFilterContainer { display: none; }
+  .desktopFilterWrapper { display: block; }
+}
+
+
+/* =============================================================================
+   [SECTION 3] 모바일 전용 스타일 (max-width: 768px)
+   - 디자인: 상단 꽉 찬 필터 / 우측 상단 '작은 박스 2개' 형태의 컨트롤
+   ============================================================================= */
+@media (max-width: 768px) {
+  
+  /* 1. 필터 바 (가로 스크롤) */
+  .topFilterBar {
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    padding: 8px 16px !important;
+    background-color: #ffffff;
+    border-bottom: 1px solid #eee;
+    transform: none !important;
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+
+  /* 2. 컨트롤 컨테이너 (세로 배치) */
+  .controlsContainer {
+    position: absolute !important;
+    top: 0 !important;
+    right: 12px !important;
+    margin-top: 70px !important; /* 필터 바 높이만큼 아래로 */
+    left: auto !important;
+    transform: none !important;
+    
+    flex-direction: column;
+    gap: 8px;
+    
+    /* 컨테이너 자체 배경 없음 */
+    background: none !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* 3. 모바일용 그룹 박스 (흰색 둥근 상자) */
+  .controlGroup {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    width: 38px;
+  }
+
+  /* 버튼 스타일 (작은 정사각형) */
+  .controlBtn {
+    width: 38px;
+    height: 38px;
+    font-size: 10px;
+    color: #666;
+  }
+
+  /* 위아래 구분선 */
+  .controlBtn:first-child {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  /* 활성화 (연한 파란 배경 + 파란 글씨) */
+  .active {
+    color: #2563eb !important;
+    background-color: #eff6ff !important;
+    box-shadow: none !important;
+  }
+
+  /* 모바일에서 데스크탑 요소 숨김 */
+  .desktopFilterWrapper { display: none !important; }
+  .mobileFilterContainer { display: flex; gap: 8px; align-items: center; }
+
+  /* 모바일 칩 스타일 */
+  .mobileChipSelect {
+    appearance: none;
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    height: 32px;
+    padding: 0 12px;
+    font-size: 12px;
+    color: #4b5563;
+  }
+  .mobileChipSelect[data-active="true"] {
+    background-color: #2563eb;
+    color: #ffffff;
+  }
+}
+
+
+/* =============================================================================
+   [SECTION 4] 지도 오버레이 공통 (핀, 모달 등 - 변경 없음)
+   ============================================================================= */
+
+/* 필터 박스 (데스크탑용) */
+.mapFilterContainer {
+  display: flex; gap: 0.5rem; padding: 0.5rem;
+  background-color: #ffffff; border-radius: 0.375rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #d1d5db;
+}
+
+.filterSelect, .mapFilterSelect {
+  /* ...기존 select 스타일 유지... */
+  -webkit-appearance: none; appearance: none;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  font-size: 0.875rem; color: #374151;
+  background-color: #ffffff; border: 1px solid #d1d5db; border-radius: 0.375rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 0.5rem center;
+  min-width: 100px; height: 2.5rem;
+}
+
+/* 핀(Pin) 스타일 */
+.customPin {
+  position: relative; background-color: white;
+  border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 6px 10px; font-size: 0.8rem; font-weight: 700;
+  white-space: nowrap; cursor: pointer; transition: transform 0.2s;
+  border: 1px solid #e5e7eb; min-width: 80px;
+}
+.customPin:hover { transform: scale(1.1); z-index: 100 !important; }
+.customPin::after {
+  content: ''; position: absolute; bottom: -6px; left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent; border-top-color: white;
+}
+.customPinSingle { border: 2px solid #f59e0b; }
+.customPinSingle::after { border-top-color: #f59e0b; }
+.customPinStack { border: 2px solid #10b981; background-color: #ecfdf5; }
+.customPinStack::after { border-top-color: #10b981; }
+
+.clusterPin {
+  width: 50px; height: 50px; background: rgba(37, 99, 235, 0.95);
+  border-radius: 50%; border: 3px solid white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 800; cursor: pointer;
+  animation: bounceIn 0.3s ease-out;
+}
+@keyframes bounceIn { 0% {transform: scale(0);} 60% {transform: scale(1.1);} 100% {transform: scale(1);} }
+
+.activePin {
+  border: 2px solid #dc2626 !important; background-color: white !important;
+  transform: scale(1.2) !important; z-index: 999 !important;
+  animation: pulseRed 1.5s infinite;
+}
+@keyframes pulseRed { 0% {box-shadow: 0 0 0 0 rgba(220,38,38,0.7);} 70% {box-shadow: 0 0 0 10px rgba(220,38,38,0);} 100% {box-shadow: 0 0 0 0 rgba(220,38,38,0);} }
+
+/* 로드뷰 & 컨텍스트 메뉴 */
+.roadview {
+  position: absolute; top: 5rem; right: 1rem; width: 45%; height: 60%;
+  z-index: 30; border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  border-radius: 0.5rem; opacity: 0; transform: scale(0.9) translateX(50px);
+  pointer-events: none; transition: all 0.3s;
+}
+.roadviewVisible { opacity: 1; transform: scale(1) translateX(0); pointer-events: auto; }
+.roadviewCloseButton {
+  position: absolute; top: 5.3rem; right: 1.3rem; z-index: 31;
+  background: rgba(0,0,0,0.6); color: white; border-radius: 50%;
+  width: 2.25rem; height: 2.25rem; cursor: pointer; border: none;
+  display: flex; justify-content: center; align-items: center;
+}
+.contextMenu {
+  position: absolute; background: white; border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 1000;
+  min-width: 180px; padding: 0.5rem; border: 1px solid #e5e7eb;
+}
+.contextMenu button {
+  width: 100%; padding: 0.5rem 0.75rem; text-align: left;
+  border: none; background: none; cursor: pointer; border-radius: 0.25rem;
+}
+.contextMenu button:hover { background-color: #f3f4f6; }
