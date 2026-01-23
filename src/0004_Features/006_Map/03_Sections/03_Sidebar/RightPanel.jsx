@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useMap } from '../../02_Contexts/MapContext';
 import PinForm from './PinForm';
 import StackForm from './StackForm';
+import SeumterModal from './SeumterModal'; // 신규 추가
 
 const RightPanel = () => {
   const { 
@@ -11,10 +12,14 @@ const RightPanel = () => {
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   
-  // --- 세움터 로그인 및 조회 관련 상태 ---
+  // --- 상태 관리 ---
   const [showSeumterLogin, setShowSeumterLogin] = useState(false);
   const [seumterId, setSeumterId] = useState('zzazeng10');
   const [seumterPw, setSeumterPw] = useState('Dlxogh12!');
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const [seumterData, setSeumterData] = useState(null); // 조회된 데이터 저장
+  const [isModalOpen, setIsModalOpen] = useState(false); // 결과 모달 제어
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -35,39 +40,38 @@ const RightPanel = () => {
     paddingBottom: '100px', boxSizing: 'border-box'
   };
 
-  // --- [수정 완료] 세움터 통합 조회 로직 (v2 이름표 사용) ---
+  // --- 세움터 통합 조회 로직 (백엔드 서버 연동) ---
   const runSeumterInquiry = async () => {
+    if (!selectedPin?.address) return;
+    setIsLoading(true);
+
     try {
-      console.log("🚀 [시스템] 전유부 목록 조회 요청 시작");
+      console.log("🚀 [시스템] 세움터 조회 서버 요청 시작");
       
-      // 오라클 서버 3002번(v2)으로 요청을 보냅니다.
-      const response = await fetch(`/api/v2/units`, {
+      const response = await fetch('http://localhost:3002/units', { // PM2로 띄운 노드 서버 주소
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: seumterId,
           pw: seumterPw,
-          address: selectedPin.address 
+          address: selectedPin.address
         })
       });
 
       const result = await response.json();
 
       if (result.success) {
-        const unitCount = result.units.length;
-        const confirmMsg = `🏠 [조회 결과]\n\n총 ${unitCount}건의 전유부를 발견했습니다.\n상세 목록을 콘솔(F12)에서 확인하시겠습니까?`;
-        
-        if (window.confirm(confirmMsg)) {
-          console.log(`%c📂 전유부 목록 (총 ${unitCount}건)`, "color: #fff; background: #3b82f6; padding: 5px; font-weight: bold;");
-          console.table(result.units);
-        }
-        setShowSeumterLogin(false);
+        setSeumterData(result); // { counts, units } 형태 수신
+        setIsModalOpen(true);   // 팝업 열기
+        setShowSeumterLogin(false); // 로그인창 닫기
       } else {
-        throw new Error(result.message || "서버 응답 오류");
+        throw new Error(result.message || "조회 결과가 없습니다.");
       }
     } catch (e) {
-      alert("조회 중 오류가 발생했습니다: " + e.message);
-      console.error("Inquiry Error:", e);
+      alert("조회 실패: " + e.message);
+      console.error(e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -117,13 +121,20 @@ const RightPanel = () => {
 
   return (
     <div style={panelStyle}>
-      {/* --- 세움터 로그인창 UI --- */}
+      {/* --- 세움터 결과 팝업 --- */}
+      <SeumterModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        data={seumterData} 
+      />
+
+      {/* --- 세움터 로그인창 --- */}
       {showSeumterLogin && (
         <div style={{
           position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
           width: '320px', backgroundColor: 'white', padding: '24px', borderRadius: '16px',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-          zIndex: 2000, border: '1px solid #f3f4f6', display: 'flex', flexDirection: 'column', gap: '16px'
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)', zIndex: 2000, border: '1px solid #f3f4f6', 
+          display: 'flex', flexDirection: 'column', gap: '16px'
         }}>
           <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '800'}}>세움터 로그인</h3>
           <div>
@@ -135,7 +146,9 @@ const RightPanel = () => {
             <input type="password" value={seumterPw} onChange={e => setSeumterPw(e.target.value)} style={{width:'100%', padding:'10px', borderRadius:'6px', border:'1px solid #d1d5db'}} />
           </div>
           <div style={{display:'flex', gap:'10px', marginTop: '8px'}}>
-            <button onClick={runSeumterInquiry} style={{flex:2, padding:'12px', backgroundColor:'#3b82f6', color:'white', border:'none', borderRadius:'8px', fontWeight:'bold', cursor:'pointer'}}>조회 시작</button>
+            <button onClick={runSeumterInquiry} disabled={isLoading} style={{flex:2, padding:'12px', backgroundColor:isLoading ? '#9ca3af' : '#3b82f6', color:'white', border:'none', borderRadius:'8px', fontWeight:'bold', cursor:'pointer'}}>
+              {isLoading ? '조회 중...' : '조회 시작'}
+            </button>
             <button onClick={() => setShowSeumterLogin(false)} style={{flex:1, padding:'12px', backgroundColor:'#f3f4f6', color:'#374151', border:'none', borderRadius:'8px', fontWeight:'bold', cursor:'pointer'}}>취소</button>
           </div>
         </div>
@@ -146,61 +159,39 @@ const RightPanel = () => {
       ) : (isCreating || isEditMode) ? (
         <PinForm mode={isEditMode ? 'edit' : 'create'} />
       ) : (
-        selectedPin && selectedPin.id && (
-            <div style={{padding:'24px', overflowY: 'auto', height: '100%'}}>
-               <div style={{marginBottom:'20px'}}>
-                 <div style={{display:'flex', gap:'5px', marginBottom:'5px'}}>
-                   <span style={{backgroundColor:'#eff6ff', color:'#2563eb', padding:'4px 8px', borderRadius:'4px', fontSize:'0.8rem', fontWeight:'bold'}}>
-                     {selectedPin.property_type || '매물'}
-                   </span>
-                 </div>
-                 <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: '5px 0', color:'#111827', lineHeight:'1.3' }}>
-                   {selectedPin.building_name || selectedPin.keywords || '매물 상세 정보'}
-                 </h2>
-                 <p style={{color:'#6b7280', fontSize:'0.9rem'}}>{selectedPin.address} {selectedPin.detailed_address}</p>
+        selectedPin && (
+          <div style={{padding:'24px', overflowY: 'auto', height: '100%'}}>
+             <div style={{marginBottom:'20px'}}>
+               <span style={{backgroundColor:'#eff6ff', color:'#2563eb', padding:'4px 8px', borderRadius:'4px', fontSize:'0.8rem', fontWeight:'bold'}}>
+                 {selectedPin.property_type || '매물'}
+               </span>
+               <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: '5px 0', color:'#111827' }}>
+                 {selectedPin.building_name || selectedPin.keywords || '매물 상세 정보'}
+               </h2>
+               <p style={{color:'#6b7280', fontSize:'0.9rem'}}>{selectedPin.address} {selectedPin.detailed_address}</p>
+             </div>
+
+             <div style={{padding:'20px', backgroundColor:'#f0fdf4', borderRadius:'12px', marginBottom:'24px', border:'1px solid #dcfce7'}}>
+                {renderPriceInfo(selectedPin)}
+             </div>
+
+             <h3 style={{fontSize:'1rem', fontWeight:'bold', borderBottom:'2px solid #f3f4f6', paddingBottom:'8px', marginBottom:'16px'}}>매물 정보</h3>
+             {renderDetailRow("거래 유형", getTradeTypeString(selectedPin))}
+             {renderDetailRow("면적", selectedPin.area ? `${selectedPin.area}평` : '')}
+             {renderDetailRow("층수", selectedPin.floor ? `${selectedPin.floor}층` : '')}
+             {renderDetailRow("관리비", selectedPin.maintenance_fee ? `${Number(selectedPin.maintenance_fee).toLocaleString()}만원` : '')}
+
+             <div style={{ marginTop: '40px', borderTop: '1px solid #eee', paddingTop: '20px' }}>
+               <button onClick={() => setShowSeumterLogin(true)} style={{ width: '100%', padding: '14px', borderRadius: '8px', border: 'none', backgroundColor: '#3b82f6', color: 'white', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', marginBottom: '12px', boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.3)' }}>
+                 📋 건축물대장(전유부) 조회
+               </button>
+
+               <div style={{ display: 'flex', gap: '10px' }}>
+                 <button onClick={() => setIsEditMode(true)} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: 'white', color: '#374151', fontWeight: '600', cursor: 'pointer' }}>수정</button>
+                 <button onClick={resetSelection} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: '#f3f4f6', color: '#374151', fontWeight: '600', cursor: 'pointer' }}>닫기</button>
                </div>
-
-               <div style={{padding:'20px', backgroundColor:'#f0fdf4', borderRadius:'12px', marginBottom:'24px', border:'1px solid #dcfce7'}}>
-                  {renderPriceInfo(selectedPin)}
-               </div>
-
-               <h3 style={{fontSize:'1rem', fontWeight:'bold', borderBottom:'2px solid #f3f4f6', paddingBottom:'8px', marginBottom:'16px'}}>매물 정보</h3>
-               {renderDetailRow("거래 유형", getTradeTypeString(selectedPin))}
-               {renderDetailRow("면적", selectedPin.area ? `${selectedPin.area}평` : '')}
-               {renderDetailRow("층수", selectedPin.floor ? `${selectedPin.floor}층` : '')}
-               {renderDetailRow("관리비", selectedPin.maintenance_fee ? `${Number(selectedPin.maintenance_fee).toLocaleString()}만원` : '')}
-
-               <div style={{ marginTop: '40px', borderTop: '1px solid #eee', paddingTop: '20px' }}>
-                 <button 
-                   onClick={() => alert("AI 입지분석 리포트 기능 준비 중입니다.")}
-                   style={{
-                     width: '100%', padding: '14px', borderRadius: '8px', border: 'none',
-                     background: 'linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%)',
-                     color: 'white', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer',
-                     marginBottom: '12px', boxShadow: '0 4px 6px -1px rgba(124, 58, 237, 0.3)'
-                   }}
-                 >
-                   ✨ AI 입지분석
-                 </button>
-
-                 <button 
-                   onClick={() => setShowSeumterLogin(true)}
-                   style={{
-                     width: '100%', padding: '14px', borderRadius: '8px', border: 'none',
-                     backgroundColor: '#3b82f6',
-                     color: 'white', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer',
-                     marginBottom: '12px', boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.3)'
-                   }}
-                 >
-                   📋 전유부조회
-                 </button>
-
-                 <div style={{ display: 'flex', gap: '10px' }}>
-                   <button onClick={() => setIsEditMode(true)} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: 'white', color: '#374151', fontSize: '0.95rem', fontWeight: '600', cursor: 'pointer' }}>매물 수정</button>
-                   <button onClick={resetSelection} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: '#f3f4f6', color: '#374151', fontSize: '0.95rem', fontWeight: '600', cursor: 'pointer' }}>닫기</button>
-                 </div>
-               </div>
-            </div>
+             </div>
+          </div>
         )
       )}
     </div>
