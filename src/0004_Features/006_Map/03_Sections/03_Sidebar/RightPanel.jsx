@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useMap } from '../../02_Contexts/MapContext';
 import PinForm from './PinForm';
 import StackForm from './StackForm';
+import SeumterModal from '../04_Modals/SeumterModal'; // 모달 컴포넌트 추가
 
 const RightPanel = () => {
   const { 
@@ -11,10 +12,15 @@ const RightPanel = () => {
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   
-  // --- 세움터 로그인 및 조회 관련 상태 추가 ---
+  // --- 세움터 로그인 및 조회 관련 상태 ---
   const [showSeumterLogin, setShowSeumterLogin] = useState(false);
-  const [seumterId, setSeumterId] = useState('zzazeng10'); // 기본값 설정
+  const [seumterId, setSeumterId] = useState('zzazeng10');
   const [seumterPw, setSeumterPw] = useState('Dlxogh12!');
+
+  // --- 추가된 상태: 모달 데이터 및 열림 여부 ---
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [seumterData, setSeumterData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -23,11 +29,9 @@ const RightPanel = () => {
   }, []);
 
   const isMobile = windowWidth <= 768;
-
   if (isMobile) return null;
 
   const isVisible = !!selectedPin || isEditMode || isCreating || isStackMode;
-  
   if (!isVisible) return null;
 
   const panelStyle = {
@@ -37,102 +41,53 @@ const RightPanel = () => {
     paddingBottom: '100px', boxSizing: 'border-box'
   };
 
-  // --- 세움터 통합 조회 로직 (기존 스크립트 이식) ---
+  // --- [수정된 부분] 세움터 통합 조회 로직 (Vercel 프록시 연동) ---
   const runSeumterInquiry = async () => {
-    const BASE_URL = "https://www.eais.go.kr";
-    const HEADERS = {
-      'Accept': 'application/json, text/javascript, */*; q=0.01',
-      'Content-Type': 'application/json;charset=UTF-8',
-      'X-Requested-With': 'XMLHttpRequest',
-      'untclsfcd': '1000'
-    };
+    if (!selectedPin?.address) return;
+    
+    // vercel.json에 설정하신 3002번 포트용 경로 사용
+    const PROXY_URL = "/api/v2/units"; 
+    
+    setIsLoading(true);
 
     try {
-      console.log("🚀 [시스템] 세움터 조회 시작");
+      console.log("🚀 [시스템] Vercel 프록시를 통해 오라클 서버로 조회 요청");
       
-      // 1. 로그인 (AWPABB01R01)
-      const loginPayload = { loginId: seumterId, loginPwd: seumterPw };
-      await fetch(`${BASE_URL}/awp/AWPABB01R01`, { 
-        method: 'POST', headers: HEADERS, credentials: 'include', body: JSON.stringify(loginPayload) 
+      const response = await fetch(PROXY_URL, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: seumterId,
+          pw: seumterPw,
+          address: selectedPin.address
+        })
       });
-      await fetch(`${BASE_URL}/cba/CBAAZA02R01`, { method: 'GET', headers: HEADERS, credentials: 'include' });
 
-      // 2. 지역 코드 매핑 (선택된 매물 주소 기준)
-      const targetAddr = selectedPin.address;
-      const csvUrl = "https://raw.githubusercontent.com/zzazeng30-sudo/dataqjqwjd/main/20260201dong.csv";
-      const csvRes = await fetch(csvUrl);
-      const buffer = await csvRes.arrayBuffer();
-      let csvText = new TextDecoder('euc-kr').decode(buffer);
-      if (csvText.includes('\ufffd')) csvText = new TextDecoder('utf-8').decode(buffer);
-      
-      const addrParts = targetAddr.split(/\s+/);
-      const regionKeywords = addrParts.filter(part => isNaN(parseInt(part.replace(/-/g, ""))));
-      
-      let mapping = null;
-      for (let line of csvText.split(/\r?\n/)) {
-        const clean = line.replace(/["\r]/g, '').trim();
-        if (regionKeywords.every(keyword => clean.includes(keyword))) {
-          const cols = clean.split(',');
-          mapping = { sigungu: cols[0].substring(0, 5), bjdong: cols[0].substring(5, 10) };
-          break;
-        }
+      const result = await response.json();
+
+      if (result.success) {
+        // 서버 응답: { success, totalBuildings, totalUnits, units }
+        // 모달 데이터 형식으로 변환
+        const formattedData = {
+          counts: {
+            general: 1, // 총괄표제부는 보통 1개이므로 임시 할당
+            title: result.totalBuildings,
+            exclusive: result.totalUnits
+          },
+          units: result.units // 서버에서 보낸 cleanUnits 배열
+        };
+
+        setSeumterData(formattedData);
+        setIsModalOpen(true);       // 팝업 열기
+        setShowSeumterLogin(false); // 로그인창 닫기
+      } else {
+        throw new Error(result.message || "조회 결과가 없습니다.");
       }
-      if (!mapping) throw new Error("법정동 코드 매핑 실패");
-
-      // 3. 상위 시퀀스 조회 (BCIAAA02R01)
-      const bunjiMatch = targetAddr.match(/(\d+)(-(\d+))?$/);
-      if (!bunjiMatch) throw new Error("유효한 번지수를 찾을 수 없습니다.");
-      const mnnm = bunjiMatch[1].padStart(4, '0');
-      const slno = (bunjiMatch[3] || "0").padStart(4, '0');
-      
-      const sRes = await fetch(`${BASE_URL}/bci/BCIAAA02R01`, { 
-        method: "POST", headers: HEADERS, body: JSON.stringify({ 
-          "addrGbCd": "0", "inqireGbCd": "0", "bldrgstCurdiGbCd": "0", "platGbCd": "0", 
-          "reqSigunguCd": mapping.sigungu, "bjdongCd": mapping.bjdong, "mnnm": mnnm, "slno": slno 
-        }) 
-      });
-      const sData = await sRes.json();
-      const buildings = [...(sData.jibunAddr || []), ...(sData.bldrgstList || [])];
-      const targetSeqList = buildings.map(b => String(b.bldrgstSeqno));
-
-      // 4. 상세 동/호수 조회 (BCIAAA02R04)
-      const r04Res = await (await fetch(`${BASE_URL}/bci/BCIAAA02R04`, { 
-        method: "POST", headers: HEADERS, body: JSON.stringify({ 
-          "inqireGbCd": "0", "reqSigunguCd": mapping.sigungu, 
-          "bldrgstCurdiGbCd": "0", "bldrgstSeqno": "", 
-          "upperBldrgstSeqnos": targetSeqList 
-        }) 
-      })).json();
-
-      const list = r04Res.findExposList || [];
-      
-      // 5. 유형별 건수 계산 (요청하신 알림창 내용)
-      const summary = {
-        totalHeader: sData.jibunAddr?.length || 0,
-        normal: list.filter(u => u.regstrGbCd === "1").length,
-        expos: list.filter(u => u.regstrKindCd === "4").length
-      };
-
-      // 6. 알림창 표시
-      const confirmMsg = `🏠 [조회 결과 안내]\n\n• 총괄표제부: ${summary.totalHeader}건\n• 일반건축물/표제부: ${summary.normal}건\n• 전유부: ${summary.expos}건\n\n전유부 ${summary.expos}건의 상세 목록을 콘솔에 표시하시겠습니까?`;
-      
-      if (window.confirm(confirmMsg)) {
-        console.log(`%c📂 전유부 상세 목록 (총 ${summary.expos}건)`, "color: #fff; background: #f39c12; padding: 5px; font-weight: bold;");
-        const exposTable = list
-          .filter(u => u.regstrKindCd === "4")
-          .map(u => ({
-            "건축물명칭": u.bldNm,
-            "동명칭": u.dongNm,
-            "호명칭": u.hoNm,
-            "연면적(㎡)": u.totArea
-          }));
-        console.table(exposTable);
-      }
-      
-      setShowSeumterLogin(false); // 성공 시 로그인 UI 닫기
     } catch (e) {
       alert("조회 실패: " + e.message);
-      console.error(e);
+      console.error("Fetch Error:", e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -183,6 +138,13 @@ const RightPanel = () => {
 
   return (
     <div style={panelStyle}>
+      {/* --- 결과 팝업 모달 추가 --- */}
+      <SeumterModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        data={seumterData} 
+      />
+
       {/* --- 세움터 로그인창 UI 오버레이 --- */}
       {showSeumterLogin && (
         <div style={{
@@ -201,7 +163,9 @@ const RightPanel = () => {
             <input type="password" value={seumterPw} onChange={e => setSeumterPw(e.target.value)} style={{width:'100%', padding:'10px', borderRadius:'6px', border:'1px solid #d1d5db'}} />
           </div>
           <div style={{display:'flex', gap:'10px', marginTop: '8px'}}>
-            <button onClick={runSeumterInquiry} style={{flex:2, padding:'12px', backgroundColor:'#3b82f6', color:'white', border:'none', borderRadius:'8px', fontWeight:'bold', cursor:'pointer'}}>조회 시작</button>
+            <button onClick={runSeumterInquiry} disabled={isLoading} style={{flex:2, padding:'12px', backgroundColor:isLoading ? '#9ca3af' : '#3b82f6', color:'white', border:'none', borderRadius:'8px', fontWeight:'bold', cursor:'pointer'}}>
+              {isLoading ? '조회 중...' : '조회 시작'}
+            </button>
             <button onClick={() => setShowSeumterLogin(false)} style={{flex:1, padding:'12px', backgroundColor:'#f3f4f6', color:'#374151', border:'none', borderRadius:'8px', fontWeight:'bold', cursor:'pointer'}}>취소</button>
           </div>
         </div>
@@ -249,7 +213,6 @@ const RightPanel = () => {
                    ✨ AI 입지분석
                  </button>
 
-                 {/* --- 전유부조회 버튼: 로그인창 활성화 --- */}
                  <button 
                    onClick={() => setShowSeumterLogin(true)}
                    style={{
