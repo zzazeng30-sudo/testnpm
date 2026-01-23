@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useMap } from '../../02_Contexts/MapContext';
 import PinForm from './PinForm';
 import StackForm from './StackForm';
-import SeumterModal from './SeumterModal'; // 1. 모달 컴포넌트 추가
 
 const RightPanel = () => {
   const { 
@@ -12,14 +11,10 @@ const RightPanel = () => {
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   
-  // --- 세움터 로그인 및 조회 관련 상태 ---
+  // --- 세움터 로그인 및 조회 관련 상태 추가 ---
   const [showSeumterLogin, setShowSeumterLogin] = useState(false);
-  const [seumterId, setSeumterId] = useState('zzazeng10');
+  const [seumterId, setSeumterId] = useState('zzazeng10'); // 기본값 설정
   const [seumterPw, setSeumterPw] = useState('Dlxogh12!');
-
-  // --- 2. 데이터를 저장하고 모달을 띄울 상태 추가 ---
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [seumterData, setSeumterData] = useState(null);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -28,9 +23,11 @@ const RightPanel = () => {
   }, []);
 
   const isMobile = windowWidth <= 768;
+
   if (isMobile) return null;
 
   const isVisible = !!selectedPin || isEditMode || isCreating || isStackMode;
+  
   if (!isVisible) return null;
 
   const panelStyle = {
@@ -40,7 +37,7 @@ const RightPanel = () => {
     paddingBottom: '100px', boxSizing: 'border-box'
   };
 
-  // --- 세움터 통합 조회 로직 ---
+  // --- 세움터 통합 조회 로직 (기존 스크립트 이식) ---
   const runSeumterInquiry = async () => {
     const BASE_URL = "https://www.eais.go.kr";
     const HEADERS = {
@@ -60,7 +57,7 @@ const RightPanel = () => {
       });
       await fetch(`${BASE_URL}/cba/CBAAZA02R01`, { method: 'GET', headers: HEADERS, credentials: 'include' });
 
-      // 2. 지역 코드 매핑
+      // 2. 지역 코드 매핑 (선택된 매물 주소 기준)
       const targetAddr = selectedPin.address;
       const csvUrl = "https://raw.githubusercontent.com/zzazeng30-sudo/dataqjqwjd/main/20260201dong.csv";
       const csvRes = await fetch(csvUrl);
@@ -109,25 +106,30 @@ const RightPanel = () => {
 
       const list = r04Res.findExposList || [];
       
-      // 5. [수정된 부분] 알림창 대신 모달로 데이터 넘기기
-      const resultData = {
-        counts: {
-          general: sData.jibunAddr?.length || 0,
-          title: buildings.filter(b => b.regstrKindCd === "2" || b.regstrKindCd === "3").length,
-          exclusive: list.length
-        },
-        units: list.map(u => ({
-          dong: u.dongNm || '',
-          ho: u.hoNm || '',
-          area: u.totArea || '0',
-          seqNo: u.bldrgstSeqno
-        }))
+      // 5. 유형별 건수 계산 (요청하신 알림창 내용)
+      const summary = {
+        totalHeader: sData.jibunAddr?.length || 0,
+        normal: list.filter(u => u.regstrGbCd === "1").length,
+        expos: list.filter(u => u.regstrKindCd === "4").length
       };
 
-      setSeumterData(resultData); // 데이터 저장
-      setIsModalOpen(true);       // 모달 열기
-      setShowSeumterLogin(false); // 로그인창 닫기
-
+      // 6. 알림창 표시
+      const confirmMsg = `🏠 [조회 결과 안내]\n\n• 총괄표제부: ${summary.totalHeader}건\n• 일반건축물/표제부: ${summary.normal}건\n• 전유부: ${summary.expos}건\n\n전유부 ${summary.expos}건의 상세 목록을 콘솔에 표시하시겠습니까?`;
+      
+      if (window.confirm(confirmMsg)) {
+        console.log(`%c📂 전유부 상세 목록 (총 ${summary.expos}건)`, "color: #fff; background: #f39c12; padding: 5px; font-weight: bold;");
+        const exposTable = list
+          .filter(u => u.regstrKindCd === "4")
+          .map(u => ({
+            "건축물명칭": u.bldNm,
+            "동명칭": u.dongNm,
+            "호명칭": u.hoNm,
+            "연면적(㎡)": u.totArea
+          }));
+        console.table(exposTable);
+      }
+      
+      setShowSeumterLogin(false); // 성공 시 로그인 UI 닫기
     } catch (e) {
       alert("조회 실패: " + e.message);
       console.error(e);
@@ -181,13 +183,6 @@ const RightPanel = () => {
 
   return (
     <div style={panelStyle}>
-      {/* 3. 모달 컴포넌트 추가 */}
-      <SeumterModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        data={seumterData} 
-      />
-
       {/* --- 세움터 로그인창 UI 오버레이 --- */}
       {showSeumterLogin && (
         <div style={{
@@ -254,6 +249,7 @@ const RightPanel = () => {
                    ✨ AI 입지분석
                  </button>
 
+                 {/* --- 전유부조회 버튼: 로그인창 활성화 --- */}
                  <button 
                    onClick={() => setShowSeumterLogin(true)}
                    style={{
