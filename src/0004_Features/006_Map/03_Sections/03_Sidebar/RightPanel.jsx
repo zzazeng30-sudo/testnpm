@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useMap } from '../../02_Contexts/MapContext';
 import PinForm from './PinForm';
 import StackForm from './StackForm';
-import SeumterModal from '../04_Modals/SeumterModal'; // 1. 모달 컴포넌트 추가
+import SeumterModal from './SeumterModal'; // 1. 모달 컴포넌트 추가
 
 const RightPanel = () => {
   const { 
