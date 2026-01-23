@@ -11,9 +11,9 @@ const RightPanel = () => {
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   
-  // --- 세움터 로그인 및 조회 관련 상태 추가 ---
+  // --- 세움터 로그인 및 조회 관련 상태 ---
   const [showSeumterLogin, setShowSeumterLogin] = useState(false);
-  const [seumterId, setSeumterId] = useState('zzazeng10'); // 기본값 설정
+  const [seumterId, setSeumterId] = useState('zzazeng10');
   const [seumterPw, setSeumterPw] = useState('Dlxogh12!');
 
   useEffect(() => {
@@ -23,11 +23,9 @@ const RightPanel = () => {
   }, []);
 
   const isMobile = windowWidth <= 768;
-
   if (isMobile) return null;
 
   const isVisible = !!selectedPin || isEditMode || isCreating || isStackMode;
-  
   if (!isVisible) return null;
 
   const panelStyle = {
@@ -37,102 +35,39 @@ const RightPanel = () => {
     paddingBottom: '100px', boxSizing: 'border-box'
   };
 
-  // --- 세움터 통합 조회 로직 (기존 스크립트 이식) ---
+  // --- [수정 완료] 세움터 통합 조회 로직 (v2 이름표 사용) ---
   const runSeumterInquiry = async () => {
-    const BASE_URL = "https://www.eais.go.kr";
-    const HEADERS = {
-      'Accept': 'application/json, text/javascript, */*; q=0.01',
-      'Content-Type': 'application/json;charset=UTF-8',
-      'X-Requested-With': 'XMLHttpRequest',
-      'untclsfcd': '1000'
-    };
-
     try {
-      console.log("🚀 [시스템] 세움터 조회 시작");
+      console.log("🚀 [시스템] 전유부 목록 조회 요청 시작");
       
-      // 1. 로그인 (AWPABB01R01)
-      const loginPayload = { loginId: seumterId, loginPwd: seumterPw };
-      await fetch(`${BASE_URL}/awp/AWPABB01R01`, { 
-        method: 'POST', headers: HEADERS, credentials: 'include', body: JSON.stringify(loginPayload) 
+      // 오라클 서버 3002번(v2)으로 요청을 보냅니다.
+      const response = await fetch(`/api/v2/units`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: seumterId,
+          pw: seumterPw,
+          address: selectedPin.address 
+        })
       });
-      await fetch(`${BASE_URL}/cba/CBAAZA02R01`, { method: 'GET', headers: HEADERS, credentials: 'include' });
 
-      // 2. 지역 코드 매핑 (선택된 매물 주소 기준)
-      const targetAddr = selectedPin.address;
-      const csvUrl = "https://raw.githubusercontent.com/zzazeng30-sudo/dataqjqwjd/main/20260201dong.csv";
-      const csvRes = await fetch(csvUrl);
-      const buffer = await csvRes.arrayBuffer();
-      let csvText = new TextDecoder('euc-kr').decode(buffer);
-      if (csvText.includes('\ufffd')) csvText = new TextDecoder('utf-8').decode(buffer);
-      
-      const addrParts = targetAddr.split(/\s+/);
-      const regionKeywords = addrParts.filter(part => isNaN(parseInt(part.replace(/-/g, ""))));
-      
-      let mapping = null;
-      for (let line of csvText.split(/\r?\n/)) {
-        const clean = line.replace(/["\r]/g, '').trim();
-        if (regionKeywords.every(keyword => clean.includes(keyword))) {
-          const cols = clean.split(',');
-          mapping = { sigungu: cols[0].substring(0, 5), bjdong: cols[0].substring(5, 10) };
-          break;
+      const result = await response.json();
+
+      if (result.success) {
+        const unitCount = result.units.length;
+        const confirmMsg = `🏠 [조회 결과]\n\n총 ${unitCount}건의 전유부를 발견했습니다.\n상세 목록을 콘솔(F12)에서 확인하시겠습니까?`;
+        
+        if (window.confirm(confirmMsg)) {
+          console.log(`%c📂 전유부 목록 (총 ${unitCount}건)`, "color: #fff; background: #3b82f6; padding: 5px; font-weight: bold;");
+          console.table(result.units);
         }
+        setShowSeumterLogin(false);
+      } else {
+        throw new Error(result.message || "서버 응답 오류");
       }
-      if (!mapping) throw new Error("법정동 코드 매핑 실패");
-
-      // 3. 상위 시퀀스 조회 (BCIAAA02R01)
-      const bunjiMatch = targetAddr.match(/(\d+)(-(\d+))?$/);
-      if (!bunjiMatch) throw new Error("유효한 번지수를 찾을 수 없습니다.");
-      const mnnm = bunjiMatch[1].padStart(4, '0');
-      const slno = (bunjiMatch[3] || "0").padStart(4, '0');
-      
-      const sRes = await fetch(`${BASE_URL}/bci/BCIAAA02R01`, { 
-        method: "POST", headers: HEADERS, body: JSON.stringify({ 
-          "addrGbCd": "0", "inqireGbCd": "0", "bldrgstCurdiGbCd": "0", "platGbCd": "0", 
-          "reqSigunguCd": mapping.sigungu, "bjdongCd": mapping.bjdong, "mnnm": mnnm, "slno": slno 
-        }) 
-      });
-      const sData = await sRes.json();
-      const buildings = [...(sData.jibunAddr || []), ...(sData.bldrgstList || [])];
-      const targetSeqList = buildings.map(b => String(b.bldrgstSeqno));
-
-      // 4. 상세 동/호수 조회 (BCIAAA02R04)
-      const r04Res = await (await fetch(`${BASE_URL}/bci/BCIAAA02R04`, { 
-        method: "POST", headers: HEADERS, body: JSON.stringify({ 
-          "inqireGbCd": "0", "reqSigunguCd": mapping.sigungu, 
-          "bldrgstCurdiGbCd": "0", "bldrgstSeqno": "", 
-          "upperBldrgstSeqnos": targetSeqList 
-        }) 
-      })).json();
-
-      const list = r04Res.findExposList || [];
-      
-      // 5. 유형별 건수 계산 (요청하신 알림창 내용)
-      const summary = {
-        totalHeader: sData.jibunAddr?.length || 0,
-        normal: list.filter(u => u.regstrGbCd === "1").length,
-        expos: list.filter(u => u.regstrKindCd === "4").length
-      };
-
-      // 6. 알림창 표시
-      const confirmMsg = `🏠 [조회 결과 안내]\n\n• 총괄표제부: ${summary.totalHeader}건\n• 일반건축물/표제부: ${summary.normal}건\n• 전유부: ${summary.expos}건\n\n전유부 ${summary.expos}건의 상세 목록을 콘솔에 표시하시겠습니까?`;
-      
-      if (window.confirm(confirmMsg)) {
-        console.log(`%c📂 전유부 상세 목록 (총 ${summary.expos}건)`, "color: #fff; background: #f39c12; padding: 5px; font-weight: bold;");
-        const exposTable = list
-          .filter(u => u.regstrKindCd === "4")
-          .map(u => ({
-            "건축물명칭": u.bldNm,
-            "동명칭": u.dongNm,
-            "호명칭": u.hoNm,
-            "연면적(㎡)": u.totArea
-          }));
-        console.table(exposTable);
-      }
-      
-      setShowSeumterLogin(false); // 성공 시 로그인 UI 닫기
     } catch (e) {
-      alert("조회 실패: " + e.message);
-      console.error(e);
+      alert("조회 중 오류가 발생했습니다: " + e.message);
+      console.error("Inquiry Error:", e);
     }
   };
 
@@ -145,8 +80,7 @@ const RightPanel = () => {
     if (pin.is_rent) {
       const deposit = pin.rent_deposit ? fmt(pin.rent_deposit) : '0';
       const rent = fmt(pin.rent_amount);
-      const text = `${deposit} / ${rent}`;
-      priceRows.push({ label: '월세', text, color: '#10b981', bg: '#d1fae5' });
+      priceRows.push({ label: '월세', text: `${deposit} / ${rent}`, color: '#10b981', bg: '#d1fae5' });
     }
     if (priceRows.length === 0) return <span>-</span>;
 
@@ -183,12 +117,12 @@ const RightPanel = () => {
 
   return (
     <div style={panelStyle}>
-      {/* --- 세움터 로그인창 UI 오버레이 --- */}
+      {/* --- 세움터 로그인창 UI --- */}
       {showSeumterLogin && (
         <div style={{
           position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
           width: '320px', backgroundColor: 'white', padding: '24px', borderRadius: '16px',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
           zIndex: 2000, border: '1px solid #f3f4f6', display: 'flex', flexDirection: 'column', gap: '16px'
         }}>
           <h3 style={{margin: 0, fontSize: '1.25rem', fontWeight: '800'}}>세움터 로그인</h3>
@@ -249,7 +183,6 @@ const RightPanel = () => {
                    ✨ AI 입지분석
                  </button>
 
-                 {/* --- 전유부조회 버튼: 로그인창 활성화 --- */}
                  <button 
                    onClick={() => setShowSeumterLogin(true)}
                    style={{
