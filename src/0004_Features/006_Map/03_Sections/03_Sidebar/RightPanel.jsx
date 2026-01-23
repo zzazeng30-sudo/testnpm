@@ -35,6 +35,8 @@ const RightPanel = () => {
   if (!isVisible) return null;
 
   const panelStyle = {
+    display: 'flex',          // 추가: 내부 레이아웃 제어
+  flexDirection: 'column',  // 추가
     position: 'absolute', top: 0, right: 0, bottom: 0, width: '420px',
     backgroundColor: 'white', boxShadow: '-4px 0 20px rgba(0,0,0,0.1)',
     zIndex: 1500, borderLeft: '1px solid #e5e7eb',
