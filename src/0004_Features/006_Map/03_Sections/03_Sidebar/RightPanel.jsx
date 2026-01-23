@@ -41,17 +41,15 @@ const RightPanel = () => {
     paddingBottom: '100px', boxSizing: 'border-box'
   };
 
-  // --- [수정된 부분] 세움터 통합 조회 로직 (Vercel 프록시 연동) ---
+// --- [수정된 부분] 세움터 통합 조회 로직 ---
   const runSeumterInquiry = async () => {
     if (!selectedPin?.address) return;
     
-    // vercel.json에 설정하신 3002번 포트용 경로 사용
     const PROXY_URL = "/api/v2/units"; 
-    
     setIsLoading(true);
 
     try {
-      console.log("🚀 [시스템] Vercel 프록시를 통해 오라클 서버로 조회 요청");
+      console.log("🚀 [시스템] 조회 요청 시작");
       
       const response = await fetch(PROXY_URL, { 
         method: 'POST',
@@ -66,18 +64,17 @@ const RightPanel = () => {
       const result = await response.json();
 
       if (result.success) {
-        // 서버 응답: { success, totalBuildings, totalUnits, units }
-        // 모달 데이터 형식으로 변환
-const formattedData = {
-  counts: result.counts,      // 서버에서 계산해온 counts 사용
-  generalList: result.generalList, // 총괄표제부 상세 리스트
-  titleList: result.titleList,     // 표제부 상세 리스트
-  units: result.units              // 전유부 상세 리스트
-};
+        // [핵심 수정] 서버가 보내주는 개선된 구조(counts, generalList, titleList)를 그대로 모달에 전달
+        const formattedData = {
+          counts: result.counts,           // { general, title, exclusive }
+          generalList: result.generalList, // 총괄 리스트 배열
+          titleList: result.titleList,     // 표제부 리스트 배열
+          units: result.units              // 전유부 리스트 배열
+        };
 
         setSeumterData(formattedData);
-        setIsModalOpen(true);       // 팝업 열기
-        setShowSeumterLogin(false); // 로그인창 닫기
+        setIsModalOpen(true);       
+        setShowSeumterLogin(false); 
       } else {
         throw new Error(result.message || "조회 결과가 없습니다.");
       }
