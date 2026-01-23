@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useMap } from '../../02_Contexts/MapContext';
 import PinForm from './PinForm';
 import StackForm from './StackForm';
-import SeumterModal from './SeumterModal'; // 모달 컴포넌트 추가
+import SeumterModal from '../04_Modals/SeumterModal'; // 모달 컴포넌트 추가
 
 const RightPanel = () => {
   const { 
@@ -68,14 +68,12 @@ const RightPanel = () => {
       if (result.success) {
         // 서버 응답: { success, totalBuildings, totalUnits, units }
         // 모달 데이터 형식으로 변환
-        const formattedData = {
-          counts: {
-            general: 1, // 총괄표제부는 보통 1개이므로 임시 할당
-            title: result.totalBuildings,
-            exclusive: result.totalUnits
-          },
-          units: result.units // 서버에서 보낸 cleanUnits 배열
-        };
+const formattedData = {
+  counts: result.counts,      // 서버에서 계산해온 counts 사용
+  generalList: result.generalList, // 총괄표제부 상세 리스트
+  titleList: result.titleList,     // 표제부 상세 리스트
+  units: result.units              // 전유부 상세 리스트
+};
 
         setSeumterData(formattedData);
         setIsModalOpen(true);       // 팝업 열기
