@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 
 const SeumterModal = ({ isOpen, onClose, data }) => {
-  const [activeTab, setActiveTab] = useState('exclusive'); // 기본 선택: 전유부
+  // 기본 선택을 전유부로 유지하거나 원하시는 경우 변경 가능합니다.
+  const [activeTab, setActiveTab] = useState('exclusive'); 
 
   if (!isOpen || !data) return null;
 
-  const { counts, units } = data;
+  // 서버 응답에서 normalList를 추가로 추출합니다.
+  const { counts, units, generalList, titleList, normalList } = data;
 
-  // 인라인 스타일 정의
   const styles = {
     overlay: {
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -49,25 +50,37 @@ const SeumterModal = ({ isOpen, onClose, data }) => {
         </div>
 
         <div style={styles.body}>
-          {/* 좌측: 건수 통계 */}
+          {/* 좌측: 건수 통계 및 탭 메뉴 */}
           <div style={styles.sidebar}>
+            {/* 1. 총괄표제부 */}
             <div style={styles.tabCard(activeTab === 'general')} onClick={() => setActiveTab('general')}>
               <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '4px' }}>총괄표제부</div>
-              <div style={{ fontSize: '1.25rem', fontWeight: '800' }}>{counts.general} <span style={{ fontSize: '0.9rem' }}>건</span></div>
+              <div style={{ fontSize: '1.25rem', fontWeight: '800' }}>{counts?.general || 0} <span style={{ fontSize: '0.9rem' }}>건</span></div>
             </div>
+
+            {/* 2. 일반건축물 (요청하신 대로 두 번째 순서에 배치) */}
+            <div style={styles.tabCard(activeTab === 'normal')} onClick={() => setActiveTab('normal')}>
+              <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '4px' }}>일반건축물</div>
+              <div style={{ fontSize: '1.25rem', fontWeight: '800' }}>{normalList?.length || 0} <span style={{ fontSize: '0.9rem' }}>건</span></div>
+            </div>
+
+            {/* 3. 표제부(동) */}
             <div style={styles.tabCard(activeTab === 'title')} onClick={() => setActiveTab('title')}>
               <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '4px' }}>표제부(동)</div>
-              <div style={{ fontSize: '1.25rem', fontWeight: '800' }}>{counts.title} <span style={{ fontSize: '0.9rem' }}>건</span></div>
+              <div style={{ fontSize: '1.25rem', fontWeight: '800' }}>{counts?.title || 0} <span style={{ fontSize: '0.9rem' }}>건</span></div>
             </div>
+
+            {/* 4. 전유부(호수) */}
             <div style={styles.tabCard(activeTab === 'exclusive')} onClick={() => setActiveTab('exclusive')}>
               <div style={{ fontSize: '0.8rem', color: '#3b82f6', marginBottom: '4px', fontWeight: 'bold' }}>전유부(호수)</div>
-              <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#3b82f6' }}>{counts.exclusive} <span style={{ fontSize: '0.9rem' }}>세대</span></div>
+              <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#3b82f6' }}>{counts?.exclusive || 0} <span style={{ fontSize: '0.9rem' }}>세대</span></div>
             </div>
           </div>
 
-          {/* 우측: 상세 리스트 */}
+          {/* 우측: 상세 리스트 콘텐츠 영역 */}
           <div style={styles.content}>
-            {activeTab === 'exclusive' ? (
+            {/* 전유부 탭 */}
+            {activeTab === 'exclusive' && (
               <table style={styles.table}>
                 <thead>
                   <tr>
@@ -78,7 +91,7 @@ const SeumterModal = ({ isOpen, onClose, data }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {units.map((u, i) => (
+                  {units?.map((u, i) => (
                     <tr key={i}>
                       <td style={{ ...styles.td, fontWeight: 'bold' }}>{u.dong || '-'}</td>
                       <td style={styles.td}>{u.ho}</td>
@@ -90,10 +103,72 @@ const SeumterModal = ({ isOpen, onClose, data }) => {
                   ))}
                 </tbody>
               </table>
-            ) : (
-              <div style={{ height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#9ca3af' }}>
-                {activeTab === 'general' ? '총괄표제부 정보는 준비 중입니다.' : '표제부 상세 정보는 준비 중입니다.'}
-              </div>
+            )}
+
+            {/* 일반건축물 탭 */}
+            {activeTab === 'normal' && (
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>건축물명칭</th>
+                    <th style={styles.th}>동명칭</th>
+                    <th style={styles.th}>주용도</th>
+                    <th style={styles.th}>연면적(㎡)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {normalList?.map((n, i) => (
+                    <tr key={i}>
+                      <td style={{ ...styles.td, fontWeight: 'bold' }}>{n.bldNm}</td>
+                      <td style={styles.td}>{n.dongNm}</td>
+                      <td style={styles.td}>{n.mainPurpsCdNm}</td>
+                      <td style={styles.td}>{Number(n.totArea).toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
+            {/* 표제부 탭 */}
+            {activeTab === 'title' && (
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>건축물명칭</th>
+                    <th style={styles.th}>동명칭</th>
+                    <th style={styles.th}>연면적(㎡)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {titleList?.map((t, i) => (
+                    <tr key={i}>
+                      <td style={{ ...styles.td, fontWeight: 'bold' }}>{t.bldNm}</td>
+                      <td style={styles.td}>{t.dongNm}</td>
+                      <td style={styles.td}>{Number(t.totArea).toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
+            {/* 총괄표제부 탭 */}
+            {activeTab === 'general' && (
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>건축물명칭</th>
+                    <th style={styles.th}>연면적(㎡)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {generalList?.map((g, i) => (
+                    <tr key={i}>
+                      <td style={{ ...styles.td, fontWeight: 'bold' }}>{g.bldNm}</td>
+                      <td style={styles.td}>{Number(g.totArea).toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
         </div>
