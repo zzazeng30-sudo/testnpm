@@ -11,12 +11,17 @@ const RightPanel = () => {
   } = useMap();
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  
+  // --- [상태] 세움터 관련 ---
   const [showSeumterLogin, setShowSeumterLogin] = useState(false);
   const [seumterId, setSeumterId] = useState('zzazeng10');
   const [seumterPw, setSeumterPw] = useState('Dlxogh12!');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [seumterData, setSeumterData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // ★★★ [신규] 로그인 성공 여부를 기억하는 상태 ★★★
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -48,18 +53,41 @@ const RightPanel = () => {
         body: JSON.stringify({ id: seumterId, pw: seumterPw, address: selectedPin.address })
       });
       const result = await response.json();
+      
       if (result.success) {
         setSeumterData(result);
         setIsModalOpen(true);
-        setShowSeumterLogin(false);
-      } else { alert(result.message); }
-    } catch (e) { alert("조회 실패"); } finally { setIsLoading(false); }
+        setShowSeumterLogin(false); // 모달 닫기
+        
+        // ★★★ [성공 시] 로그인 상태를 true로 설정하여 다음부터 팝업 생략 ★★★
+        setIsLoggedIn(true); 
+      } else { 
+        // 실패 시 (비번 틀림 등) 다시 로그인해야 하므로 false
+        setIsLoggedIn(false);
+        alert(result.message); 
+      }
+    } catch (e) { 
+      setIsLoggedIn(false); // 에러 나면 다시 로그인 유도
+      alert("조회 실패: " + e.message); 
+    } finally { 
+      setIsLoading(false); 
+    }
   };
 
-  // --- [추가] [STEP 2] 소유자 정보 조회 (/owner) ---
+  // --- [신규] 조회 버튼 클릭 핸들러 (스마트 조회) ---
+  const handleInquiryClick = () => {
+    if (isLoggedIn) {
+      // 이미 로그인 성공한 적이 있으면 -> 모달 없이 바로 조회
+      runSeumterInquiry();
+    } else {
+      // 로그인한 적 없으면 -> 로그인 모달 띄우기
+      setShowSeumterLogin(true);
+    }
+  };
+
+  // --- [STEP 2] 소유자 정보 조회 (/owner) ---
   const handleOwnerInquiry = async (selectedItem) => {
     if (!selectedItem) return;
-    // 서버가 units 조회 때 넘겨준 pnuMapping이 필요함
     const mapping = seumterData?.pnuMapping; 
     if (!mapping) return alert("주소 정보가 유실되었습니다.");
 
@@ -71,15 +99,16 @@ const RightPanel = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: seumterId, pw: seumterPw,
-          item: selectedItem, // 선택한 행 데이터
-          mapping: mapping    // 주소 분석 결과
+          item: selectedItem,
+          mapping: mapping    
         })
       });
       const result = await response.json();
       if (result.success) {
-        alert(`✅ 소유자 추출 성공! (접수번호: ${result.recpNo})`);
-        // 여기서 결과 데이터를 처리하는 로직 추가 가능
-      } else { alert("실패: " + result.message); }
+        alert(`✅ 소유자 추출 성공! (추출된 인원: ${result.data?.length}명)`);
+      } else { 
+        alert("실패: " + result.message); 
+      }
     } catch (e) { alert("서버 통신 오류"); } finally { setIsLoading(false); }
   };
 
@@ -103,7 +132,6 @@ const RightPanel = () => {
 
   return (
     <div style={panelStyle}>
-      {/* [추가] 모달에 확인 함수(onConfirm) 연결 */}
       <SeumterModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
@@ -126,7 +154,11 @@ const RightPanel = () => {
               </div>
               <div style={{ padding: '20px', backgroundColor: '#f0fdf4', borderRadius: '12px', marginBottom: '24px' }}>{renderPriceInfo(selectedPin)}</div>
               
-              <button onClick={() => setShowSeumterLogin(true)} style={{ width: '100%', padding: '14px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '10px' }}>📋 전유부조회</button>
+              {/* ★★★ [수정] onClick을 handleInquiryClick으로 변경 ★★★ */}
+              <button onClick={handleInquiryClick} style={{ width: '100%', padding: '14px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '10px' }}>
+                {isLoading ? '조회 중...' : '📋 전유부조회'}
+              </button>
+
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => setIsEditMode(true)} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: 'white', fontWeight: '600' }}>수정</button>
                 <button onClick={resetSelection} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', backgroundColor: '#f3f4f6', fontWeight: '600' }}>닫기</button>
