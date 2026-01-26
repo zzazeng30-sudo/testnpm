@@ -34,23 +34,26 @@ const RightPanel = () => {
 
   const isVisible = !!selectedPin || isEditMode || isCreating || isStackMode;
   if (!isVisible) return null;
-const HEADER_HEIGHT = '110px';
+
   
+const HEADER_HEIGHT = '110px'; // 헤더 높이
+
   const panelStyle = {
     position: 'fixed',
-    top: HEADER_HEIGHT,                        // 헤더 높이만큼 띄움 (110px)
-    right: 0,
-    width: '420px',
-    height: `calc(100vh - ${HEADER_HEIGHT})`,  // 화면 전체 높이에서 헤더만큼 뺌 (딱 맞음)
-    // bottom: '100px',                        // (삭제) height를 지정했으므로 bottom은 필요 없음
-    // top: 0,                                 // (삭제) 위에서 설정한 top을 덮어쓰므로 삭제해야 함
+    top: HEADER_HEIGHT,      // 위에서 110px 만큼 떨어짐
+    bottom: 0,               // 화면 맨 아래에 딱 붙음 (여백을 주고 싶으면 '20px' 등으로 변경)
+    right: 0,                // 화면 오른쪽에 붙음
+    width: '420px',          // 너비 고정
+    
+    // [핵심] height 관련 설정은 모두 삭제합니다! (top과 bottom이 높이를 결정함)
     
     backgroundColor: 'white',
     boxShadow: '-4px 0 20px rgba(0,0,0,0.1)',
     zIndex: 1500,
     borderLeft: '1px solid #e5e7eb',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    boxSizing: 'border-box'  // 테두리 두께가 사이즈에 포함되도록 안전장치 추가
   };
 
   // --- [STEP 1] 매물 목록 조회 (/units) ---
