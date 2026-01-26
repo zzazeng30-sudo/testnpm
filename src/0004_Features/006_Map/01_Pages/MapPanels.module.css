@@ -21,7 +21,7 @@
   
   /* ★ 높이를 100%로 잡고 스크롤 자동 설정 */
   height: 100%; 
-  max-height: 100vh;
+  max-height: 100%;
   overflow-y: auto; /* 내용 넘치면 스크롤 생성 */
   
   box-sizing: border-box; z-index: 40;
