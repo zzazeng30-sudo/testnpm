@@ -34,8 +34,9 @@ const RightPanel = () => {
 
   const isVisible = !!selectedPin || isEditMode || isCreating || isStackMode;
   if (!isVisible) return null;
-
+  const HEADER_HEIGHT = '110px';
   const panelStyle = {
+    top: HEADER_HEIGHT,height: `calc(100vh - ${HEADER_HEIGHT})`,
     position: 'fixed', top: 0, right: 0, bottom: '100px', width: '420px',
     backgroundColor: 'white', boxShadow: '-4px 0 20px rgba(0,0,0,0.1)',
     zIndex: 1500, borderLeft: '1px solid #e5e7eb',
