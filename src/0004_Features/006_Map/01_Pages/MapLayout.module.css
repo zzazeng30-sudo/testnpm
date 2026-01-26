@@ -1,13 +1,17 @@
 /* src/0004_Features/006_Map/01_Pages/MapLayout.module.css */
 
 .pageContainerMap {
+position: absolute; 
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
   display: flex;
   flex-direction: row;
-  width: 100vw;
-  height: 100%;
   background: #fff;
   overflow: hidden;
-  position: relative;
+  z-index: 10; /* 다른 요소보다 위에 오도록 안전장치 */
 }
 
 .sidebar {
