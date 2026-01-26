@@ -67,9 +67,14 @@
 
 /* 컨텐츠 영역 */
 .content {
-  flex: 1;
-  position: relative;
-  overflow-y: auto;
+flex: 1;                /* 남은 공간 차지 */
+  position: relative;     
+  overflow: hidden;       /* 스크롤 방지 */
+  
+  /* 👇 여기부터 추가/변경 */
+  display: flex;          
+  flex-direction: column; 
+  width: 100%;
 }
 
 .contentMapMode {
