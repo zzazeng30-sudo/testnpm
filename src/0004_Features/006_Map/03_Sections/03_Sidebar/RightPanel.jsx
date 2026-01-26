@@ -36,30 +36,27 @@ const RightPanel = () => {
   if (!isVisible) return null;
 
   
-const HEADER_HEIGHT = '110px';
-
-  const panelStyle = {
-    position: 'fixed',
-    top: HEADER_HEIGHT,       // 헤더 아래부터 시작
-    right: 0,
+const panelStyle = {
+    position: 'absolute', 
+    top: 0, 
+    right: 0, 
+    bottom: 0, 
     width: '420px',
-    
-    /* 🔥 [요청하신 부분] 하단에 강제로 110px 빈 공간을 만듭니다. */
-    bottom: '110px',          // 바닥에서 110px만큼 띄움 (마진 효과)
-    
-    /* 혹시 몰라 높이도 강제로 줄여서 이중으로 안전장치를 겁니다 */
-    height: `calc(100vh - ${HEADER_HEIGHT} - 110px)`, 
-    
-    backgroundColor: 'white',
+    backgroundColor: 'white', 
     boxShadow: '-4px 0 20px rgba(0,0,0,0.1)',
-    zIndex: 1500,
+    zIndex: 1500, 
     borderLeft: '1px solid #e5e7eb',
-    display: 'flex',
-    flexDirection: 'column',
     boxSizing: 'border-box',
-    
-    /* 내부 스크롤이 끝까지 보이도록 패딩도 추가 */
-    paddingBottom: '20px' 
+    display: 'flex',           // Flexbox 적용
+    flexDirection: 'column',   // 세로 정렬
+    overflow: 'hidden'         // 패널 자체가 넘치는 것 방지
+  };
+
+  // [수정 2] 내부 스크롤 영역 스타일 분리
+  const scrollContentStyle = {
+    flex: 1,                   // 남은 공간 모두 차지
+    overflowY: 'auto',         // 세로 스크롤 활성화
+    paddingBottom: '100px'     // 하단 여백 유지
   };
 
   // --- [STEP 1] 매물 목록 조회 (/units) ---
