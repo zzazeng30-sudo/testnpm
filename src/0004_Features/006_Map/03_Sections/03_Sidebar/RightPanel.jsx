@@ -39,7 +39,7 @@ const RightPanel = () => {
     position: 'absolute', top: 0, right: 0, bottom: 0, width: '420px',
     backgroundColor: 'white', boxShadow: '-4px 0 20px rgba(0,0,0,0.1)',
     zIndex: 1500, borderLeft: '1px solid #e5e7eb',
-    display: 'flex', flexDirection: 'column', overflow: 'hidden'
+    display: 'flex', flexDirection: 'column'
   };
 
   // --- [STEP 1] 매물 목록 조회 (/units) ---
