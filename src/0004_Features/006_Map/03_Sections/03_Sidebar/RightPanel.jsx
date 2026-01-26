@@ -36,16 +36,19 @@ const RightPanel = () => {
   if (!isVisible) return null;
 
   
-const HEADER_HEIGHT = '110px'; // 헤더 높이
+const HEADER_HEIGHT = '110px';
 
   const panelStyle = {
     position: 'fixed',
-    top: HEADER_HEIGHT,      // 위에서 110px 만큼 떨어짐
-    bottom: 0,               // 화면 맨 아래에 딱 붙음 (여백을 주고 싶으면 '20px' 등으로 변경)
-    right: 0,                // 화면 오른쪽에 붙음
-    width: '420px',          // 너비 고정
+    top: HEADER_HEIGHT,       // 헤더 아래부터 시작
+    right: 0,
+    width: '420px',
     
-    // [핵심] height 관련 설정은 모두 삭제합니다! (top과 bottom이 높이를 결정함)
+    /* 🔥 [요청하신 부분] 하단에 강제로 110px 빈 공간을 만듭니다. */
+    bottom: '110px',          // 바닥에서 110px만큼 띄움 (마진 효과)
+    
+    /* 혹시 몰라 높이도 강제로 줄여서 이중으로 안전장치를 겁니다 */
+    height: `calc(100vh - ${HEADER_HEIGHT} - 110px)`, 
     
     backgroundColor: 'white',
     boxShadow: '-4px 0 20px rgba(0,0,0,0.1)',
@@ -53,7 +56,10 @@ const HEADER_HEIGHT = '110px'; // 헤더 높이
     borderLeft: '1px solid #e5e7eb',
     display: 'flex',
     flexDirection: 'column',
-    boxSizing: 'border-box'  // 테두리 두께가 사이즈에 포함되도록 안전장치 추가
+    boxSizing: 'border-box',
+    
+    /* 내부 스크롤이 끝까지 보이도록 패딩도 추가 */
+    paddingBottom: '20px' 
   };
 
   // --- [STEP 1] 매물 목록 조회 (/units) ---
