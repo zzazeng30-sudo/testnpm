@@ -32,7 +32,7 @@ const RightPanel = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 핀이 바뀌면 결과 및 로딩 상태 초기화
+  // 핀이 바뀌면 결과 초기화
   useEffect(() => {
     setOwnerList(null);
     setIsLoading(false);
@@ -83,7 +83,7 @@ const RightPanel = () => {
       }
     } catch (e) { 
       setIsLoggedIn(false); 
-      alert("조회 실패 (서버 연결 확인 필요): " + e.message); 
+      alert("조회 실패: " + e.message); 
     } finally { 
       setIsLoading(false); 
     }
@@ -97,23 +97,25 @@ const RightPanel = () => {
     }
   };
 
-  // --- [STEP 2] 소유자 정보 조회 (핵심 수정) ---
+  // --- [STEP 2] 소유자 정보 조회 (수정됨) ---
   const handleOwnerInquiry = async (selectedItem) => {
-    // 1. [최우선] 무조건 모달부터 닫고, 로딩 상태로 전환
+    // 1. [최우선] 무조건 모달부터 닫습니다. (조건 체크보다 먼저!)
     setIsModalOpen(false); 
+    
+    // 2. 화면을 로딩 상태로 변경
     setIsLoading(true);
     setOwnerList(null);
 
-    // 2. 데이터 유효성 검사 (모달이 닫힌 뒤 알림)
+    // 3. 데이터 유효성 검사 (모달 닫힌 후 체크)
     if (!selectedItem) {
-        alert("선택된 매물 정보가 없습니다.");
+        alert("선택된 호실 정보가 없습니다.");
         setIsLoading(false);
         return;
     }
     
     const mapping = seumterData?.pnuMapping; 
     if (!mapping) {
-        alert("주소 정보가 유실되었습니다. 다시 조회해주세요.");
+        alert("주소 매핑 정보가 없습니다. 다시 조회해주세요.");
         setIsLoading(false);
         return;
     }
@@ -185,8 +187,6 @@ const RightPanel = () => {
               <div style={{ padding: '20px', backgroundColor: '#f0fdf4', borderRadius: '12px', marginBottom: '24px' }}>{renderPriceInfo(selectedPin)}</div>
               
               {/* --- [상태별 화면 분기] --- */}
-              
-              {/* 1. 로딩 중일 때 (모달 닫힌 직후) */}
               {isLoading && !isModalOpen ? (
                 <div style={{ 
                   padding: '30px', textAlign: 'center', backgroundColor: '#f9fafb', 
@@ -197,7 +197,6 @@ const RightPanel = () => {
                   <div style={{ fontSize: '0.9rem', color: '#6b7280', marginTop: '5px' }}>약 5~10초 정도 소요됩니다.</div>
                 </div>
               ) : (
-                /* 2. 결과가 있을 때 (리스트 표시) */
                 ownerList ? (
                   <div style={{ animation: 'fadeIn 0.3s ease-in-out', marginBottom: '20px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
@@ -233,7 +232,6 @@ const RightPanel = () => {
                       </div>
                   </div>
                 ) : (
-                  /* 3. 기본 상태 (조회 버튼) */
                   <button onClick={handleInquiryClick} style={{ width: '100%', padding: '14px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '10px' }}>
                       {isLoading ? '준비 중...' : '📋 전유부조회'}
                   </button>
