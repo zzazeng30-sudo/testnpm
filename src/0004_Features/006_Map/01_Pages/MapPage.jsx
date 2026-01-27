@@ -14,7 +14,7 @@ import MapControls from '../03_Sections/02_Overlays/MapControls';
 import MapContextMenu from '../03_Sections/02_Overlays/MapContextMenu';
 import RoadviewPanel from '../03_Sections/03_Sidebar/RoadviewPanel';
 
-import styles from './MapLayout.module.css';
+import styles from './MapLayoutV2.module.css';
 import overlayStyles from './MapOverlays.module.css';
 
 function MapPageContent() {
@@ -55,7 +55,7 @@ function MapPageContent() {
   }, [selectedPin, isCreating, isMobile]);
 
   return (
-    <div className={styles.pageContainerMap}
+    <div className={styles.ppageContainerMap}
      style={{
   
         zIndex: 10
