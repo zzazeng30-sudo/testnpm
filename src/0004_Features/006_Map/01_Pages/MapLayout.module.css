@@ -1,7 +1,7 @@
 /* src/0004_Features/006_Map/01_Pages/MapLayout.module.css */
 
 .pageContainerMap {
-position: absolute; 
+position: relative !important;
   top: 0;
   left: 0;
   width: 100%;
