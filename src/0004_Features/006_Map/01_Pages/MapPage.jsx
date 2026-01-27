@@ -59,7 +59,7 @@ function MapPageContent() {
      style={{
         width: '100%',
         height: '100%',
-        position: 'absolute',
+        position: 'relative', // ★ absolute를 relative로 변경 (부모 흐름 안으로 편입)
         top: 0,
         left: 0,
         overflow: 'hidden',
