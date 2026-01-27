@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios'; 
-import { useMapData } from '../../04_Hooks/useMapData';
-import { usePinForm } from '../../04_Hooks/usePinForm';
+// ★ [수정] Hooks 직접 호출 대신 Context 사용
+import { useMap } from '../../02_Contexts/MapContext';
 import StackForm from './StackForm';
 import PinForm from './PinForm';
 
 const RightPanel = ({ isOpen, onClose }) => {
+  // ★ [수정] useMap() 하나로 모든 전역 상태 가져오기
   const { 
     selectedPin, 
     isStackMode, 
-    resetSelection 
-  } = useMapData();
+    resetSelection,
+    // PinForm 관련 상태도 Context에서 바로 가져옴
+    isCreating, 
+    isEditMode, 
+    setIsEditMode 
+  } = useMap();
   
-  const { isCreating, isEditMode, setIsEditMode } = usePinForm();
-
   // --- [상태] 조회 프로세스 관리 ---
   const [inquiryStatus, setInquiryStatus] = useState('idle'); // idle, login_input, processing, unit_select, complete, error
   const [processLogs, setProcessLogs] = useState([]); // 터미널 로그 메시지
-  const [seumterId, setSeumterId] = useState('');     // 아이디 (기본값 필요시 설정)
+  const [seumterId, setSeumterId] = useState('');     // 아이디
   const [seumterPw, setSeumterPw] = useState('');     // 비번
   
   // 조회 결과 데이터
