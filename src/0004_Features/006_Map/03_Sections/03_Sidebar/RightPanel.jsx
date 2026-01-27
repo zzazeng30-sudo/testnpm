@@ -226,7 +226,7 @@ const RightPanel = () => {
                 ) : (
                   /* 3. 기본 상태 (조회 버튼) */
                   <button onClick={handleInquiryClick} style={{ width: '100%', padding: '14px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '10px' }}>
-                      📋 전유부조회
+                      📋 전유부조11회
                   </button>
                 )
               )}
