@@ -1,23 +1,18 @@
 /* src/0004_Features/006_Map/01_Pages/MapLayout.module.css */
 
-.ppageContainerMap {
-position: relative !important;
+.pageContainerMap {
+position: absolute; 
   top: 0;
   left: 0;
   width: 100%;
+  height: 100% !important;
+
   display: flex;
   flex-direction: row;
   background: #fff;
   overflow: hidden;
   z-index: 10; /* 다른 요소보다 위에 오도록 안전장치 */
 }
-
-.pageContainerMap_pzec2_3 {
-    height: 100% !important;
-    max-height: 100% !important;
-}
-
-
 
 .sidebar {
   position: relative;
