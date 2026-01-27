@@ -57,14 +57,7 @@ function MapPageContent() {
   return (
     <div className={styles.pageContainerMap}
      style={{
-        width: '100%',
-        height: '100%',
-        position: 'relative', // ★ absolute를 relative로 변경 (부모 흐름 안으로 편입)
-        top: 0,
-        left: 0,
-        overflow: 'hidden',
-        display: 'flex',      // 기존 CSS 속성 유지
-        flexDirection: 'row', // 기존 CSS 속성 유지
+  
         zIndex: 10
       }}
       >
