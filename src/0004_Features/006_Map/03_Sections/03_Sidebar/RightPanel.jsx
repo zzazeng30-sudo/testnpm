@@ -1,32 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios'; 
-// ★ [수정] Hooks 직접 호출 대신 Context 사용
 import { useMap } from '../../02_Contexts/MapContext';
 import StackForm from './StackForm';
 import PinForm from './PinForm';
 
-const RightPanel = ({ isOpen, onClose }) => {
-  // ★ [수정] useMap() 하나로 모든 전역 상태 가져오기
+const RightPanel = () => { // props(isOpen) 제거
+  // 1. Context에서 상태 가져오기
   const { 
     selectedPin, 
     isStackMode, 
     resetSelection,
-    // PinForm 관련 상태도 Context에서 바로 가져옴
     isCreating, 
     isEditMode, 
     setIsEditMode 
   } = useMap();
   
+  // 2. [중요] 패널이 보여야 하는지 결정하는 로직 복구
+  // 핀이 선택되었거나, 스택모드이거나, 생성/수정 중일 때만 보임
+  const isVisible = !!selectedPin || isEditMode || isCreating || isStackMode;
+
   // --- [상태] 조회 프로세스 관리 ---
   const [inquiryStatus, setInquiryStatus] = useState('idle'); // idle, login_input, processing, unit_select, complete, error
-  const [processLogs, setProcessLogs] = useState([]); // 터미널 로그 메시지
-  const [seumterId, setSeumterId] = useState('');     // 아이디
-  const [seumterPw, setSeumterPw] = useState('');     // 비번
+  const [processLogs, setProcessLogs] = useState([]); 
+  const [seumterId, setSeumterId] = useState('');     
+  const [seumterPw, setSeumterPw] = useState('');     
   
-  // 조회 결과 데이터
-  const [unitList, setUnitList] = useState([]);       // 1차 조회된 건물/호실 목록
-  const [pnuMapping, setPnuMapping] = useState(null); // 주소 매핑 정보
-  const [ownerList, setOwnerList] = useState([]);     // 최종 소유자 정보
+  const [unitList, setUnitList] = useState([]);       
+  const [pnuMapping, setPnuMapping] = useState(null); 
+  const [ownerList, setOwnerList] = useState([]);     
 
   // 핀이 바뀌면 상태 초기화
   useEffect(() => {
@@ -43,7 +44,6 @@ const RightPanel = ({ isOpen, onClose }) => {
     setPnuMapping(null);
   };
 
-  // --- [로그 UI] 터미널 메시지 추가 ---
   const addLog = (msg) => {
     setProcessLogs(prev => [...prev, msg]);
   };
@@ -62,7 +62,7 @@ const RightPanel = ({ isOpen, onClose }) => {
     }
   };
 
-  // --- [STEP 2] 건물/호실 목록 조회 (/units) ---
+  // --- [STEP 2] 건물/호실 목록 조회 ---
   const runUnitInquiry = async () => {
     setInquiryStatus('processing');
     setProcessLogs([]); 
@@ -72,7 +72,6 @@ const RightPanel = ({ isOpen, onClose }) => {
       addLog(`📡 [1단계] 주소 분석 및 건물 대장 조회 중...`);
       addLog(`👉 대상: ${selectedPin.address}`);
 
-      // 백엔드 호출 (포트 3002)
       const response = await axios.post('http://localhost:3002/units', {
         id: seumterId,
         pw: seumterPw,
@@ -82,12 +81,8 @@ const RightPanel = ({ isOpen, onClose }) => {
       const result = response.data;
       if (result.success) {
         setPnuMapping(result.pnuMapping);
-        
-        // 유효한 매물(전유부)이 있는지 확인
         const units = result.units || [];
         const normal = result.normalList || [];
-        
-        // 전유부(아파트/집합)가 있으면 그거 우선, 없으면 일반건물
         const candidates = units.length > 0 ? units : normal;
 
         addLog(`✅ 1차 조회 성공! 건물/호실 ${candidates.length}개 발견`);
@@ -98,10 +93,8 @@ const RightPanel = ({ isOpen, onClose }) => {
             return;
         }
 
-        // 목록을 state에 저장하고 선택 단계로 전환
         setUnitList(candidates);
         
-        // 만약 결과가 딱 1개라면 바로 소유자 조회로 넘어감 (자동화)
         if (candidates.length === 1) {
             addLog("⚡ 단일 매물 식별됨. 소유자 조회 자동 시작...");
             runOwnerInquiry(candidates[0], result.pnuMapping);
@@ -120,9 +113,9 @@ const RightPanel = ({ isOpen, onClose }) => {
     }
   };
 
-  // --- [STEP 3] 최종 소유자 조회 (/owner) ---
+  // --- [STEP 3] 최종 소유자 조회 ---
   const runOwnerInquiry = async (targetItem, mappingData = pnuMapping) => {
-    setInquiryStatus('processing'); // 다시 로그 모드로
+    setInquiryStatus('processing'); 
     addLog(`🔍 [2단계] '${targetItem.dong || targetItem.dongNm || ''} ${targetItem.ho || targetItem.hoNm || ''}' 소유자 확인 중...`);
     addLog("⏳ 장바구니 담기 및 발급 신청 (약 5~10초 소요)");
 
@@ -149,8 +142,6 @@ const RightPanel = ({ isOpen, onClose }) => {
     }
   };
 
-
-  // 가격 렌더링 (기존 유지)
   const renderPriceInfo = (pin) => {
     if (!pin) return null;
     const type = pin.trade_type || '매매';
@@ -163,7 +154,8 @@ const RightPanel = ({ isOpen, onClose }) => {
     return <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#d97706' }}>월세 {deposit} / {monthly}</div>;
   };
 
-  if (!isOpen) return null;
+  // ★ [핵심 수정] isOpen prop 체크 로직 삭제 -> isVisible 변수로 대체
+  if (!isVisible) return null;
 
   return (
     <div className={`
