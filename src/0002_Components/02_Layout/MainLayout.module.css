@@ -1,12 +1,13 @@
 /* src/0002_Components/02_Layout/MainLayout.module.css */
 
 .layout {
-  display: flex;
+display: flex;
   flex-direction: column;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-  backgroundColor: #fff;
+  /* height: 100%; 대신 아래와 같이 수정 */
+  height: 100vh;           /* ★ 뷰포트 높이로 고정 */
+  width: 100vw;            /* ★ 뷰포트 너비로 고정 */
+  overflow: hidden;        /* ★ 레이아웃 전체 스크롤 방지 */
+  background-color: #fff;  /* ★ 오타 수정 (background-color) */
 }
 
 /* 메인 바 (데스크탑 상단 / 모바일 하단 고정) */
