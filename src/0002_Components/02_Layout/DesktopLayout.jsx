@@ -10,7 +10,7 @@ export default function DesktopLayout({ session }) {
   , [activeMainMenu, activeSubMenu]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <header style={{ display: 'flex', borderBottom: '1px solid #ddd', background: '#fff' }}>
         {mainMenus.map(m => (
           <button 
