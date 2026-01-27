@@ -20,10 +20,10 @@ const RightPanel = () => {
   const [seumterData, setSeumterData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   
-  // 로그인 성공 여부 기억
+  // 로그인 성공 여부
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // ★★★ [신규] 최종 조회 결과 리스트 상태 추가 ★★★
+  // ★ 최종 결과 리스트
   const [ownerList, setOwnerList] = useState(null);
 
   useEffect(() => {
@@ -35,6 +35,7 @@ const RightPanel = () => {
   // 핀이 바뀌면 결과 초기화
   useEffect(() => {
     setOwnerList(null);
+    setIsLoading(false);
   }, [selectedPin]);
 
   const isMobile = windowWidth <= 768;
@@ -43,7 +44,6 @@ const RightPanel = () => {
   const isVisible = !!selectedPin || isEditMode || isCreating || isStackMode;
   if (!isVisible) return null;
 
-  
   const panelStyle = {
     position: 'absolute', 
     top: 0, 
@@ -60,12 +60,11 @@ const RightPanel = () => {
     overflow: 'hidden'         
   };
 
-  // --- [STEP 1] 매물 목록 조회 (/units) ---
+  // --- [STEP 1] 매물 목록 조회 (대시보드 열기) ---
   const runSeumterInquiry = async () => {
     if (!selectedPin?.address) return;
     setIsLoading(true);
     try {
-      // ※ 주의: 실제 서버 포트(3002)로 요청 (프록시 설정 없다면 http://localhost:3002)
       const response = await fetch("http://localhost:3002/units", { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -75,8 +74,8 @@ const RightPanel = () => {
       
       if (result.success) {
         setSeumterData(result);
-        setIsModalOpen(true);
-        setShowSeumterLogin(false); // 로그인창 닫기
+        setIsModalOpen(true); // 대시보드(모달) 열기
+        setShowSeumterLogin(false);
         setIsLoggedIn(true); 
       } else { 
         setIsLoggedIn(false);
@@ -84,7 +83,7 @@ const RightPanel = () => {
       }
     } catch (e) { 
       setIsLoggedIn(false); 
-      alert("조회 실패: " + e.message); 
+      alert("조회 실패 (서버 연결 확인 필요): " + e.message); 
     } finally { 
       setIsLoading(false); 
     }
@@ -98,13 +97,18 @@ const RightPanel = () => {
     }
   };
 
-  // --- [STEP 2] 소유자 정보 조회 (/owner) ---
+  // --- [STEP 2] 소유자 정보 조회 (핵심 수정 부분) ---
   const handleOwnerInquiry = async (selectedItem) => {
     if (!selectedItem) return;
     const mapping = seumterData?.pnuMapping; 
-    if (!mapping) return alert("주소 정보가 유실되었습니다.");
+    
+    // ★ [핵심] 클릭하자마자 모달을 먼저 닫습니다! (백그라운드 처리 느낌)
+    setIsModalOpen(false); 
+    
+    // 패널을 로딩 상태로 변경
+    setIsLoading(true);
+    setOwnerList(null);
 
-    setIsLoading(true); // 로딩바 표시 (전역 or 버튼)
     try {
       const response = await fetch("http://localhost:3002/owner", { 
         method: 'POST',
@@ -118,16 +122,14 @@ const RightPanel = () => {
       const result = await response.json();
       
       if (result.success) {
-        // ★★★ [수정] 모달 닫고, 결과를 패널에 표시 ★★★
-        setIsModalOpen(false); // 모달 닫기
-        setOwnerList(result.data); // 결과 데이터 저장 -> 아래 렌더링에서 표시됨
+        setOwnerList(result.data); // 결과 표시
       } else { 
         alert("실패: " + result.message); 
       }
     } catch (e) { 
-        alert("서버 통신 오류"); 
+        alert("서버 통신 오류: " + e.message); 
     } finally { 
-        setIsLoading(false); 
+        setIsLoading(false); // 로딩 끝
     }
   };
 
@@ -173,42 +175,60 @@ const RightPanel = () => {
               </div>
               <div style={{ padding: '20px', backgroundColor: '#f0fdf4', borderRadius: '12px', marginBottom: '24px' }}>{renderPriceInfo(selectedPin)}</div>
               
-              {/* ★★★ [결과 화면] 조회 결과(ownerList)가 있으면 리스트 표시, 없으면 조회 버튼 표시 ★★★ */}
-              {ownerList ? (
-                <div style={{ animation: 'fadeIn 0.3s ease-in-out', marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                        <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>소유자 목록 ({ownerList.length})</h3>
-                        <button 
-                            onClick={() => setOwnerList(null)} 
-                            style={{ fontSize: '0.8rem', color: '#6b7280', background: 'none', border: 'none', textDecoration: 'underline', cursor: 'pointer' }}
-                        >
-                            다시 조회
-                        </button>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {ownerList.map((owner, idx) => (
-                            <div key={idx} style={{ padding: '14px', border: '1px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                    <div style={{ fontWeight: 'bold', fontSize: '1rem', color: '#1f2937' }}>
-                                        {owner.name} <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: 'normal' }}>({owner.share})</span>
-                                    </div>
-                                    <span style={{ fontSize: '0.75rem', padding: '2px 8px', backgroundColor: '#dbeafe', color: '#1e40af', borderRadius: '12px', fontWeight: 'bold' }}>
-                                        {owner.reason}
-                                    </span>
-                                </div>
-                                <div style={{ fontSize: '0.9rem', color: '#374151', marginBottom: '4px' }}>{owner.id}</div>
-                                <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>{owner.address}</div>
-                                <div style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '6px', textAlign: 'right' }}>
-                                    변동일: {owner.date}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+              {/* --- [상태별 화면 분기] --- */}
+              
+              {/* 1. 로딩 중일 때 (모달 닫힌 직후) */}
+              {isLoading && !isModalOpen ? (
+                <div style={{ 
+                  padding: '30px', textAlign: 'center', backgroundColor: '#f9fafb', 
+                  borderRadius: '12px', border: '1px solid #e5e7eb', marginBottom: '20px' 
+                }}>
+                  <div style={{ fontSize: '2rem', marginBottom: '10px' }}>⏳</div>
+                  <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#374151' }}>소유자 정보 분석 중...</div>
+                  <div style={{ fontSize: '0.9rem', color: '#6b7280', marginTop: '5px' }}>약 5~10초 정도 소요됩니다.</div>
                 </div>
               ) : (
-                <button onClick={handleInquiryClick} style={{ width: '100%', padding: '14px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '10px' }}>
-                    {isLoading ? '조회 중...' : '📋 전유부조회'}
-                </button>
+                /* 2. 결과가 있을 때 (리스트 표시) */
+                ownerList ? (
+                  <div style={{ animation: 'fadeIn 0.3s ease-in-out', marginBottom: '20px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                          <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>소유자 목록 ({ownerList.length})</h3>
+                          <button 
+                              onClick={() => setOwnerList(null)} 
+                              style={{ fontSize: '0.8rem', color: '#6b7280', background: 'none', border: 'none', textDecoration: 'underline', cursor: 'pointer' }}
+                          >
+                              결과 닫기
+                          </button>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                          {ownerList.map((owner, idx) => (
+                              <div key={idx} style={{ padding: '14px', border: '1px solid #e5e7eb', borderRadius: '8px', backgroundColor: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                      <div style={{ fontWeight: 'bold', fontSize: '1rem', color: '#1f2937' }}>
+                                          {owner.name} <span style={{ fontSize: '0.8rem', color: '#6b7280', fontWeight: 'normal' }}>({owner.share})</span>
+                                      </div>
+                                      <span style={{ fontSize: '0.75rem', padding: '2px 8px', backgroundColor: '#dbeafe', color: '#1e40af', borderRadius: '12px', fontWeight: 'bold' }}>
+                                          {owner.reason}
+                                      </span>
+                                  </div>
+                                  <div style={{ fontSize: '0.9rem', color: '#374151', marginBottom: '4px' }}>{owner.id}</div>
+                                  <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>{owner.address}</div>
+                                  <div style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '6px', textAlign: 'right' }}>
+                                      변동일: {owner.date}
+                                  </div>
+                              </div>
+                          ))}
+                          {ownerList.length === 0 && (
+                            <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>소유자 정보가 없습니다.</div>
+                          )}
+                      </div>
+                  </div>
+                ) : (
+                  /* 3. 기본 상태 (조회 버튼) */
+                  <button onClick={handleInquiryClick} style={{ width: '100%', padding: '14px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '10px' }}>
+                      📋 전유부조회
+                  </button>
+                )
               )}
 
               <div style={{ display: 'flex', gap: '10px' }}>
