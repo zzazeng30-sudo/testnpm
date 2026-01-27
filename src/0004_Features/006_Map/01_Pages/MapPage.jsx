@@ -14,7 +14,7 @@ import MapControls from '../03_Sections/02_Overlays/MapControls';
 import MapContextMenu from '../03_Sections/02_Overlays/MapContextMenu';
 import RoadviewPanel from '../03_Sections/03_Sidebar/RoadviewPanel';
 
-import styles from './MapLayoutV2.module.css?update=1';
+import styles from './MapLayout.module.css';
 import overlayStyles from './MapOverlays.module.css';
 
 function MapPageContent() {
@@ -55,9 +55,16 @@ function MapPageContent() {
   }, [selectedPin, isCreating, isMobile]);
 
   return (
-    <div className={styles.ppageContainerMap}
+    <div className={styles.pageContainerMap}
      style={{
-  
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        overflow: 'hidden',
+        display: 'flex',      // 기존 CSS 속성 유지
+        flexDirection: 'row', // 기존 CSS 속성 유지
         zIndex: 10
       }}
       >
