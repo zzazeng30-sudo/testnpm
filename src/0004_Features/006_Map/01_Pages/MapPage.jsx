@@ -14,7 +14,7 @@ import MapControls from '../03_Sections/02_Overlays/MapControls';
 import MapContextMenu from '../03_Sections/02_Overlays/MapContextMenu';
 import RoadviewPanel from '../03_Sections/03_Sidebar/RoadviewPanel';
 
-import styles from './MapLayoutV2.module.css';
+import styles from './MapLayoutV2.module.css?update=1';
 import overlayStyles from './MapOverlays.module.css';
 
 function MapPageContent() {
