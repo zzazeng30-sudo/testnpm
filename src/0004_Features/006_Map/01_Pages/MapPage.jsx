@@ -57,15 +57,7 @@ function MapPageContent() {
   return (
     <div className={styles.pageContainerMap}
      style={{
-        width: '100%',
-        height: '100%',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        overflow: 'hidden',
-        display: 'flex',      // 기존 CSS 속성 유지
-        flexDirection: 'row', // 기존 CSS 속성 유지
-        zIndex: 10
+      
       }}
       >
       <div className={`
