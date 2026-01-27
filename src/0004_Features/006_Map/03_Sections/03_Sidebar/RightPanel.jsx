@@ -32,7 +32,7 @@ const RightPanel = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 핀이 바뀌면 결과 초기화
+  // 핀이 바뀌면 결과 및 로딩 상태 초기화
   useEffect(() => {
     setOwnerList(null);
     setIsLoading(false);
@@ -97,17 +97,26 @@ const RightPanel = () => {
     }
   };
 
-  // --- [STEP 2] 소유자 정보 조회 (핵심 수정 부분) ---
+  // --- [STEP 2] 소유자 정보 조회 (핵심 수정) ---
   const handleOwnerInquiry = async (selectedItem) => {
-    if (!selectedItem) return;
-    const mapping = seumterData?.pnuMapping; 
-    
-    // ★ [핵심] 클릭하자마자 모달을 먼저 닫습니다! (백그라운드 처리 느낌)
+    // 1. [최우선] 무조건 모달부터 닫고, 로딩 상태로 전환
     setIsModalOpen(false); 
-    
-    // 패널을 로딩 상태로 변경
     setIsLoading(true);
     setOwnerList(null);
+
+    // 2. 데이터 유효성 검사 (모달이 닫힌 뒤 알림)
+    if (!selectedItem) {
+        alert("선택된 매물 정보가 없습니다.");
+        setIsLoading(false);
+        return;
+    }
+    
+    const mapping = seumterData?.pnuMapping; 
+    if (!mapping) {
+        alert("주소 정보가 유실되었습니다. 다시 조회해주세요.");
+        setIsLoading(false);
+        return;
+    }
 
     try {
       const response = await fetch("http://localhost:3002/owner", { 
@@ -183,7 +192,7 @@ const RightPanel = () => {
                   padding: '30px', textAlign: 'center', backgroundColor: '#f9fafb', 
                   borderRadius: '12px', border: '1px solid #e5e7eb', marginBottom: '20px' 
                 }}>
-                  <div style={{ fontSize: '2rem', marginBottom: '10px' }}>⏳</div>
+                  <div style={{ fontSize: '2rem', marginBottom: '10px', animation: 'spin 1s linear infinite' }}>⏳</div>
                   <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#374151' }}>소유자 정보 분석 중...</div>
                   <div style={{ fontSize: '0.9rem', color: '#6b7280', marginTop: '5px' }}>약 5~10초 정도 소요됩니다.</div>
                 </div>
@@ -226,7 +235,7 @@ const RightPanel = () => {
                 ) : (
                   /* 3. 기본 상태 (조회 버튼) */
                   <button onClick={handleInquiryClick} style={{ width: '100%', padding: '14px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '10px' }}>
-                      📋 전유부조11회
+                      {isLoading ? '준비 중...' : '📋 전유부조회'}
                   </button>
                 )
               )}
