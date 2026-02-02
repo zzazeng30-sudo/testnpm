@@ -15,8 +15,8 @@ const RightPanel = () => {
   // --- [상태] 세움터 및 UI 제어 ---
   const [viewMode, setViewMode] = useState('detail'); // 'detail' or 'ownerResult'
   const [showSeumterLogin, setShowSeumterLogin] = useState(false);
-  const [seumterId, setSeumterId] = useState('zzazeng10');
-  const [seumterPw, setSeumterPw] = useState('Dlxogh12!');
+  const [seumterId, setSeumterId] = useState('');
+  const [seumterPw, setSeumterPw] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [seumterData, setSeumterData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
