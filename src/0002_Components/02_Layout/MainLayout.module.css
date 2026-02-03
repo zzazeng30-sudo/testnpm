@@ -1,0 +1,139 @@
+/* src/0002_Components/02_Layout/MainLayout.module.css */
+
+.layout {
+display: flex;
+  flex-direction: column;
+  /* height: 100%; 대신 아래와 같이 수정 */
+  height: 100vh;           /* ★ 뷰포트 높이로 고정 */
+  width: 100vw;            /* ★ 뷰포트 너비로 고정 */
+  overflow: hidden;        /* ★ 레이아웃 전체 스크롤 방지 */
+  background-color: #fff;  /* ★ 오타 수정 (background-color) */
+}
+
+/* 메인 바 (데스크탑 상단 / 모바일 하단 고정) */
+.mainBar {
+  display: flex;
+  white-space: nowrap;
+  border-top: 1px solid #eee; /* 모바일 하단일 때 구분선 */
+  flex-shrink: 0;
+  padding: 0 10px;
+  background-color: #fff;
+  z-index: 100;
+}
+
+/* 서브 바 (탭 메뉴) */
+.subBar {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  border-bottom: 1px solid #f5f5f5;
+  flex-shrink: 0;
+  padding: 5px 10px;
+  background-color: #fafafa;
+}
+
+.tab {
+  padding: 15px 20px;
+  font-size: 15px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: #555;
+  transition: all 0.2s ease;
+}
+
+.tabActive {
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.subTab {
+  padding: 10px 12px;
+  font-size: 13px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: #777;
+  border-radius: 20px; /* 모바일 탭 디자인 개선용 */
+  margin: 0 4px;
+}
+
+.subTabActive {
+  color: #2563eb;
+  font-weight: bold;
+  background-color: #eff6ff;
+}
+
+/* 컨텐츠 영역 */
+.content {
+flex: 1;                /* 남은 공간 차지 */
+  position: relative;     
+  overflow: hidden;       /* 스크롤 방지 */
+  
+  /* 👇 여기부터 추가/변경 */
+  display: flex;          
+  flex-direction: column; 
+  width: 100%;
+}
+
+.contentMapMode {
+  overflow: hidden;
+}
+
+/* 스크롤바 숨기기 */
+.noScrollbar::-webkit-scrollbar {
+  display: none;
+}
+.noScrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 모바일 전용 레이아웃 (768px 이하) */
+@media (max-width: 768px) {
+  .layout {
+    /* 모바일에서는 메인 메뉴가 아래로 가므로 순서 변경을 위해 flex 사용 */
+    flex-direction: column;
+  }
+
+  .mainBar {
+    order: 3; /* 맨 아래로 보냄 */
+    justify-content: space-around;
+    padding-bottom: env(safe-area-inset-bottom); /* 아이폰 하단 노치 대응 */
+    height: 65px;
+    border-top: 1px solid #eee;
+    border-bottom: none;
+  }
+
+  .subBar {
+    order: 1; /* 상단 고정 */
+    padding: 10px;
+  }
+
+  .content {
+    order: 2; /* 중앙 배치 */
+  }
+
+  .tab {
+    padding: 8px 10px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* 지도가 모바일에서 데스크탑처럼 보이는 현상 수정 */
+  [class*="sidePanel"], [class*="listPanel"] {
+    width: 100% !important;
+    height: 40% !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    z-index: 10 !important;
+    border-radius: 20px 20px 0 0 !important;
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.1) !important;
+  }
+}

@@ -1,0 +1,401 @@
+/**
+ * [Revision Info]
+ * Rev: 2.9 (Single Line Filter Layout)
+ * Author: Gemini AI
+ */
+
+/* 1. 기본 레이아웃 뼈대 */
+.pageContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  background: #fff;
+  overflow: hidden;
+}
+
+/* 2. 사이드바 (왼쪽 매물 등록 폼) */
+.sidebar {
+  width: 26rem;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-right: 1px solid #e5e7eb;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.sidebarTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  color: #1f2937;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.input, .textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.input:focus, .textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px #dbeafe;
+}
+
+.textarea {
+  height: 7rem;
+}
+
+.button {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background-color: #2563eb;
+  color: white;
+  font-weight: 700;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #1d4ed8;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.addressGroup {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.geocodeButton {
+  padding: 0.5rem 0.75rem;
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.geocodeButton:hover {
+  background-color: #4b5563;
+}
+
+.coordsText {
+  font-size: 0.8rem;
+  color: #16a34a;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.checkboxGroup {
+  display: flex;
+  gap: 1.5rem; 
+  margin-top: 0.5rem;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+/* 3. 리스트 섹션 (오른쪽 메인 콘텐츠) */
+.listSection {
+  flex-grow: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  background-color: #f9fafb;
+}
+
+.listHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.listTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.countBadge {
+  background: #e5e7eb;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+/* 4. 필터 시스템 (한 줄 배치 핵심 수정) */
+.filterSectionCard {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.searchBarWrapper {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #e5e7eb;
+}
+
+.mainSearchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.3rem;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+/* 필터 항목들을 한 줄로 나열 */
+.filterOptionsGrid {
+  display: flex;
+  flex-direction: row; /* 가로 정렬 */
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: nowrap; /* 줄바꿈 방지 */
+  overflow-x: auto; /* 공간 부족 시 가로 스크롤 */
+  padding-bottom: 5px;
+}
+
+.filterSubGroup {
+  display: flex;
+  flex-direction: row; /* 내부 항목 가로 정렬 */
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex-shrink: 0; /* 너비 유지 */
+}
+
+.filterLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.filterSelect {
+  padding: 0.4rem 1.5rem 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+  min-width: 110px;
+}
+
+/* 거래 방식 탭 그룹 */
+.tabButtonGroup {
+  display: flex;
+  background: #f3f4f6;
+  padding: 2px;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.tabButton {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tabActive {
+  background: #fff;
+  color: #2563eb;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+.rangeInputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.rangeInput {
+  width: 70px;
+  padding: 0.4rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+/* 5. 테이블 디자인 */
+.tableWrapper {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow-x: auto;
+}
+
+.modernTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1100px;
+}
+
+.modernTable th {
+  background: #f8f9fa;
+  padding: 12px 10px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #4b5563;
+  border-bottom: 2px solid #e5e7eb;
+  text-align: left;
+}
+
+.checkCol {
+  width: 45px;
+  text-align: center;
+}
+
+.modernTable td {
+  padding: 14px 10px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.85rem;
+  vertical-align: middle;
+}
+
+.modernTable tr:hover {
+  background-color: #fbfcfd;
+}
+
+.selectedRow {
+  background-color: #eff6ff !important;
+}
+
+/* 상태 배지 */
+.statusBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.statusBadge.거래전 { background: #f3f4f6; color: #4b5563; }
+.statusBadge.거래중 { background: #eff6ff; color: #2563eb; }
+.statusBadge.거래완료 { background: #ecfdf5; color: #059669; }
+
+/* 텍스트 상세 스타일 */
+.boldText { font-weight: 700; color: #111827; }
+.addressText { line-height: 1.4; }
+.subAddr { font-size: 0.7rem; color: #6b7280; margin-top: 2px; }
+.dateText { color: #6b7280; font-size: 0.75rem; }
+
+/* 가격 정보 */
+.priceCell { padding: 8px !important; }
+.priceDivider { padding: 3px 0; border-bottom: 1px dashed #f1f3f5; font-weight: 700; }
+.priceDivider:last-child { border-bottom: none; }
+.priceLabelSale { color: #dc2626; margin-right: 4px; font-size: 0.7rem; }
+.priceLabelJeonse { color: #059669; margin-right: 4px; font-size: 0.7rem; }
+.priceLabelRent { color: #2563eb; margin-right: 4px; font-size: 0.7rem; }
+.priceLabelPremium { color: #7c3aed; margin-right: 4px; font-size: 0.7rem; }
+
+.memoTextCell {
+  color: #6b7280;
+  font-size: 0.8rem;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 6. 페이지네이션 */
+.paginationContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  gap: 15px;
+}
+
+.pageArrowBtn {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #374151;
+  transition: all 0.2s;
+}
+
+.pageIndicator {
+  font-size: 0.9rem;
+  color: #6b7280;
+  background: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+/* 7. 공통 */
+.batchDeleteBtn {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.loadingContainer {
+  padding: 3rem;
+  text-align: center;
+  color: #2563eb;
+  font-weight: 700;
+}
