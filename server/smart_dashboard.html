@@ -1,0 +1,523 @@
+
+    <!DOCTYPE html>
+    <html lang="ko"><head><meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .Category_A { background-color: #eff6ff; border-color: #3b82f6; color: #1e40af; } /* 파랑: 식별 */
+        .Category_B { background-color: #f0fdf4; border-color: #22c55e; color: #166534; } /* 초록: 제원 */
+        .Category_C { background-color: #fef2f2; border-color: #ef4444; color: #991b1b; } /* 빨강: 소유자 */
+        .etc { background-color: #f8fafc; border-color: #cbd5e1; color: #475569; }
+    </style></head>
+    <body class="bg-slate-100 p-8">
+        <div class="max-w-4xl mx-auto">
+            <header class="mb-10 text-center">
+                <h1 class="text-3xl font-black text-slate-800">📋 건축물대장 자동 그룹화 뷰어</h1>
+                <p class="text-slate-500">extracted_data.json의 순서와 패턴을 분석하여 자동 생성됨</p>
+            </header>
+            <div class="space-y-8">
+    
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="bg-slate-50 px-4 py-2 border-b text-[10px] font-bold text-slate-400 uppercase tracking-widest">소유자 단위 정보</div>
+            <div class="p-5 flex flex-wrap gap-3">
+        
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 130</span>
+                <span class="text-sm font-bold">변옥순</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">충청남도 천안시 동남구 일봉로 71,</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">104동 104호 (용곡동,용곡동일하이빌</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">1단지아파트)</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 58</span>
+                <span class="text-sm font-bold">2021.10.18.</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 70</span>
+                <span class="text-sm font-bold">540614-2******</span>
+            </div>
+            </div></div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="bg-slate-50 px-4 py-2 border-b text-[10px] font-bold text-slate-400 uppercase tracking-widest">문서 마감 섹션</div>
+            <div class="p-5 flex flex-wrap gap-3">
+        
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 1</span>
+                <span class="text-sm font-bold">등기명의인표시변경</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 175</span>
+                <span class="text-sm font-bold">- 이하여백 -</span>
+            </div>
+            </div></div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="bg-slate-50 px-4 py-2 border-b text-[10px] font-bold text-slate-400 uppercase tracking-widest">건물 기본 정보 섹션</div>
+            <div class="p-5 flex flex-wrap gap-3">
+        
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 564</span>
+                <span class="text-sm font-bold">건축물 현황</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 566</span>
+                <span class="text-sm font-bold">소유자 현황</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 44</span>
+                <span class="text-sm font-bold">구분</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 60</span>
+                <span class="text-sm font-bold">층별</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 120</span>
+                <span class="text-sm font-bold">구조</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 195</span>
+                <span class="text-sm font-bold">용도</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 49</span>
+                <span class="text-sm font-bold">면적(㎡)</span>
+            </div>
+            
+            <div class="Category_A px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 107</span>
+                <span class="text-sm font-bold">성명(명칭)</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 220</span>
+                <span class="text-sm font-bold">주소</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 40</span>
+                <span class="text-sm font-bold">소유권</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 55</span>
+                <span class="text-sm font-bold">지분</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 89</span>
+                <span class="text-sm font-bold">변동일</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 49</span>
+                <span class="text-sm font-bold">주민(법인)등록번호</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 20</span>
+                <span class="text-sm font-bold">(부동산등기용등록번호)</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 74</span>
+                <span class="text-sm font-bold">변동원인</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 51</span>
+                <span class="text-sm font-bold">주1</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 66</span>
+                <span class="text-sm font-bold">1층</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">철근콘크리트구조</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">단독주택(다가구주택(계단실))</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 123</span>
+                <span class="text-sm font-bold">23.77</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 51</span>
+                <span class="text-sm font-bold">주1</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 66</span>
+                <span class="text-sm font-bold">2층</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">철근콘크리트구조</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">단독주택(다가구주택)</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 107</span>
+                <span class="text-sm font-bold">208.47</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 51</span>
+                <span class="text-sm font-bold">주1</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 66</span>
+                <span class="text-sm font-bold">3층</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">철근콘크리트구조</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">단독주택(다가구주택)</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 107</span>
+                <span class="text-sm font-bold">208.47</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 51</span>
+                <span class="text-sm font-bold">주1</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 66</span>
+                <span class="text-sm font-bold">4층</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">철근콘크리트구조</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">단독주택(다가구주택)</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 107</span>
+                <span class="text-sm font-bold">189.12</span>
+            </div>
+            </div></div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="bg-slate-50 px-4 py-2 border-b text-[10px] font-bold text-slate-400 uppercase tracking-widest">건물 기본 정보 섹션</div>
+            <div class="p-5 flex flex-wrap gap-3">
+        
+            <div class="Category_A px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">건물ID</span>
+            </div>
+            
+            <div class="Category_A px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">고유번호</span>
+            </div>
+            
+            <div class="Category_A px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">명칭</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 373</span>
+                <span class="text-sm font-bold">1동</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">호수/가구수/세대수</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 219</span>
+                <span class="text-sm font-bold">0호/18가구/0세대</span>
+            </div>
+            </div></div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="bg-slate-50 px-4 py-2 border-b text-[10px] font-bold text-slate-400 uppercase tracking-widest">추가 데이터 섹션</div>
+            <div class="p-5 flex flex-wrap gap-3">
+        
+            <div class="Category_A px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">대지위치</span>
+            </div>
+            
+            <div class="Category_A px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">지번</span>
+            </div>
+            
+            <div class="Category_A px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">도로명주소</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">※대지면적</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 182</span>
+                <span class="text-sm font-bold">360.2</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 0</span>
+                <span class="text-sm font-bold">㎡</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">연면적</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 107</span>
+                <span class="text-sm font-bold">629.83</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 0</span>
+                <span class="text-sm font-bold">㎡</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">※지역</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">※지구</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">※구역</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 252</span>
+                <span class="text-sm font-bold">제2종일반주거지역</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 273</span>
+                <span class="text-sm font-bold">상대정화구역</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">건축면적</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 166</span>
+                <span class="text-sm font-bold">210.36</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 0</span>
+                <span class="text-sm font-bold">㎡</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">용적률 산정용 연면적</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 0</span>
+                <span class="text-sm font-bold">㎡</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">주구조</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">주용도</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">층수</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 366</span>
+                <span class="text-sm font-bold">629.83</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 268</span>
+                <span class="text-sm font-bold">철근콘크리트구조</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 439</span>
+                <span class="text-sm font-bold">단독주택</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 211</span>
+                <span class="text-sm font-bold">지하: 층, 지상: 4층</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">※건폐율</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 198</span>
+                <span class="text-sm font-bold">58.4</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 0</span>
+                <span class="text-sm font-bold">%</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">※용적률</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 107</span>
+                <span class="text-sm font-bold">174.86</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 0</span>
+                <span class="text-sm font-bold">%</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">높이</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 183</span>
+                <span class="text-sm font-bold">12.72</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 0</span>
+                <span class="text-sm font-bold">m</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">지붕</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">부속건축물</span>
+            </div>
+            
+            <div class="Category_C px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 8</span>
+                <span class="text-sm font-bold">동</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 364</span>
+                <span class="text-sm font-bold">(철근)콘크리트</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 8</span>
+                <span class="text-sm font-bold">㎡</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 10</span>
+                <span class="text-sm font-bold">※조경면적</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">※공개 공지·공간 면적</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">※건축선 후퇴면적</span>
+            </div>
+            
+            <div class="etc px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 12</span>
+                <span class="text-sm font-bold">※건축선후퇴 거리</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 0</span>
+                <span class="text-sm font-bold">㎡</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 0</span>
+                <span class="text-sm font-bold">㎡</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 0</span>
+                <span class="text-sm font-bold">㎡</span>
+            </div>
+            
+            <div class="Category_B px-4 py-2 rounded-lg border-2 shadow-sm">
+                <span class="block text-[9px] opacity-50 mb-1 font-mono">Start X: 0</span>
+                <span class="text-sm font-bold">m</span>
+            </div>
+            </div></div></div></div></body></html>
