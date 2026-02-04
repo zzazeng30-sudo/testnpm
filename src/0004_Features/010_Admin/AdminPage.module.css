@@ -1,0 +1,43 @@
+.adminContainer { padding: 40px; background-color: #f8fafc; min-height: 100vh; }
+.topHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+.topHeader h1 { font-size: 24px; font-weight: 800; color: #0f172a; }
+
+.tabMenu { display: flex; background: #e2e8f0; padding: 4px; border-radius: 12px; }
+.tabMenu button { padding: 10px 24px; border: none; background: transparent; font-size: 14px; font-weight: 700; color: #64748b; cursor: pointer; border-radius: 10px; }
+.tabMenu button.activeTab { background: #ffffff; color: #3b82f6; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); }
+
+.tableHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.count { font-size: 13px; background: #3b82f6; color: white; padding: 2px 10px; border-radius: 50px; margin-left: 10px; }
+.refreshBtn { background: white; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+
+.tableWrapper { background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); overflow-x: auto; }
+.userTable { width: 100%; border-collapse: collapse; min-width: 1100px; }
+.userTable th { background: #f8fafc; padding: 16px; font-size: 13px; font-weight: 700; color: #475569; text-align: left; border-bottom: 1px solid #f1f5f9; }
+.userTable td { padding: 18px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+
+.userInfo .userName { font-weight: 800; color: #1e293b; }
+.userInfo .userEmail { font-size: 12px; color: #94a3b8; }
+.userInfo .userPhone { font-size: 12px; color: #3b82f6; font-weight: 700; }
+
+.idContainer { display: flex; flex-direction: column; gap: 6px; }
+.idBadge { display: inline-block; padding: 4px 8px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; font-family: monospace; font-size: 11px; cursor: copy; text-align: center; }
+.idBadge:hover { background: #e2e8f0; }
+.idInput { padding: 4px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 10px; width: 100px; }
+
+.roleSelect { padding: 6px 10px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 12px; font-weight: 700; cursor: pointer; }
+.roleColor0 { background: #fff1f2; color: #e11d48; }
+.roleColor1 { background: #f0fdf4; color: #16a34a; }
+.roleColor2 { background: #eff6ff; color: #2563eb; }
+
+.statusPill { display: inline-block; padding: 4px 12px; border-radius: 30px; font-size: 11px; font-weight: 800; }
+.approved { background: #dcfce7; color: #15803d; }
+.pending { background: #f1f5f9; color: #64748b; }
+
+.actionBtnApprove { background: #3b82f6; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; }
+.actionBtnWait { background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; padding: 8px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; }
+
+.inviteSection { display: flex; justify-content: center; padding-top: 50px; }
+.inviteCard { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); text-align: center; max-width: 400px; }
+.inviteForm { display: flex; flex-direction: column; gap: 16px; margin-top: 24px; }
+.modernSelect { padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; }
+.premiumBtn { background: #0f172a; color: white; padding: 14px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; }
